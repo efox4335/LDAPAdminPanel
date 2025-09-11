@@ -1,9 +1,10 @@
 import stylistic from '@stylistic/eslint-plugin';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import eslint from '@eslint/js';
 import teslint from 'typescript-eslint';
 
 export default defineConfig([
+	globalIgnores(['dist/*']),
 	{
 		files: ['**/*.ts'],
 		extends: [
@@ -19,7 +20,7 @@ export default defineConfig([
 		plugins: {
 			'@stylistic': stylistic,
 		},
-		ignores: ['dist/*'],
+
 		rules: {
 			'@stylistic/semi': 'error',
 			'@stylistic/quotes': ['error', 'single'],
