@@ -6,7 +6,7 @@ import { stringArraySchema } from '../utils/schemas';
 
 const router = express.Router();
 
-router.post('caCerts', (req, rsp) => {
+router.post('/caCerts', (req, rsp) => {
   try {
     const newCerts = stringArraySchema.parse(req.body);
 

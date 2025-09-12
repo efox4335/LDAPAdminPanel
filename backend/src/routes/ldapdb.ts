@@ -9,7 +9,7 @@ const router = express.Router();
 const clients: (ldapts.Client | null)[] = [];
 
 //returns index of client in clients array for future refrence
-router.post('client', (req, rsp, next) => {
+router.post('/client', (req, rsp, next) => {
   try {
     const serverUrl = ldapDbUrlSchema.parse(req.body);
 
@@ -22,6 +22,8 @@ router.post('client', (req, rsp, next) => {
     rsp.send({ id: clients.length }).status(201);
   } catch (err) {
     if (err instanceof z.ZodError) {
+      console.log('here');
+
       rsp.send({ error: 'url is invalid' }).status(400);
 
       return;
@@ -31,7 +33,7 @@ router.post('client', (req, rsp, next) => {
   }
 });
 
-router.post('bind', async (req, rsp, next) => {
+router.post('/bind', async (req, rsp, next) => {
   try {
     const bindArgs = bindReqSchema.parse(req.body);
 
