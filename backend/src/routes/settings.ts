@@ -2,7 +2,7 @@ import express from 'express';
 import * as z from 'zod';
 
 import { setCaCerts } from '../utils/config';
-import { stringArraySchema } from '../utils/scheams';
+import { stringArraySchema } from '../utils/schemas';
 
 const router = express.Router();
 
