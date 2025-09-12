@@ -12,10 +12,10 @@ router.post('/caCerts', (req, rsp) => {
 
     setCaCerts(newCerts);
 
-    rsp.send(newCerts).status(201);
+    rsp.status(201).send(newCerts);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      rsp.send({ error: 'invalid certs' }).status(400);
+      rsp.status(400).send({ error: 'invalid certs' });
     }
   }
 });

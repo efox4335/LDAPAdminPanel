@@ -11,6 +11,7 @@ const clients: (ldapts.Client | null)[] = [];
 //returns index of client in clients array for future refrence
 router.post('/client', (req, rsp, next) => {
   try {
+    console.log(typeof (req.body), req.body);
     const serverUrl = ldapDbUrlSchema.parse(req.body);
 
     const client = new ldapts.Client({
@@ -19,12 +20,12 @@ router.post('/client', (req, rsp, next) => {
 
     clients.push(client);
 
-    rsp.send({ id: clients.length }).status(201);
+    rsp.status(201).send({ id: clients.length });
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.log('here');
 
-      rsp.send({ error: 'url is invalid' }).status(400);
+      rsp.status(400).send({ error: 'url is invalid' });
 
       return;
     }
@@ -38,7 +39,7 @@ router.post('/bind', async (req, rsp, next) => {
     const bindArgs = bindReqSchema.parse(req.body);
 
     if (bindArgs.cliendId >= clients.length) {
-      rsp.send({ error: 'no such client exists' }).status(400);
+      rsp.status(400).send({ error: 'no such client exists' });
 
       return;
     }
@@ -46,7 +47,7 @@ router.post('/bind', async (req, rsp, next) => {
     const client = clients[bindArgs.cliendId];
 
     if (client === null || client === undefined) {
-      rsp.send({ error: 'no such clien exists' }).status(400);
+      rsp.status(400).send({ error: 'no such clien exists' });
 
       return;
     }
@@ -60,7 +61,7 @@ router.post('/bind', async (req, rsp, next) => {
     rsp.status(201);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      rsp.send(err).status(400);
+      rsp.status(400).send(err);
 
       return;
     }
