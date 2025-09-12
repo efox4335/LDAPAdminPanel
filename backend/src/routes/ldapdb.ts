@@ -20,7 +20,7 @@ router.post('/client', (req, rsp, next) => {
 
     clients.push(client);
 
-    rsp.status(201).send({ id: clients.length });
+    rsp.status(201).send({ id: clients.length - 1 });
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.log('here');
