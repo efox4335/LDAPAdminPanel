@@ -49,7 +49,7 @@ router.put('/bind', async (req, rsp, next) => {
       await client.bind(bindArgs.dnOrSaslMechanism);
     }
 
-    rsp.status(201).end();
+    rsp.status(200).end();
   } catch (err) {
     if (err instanceof z.ZodError) {
       rsp.status(400).send(err);
@@ -61,7 +61,7 @@ router.put('/bind', async (req, rsp, next) => {
   }
 });
 
-router.delete('/unbind', async (req, rsp, next) => {
+router.put('/unbind', async (req, rsp, next) => {
   try {
     const args: unbindReq = unbindReqSchema.parse(req.body);
 
