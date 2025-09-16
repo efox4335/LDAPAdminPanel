@@ -9,5 +9,5 @@ export const ldapDbNewClientSchema = z.object({
 export const bindReqSchema = z.object({
   dnOrSaslMechanism: z.string(),
   password: z.string().optional(),
-  cliendId: z.int()
+  clientId: z.int()
 });

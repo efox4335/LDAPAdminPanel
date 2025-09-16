@@ -35,13 +35,13 @@ router.post('/bind', async (req, rsp, next) => {
   try {
     const bindArgs = bindReqSchema.parse(req.body);
 
-    if (bindArgs.cliendId >= clients.length) {
+    if (bindArgs.clientId >= clients.length) {
       rsp.status(400).send({ error: 'no such client exists' });
 
       return;
     }
 
-    const client = clients[bindArgs.cliendId];
+    const client = clients[bindArgs.clientId];
 
     if (client === null || client === undefined) {
       rsp.status(400).send({ error: 'no such client exists' });
