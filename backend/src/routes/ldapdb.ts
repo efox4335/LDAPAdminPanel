@@ -11,7 +11,6 @@ const clients: (ldapts.Client | null)[] = [];
 //returns index of client in clients array for future refrence
 router.post('/client', (req, rsp, next) => {
   try {
-    console.log(typeof (req.body), req.body);
     const serverUrl = ldapDbUrlSchema.parse(req.body);
 
     const client = new ldapts.Client({
@@ -23,8 +22,6 @@ router.post('/client', (req, rsp, next) => {
     rsp.status(201).send({ id: clients.length - 1 });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      console.log('here');
-
       rsp.status(400).send({ error: 'url is invalid' });
 
       return;
