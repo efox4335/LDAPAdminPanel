@@ -1,11 +1,11 @@
 //all server state will be stored here
 import ldapts from 'ldapts';
 
-const clients = new Map<number, ldapts.Client>();
-let newClientId = 0;
+const clients = new Map<string, ldapts.Client>();
+let newClientId: number = 0;
 
-export const addNewClient = (client: ldapts.Client): number => {
-  const currentClientId = newClientId;
+export const addNewClient = (client: ldapts.Client): string => {
+  const currentClientId = newClientId.toString();
   newClientId += 1;
 
   clients.set(currentClientId, client);
@@ -13,10 +13,10 @@ export const addNewClient = (client: ldapts.Client): number => {
   return currentClientId;
 };
 
-export const getClientById = (clientId: number): ldapts.Client | undefined => {
+export const getClientById = (clientId: string): ldapts.Client | undefined => {
   return clients.get(clientId);
 };
 
-export const removeClientById = (clientId: number) => {
+export const removeClientById = (clientId: string) => {
   clients.delete(clientId);
 };
