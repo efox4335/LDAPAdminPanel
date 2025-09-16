@@ -56,7 +56,7 @@ router.post('/bind', async (req, rsp, next) => {
       await client.bind(bindArgs.dnOrSaslMechanism);
     }
 
-    rsp.status(201);
+    rsp.status(201).end();
   } catch (err) {
     if (err instanceof z.ZodError) {
       rsp.status(400).send(err);
