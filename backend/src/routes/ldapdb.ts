@@ -2,7 +2,7 @@ import express from 'express';
 import ldapts from 'ldapts';
 import * as z from 'zod';
 
-import { ldapDbUrlSchema, bindReqSchema } from '../utils/schemas';
+import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
 
 const router = express.Router();
 
@@ -11,10 +11,10 @@ const clients: (ldapts.Client | null)[] = [];
 //returns index of client in clients array for future refrence
 router.post('/client', (req, rsp, next) => {
   try {
-    const serverUrl = ldapDbUrlSchema.parse(req.body);
+    const serverUrl = ldapDbNewClientSchema.parse(req.body);
 
     const client = new ldapts.Client({
-      url: serverUrl
+      url: serverUrl.url
     });
 
     clients.push(client);
