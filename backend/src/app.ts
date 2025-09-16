@@ -6,6 +6,6 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/ldapdb', ldapDbRouter);
+app.use('/ldapdbs', ldapDbRouter);
 
 export default app;
