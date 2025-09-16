@@ -3,6 +3,7 @@ import ldapts from 'ldapts';
 import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
+import type { bindReq, clientReq } from '../utils/types';
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ const clients: (ldapts.Client | null)[] = [];
 //returns index of client in clients array for future refrence
 router.post('/client', (req, rsp, next) => {
   try {
-    const serverUrl = ldapDbNewClientSchema.parse(req.body);
+    const serverUrl: clientReq = ldapDbNewClientSchema.parse(req.body);
 
     const client = new ldapts.Client({
       url: serverUrl.url
@@ -33,7 +34,7 @@ router.post('/client', (req, rsp, next) => {
 
 router.post('/bind', async (req, rsp, next) => {
   try {
-    const bindArgs = bindReqSchema.parse(req.body);
+    const bindArgs: bindReq = bindReqSchema.parse(req.body);
 
     if (bindArgs.clientId >= clients.length) {
       rsp.status(400).send({ error: 'no such client exists' });
