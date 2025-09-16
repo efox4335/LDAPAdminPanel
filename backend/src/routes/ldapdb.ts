@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema, unbindReqSchema } from '../utils/schemas';
 import type { bindReq, clientReq, unbindReq } from '../utils/types';
-import { addNewClient, getClientById, removeClientById } from '../utils/state';
+import { addNewClient, getClientById } from '../utils/state';
 
 const router = express.Router();
 
