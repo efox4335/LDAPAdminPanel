@@ -4,10 +4,9 @@ import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
 import type { bindReq, clientReq } from '../utils/types';
+import { addNewClient, getClientById } from '../utils/state';
 
 const router = express.Router();
-
-const clients: (ldapts.Client | null)[] = [];
 
 //returns index of client in clients array for future refrence
 router.post('/client', (req, rsp, next) => {
@@ -18,9 +17,9 @@ router.post('/client', (req, rsp, next) => {
       url: serverUrl.url
     });
 
-    clients.push(client);
+    const clientId = addNewClient(client);
 
-    rsp.status(201).send({ id: clients.length - 1 });
+    rsp.status(201).send({ id: clientId });
   } catch (err) {
     if (err instanceof z.ZodError) {
       rsp.status(400).send({ error: 'url is invalid' });
@@ -36,15 +35,9 @@ router.post('/bind', async (req, rsp, next) => {
   try {
     const bindArgs: bindReq = bindReqSchema.parse(req.body);
 
-    if (bindArgs.clientId >= clients.length) {
-      rsp.status(400).send({ error: 'no such client exists' });
+    const client = getClientById(bindArgs.clientId);
 
-      return;
-    }
-
-    const client = clients[bindArgs.clientId];
-
-    if (client === null || client === undefined) {
+    if (client === undefined) {
       rsp.status(400).send({ error: 'no such client exists' });
 
       return;
