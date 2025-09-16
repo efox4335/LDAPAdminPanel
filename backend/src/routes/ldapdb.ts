@@ -2,14 +2,14 @@ import express from 'express';
 import ldapts from 'ldapts';
 import * as z from 'zod';
 
-import { ldapDbNewClientSchema, bindReqSchema, unbindReqSchema } from '../utils/schemas';
-import type { bindReq, clientReq, unbindReq } from '../utils/types';
+import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
+import type { bindReq, clientReq } from '../utils/types';
 import { addNewClient, getClientById } from '../utils/state';
 
 const router = express.Router();
 
 //returns index of client in clients array for future refrence
-router.post('/client', (req, rsp, next) => {
+router.post('/', (req, rsp, next) => {
   try {
     const serverUrl: clientReq = ldapDbNewClientSchema.parse(req.body);
 
@@ -31,11 +31,11 @@ router.post('/client', (req, rsp, next) => {
   }
 });
 
-router.put('/bind', async (req, rsp, next) => {
+router.put('/:id/bind', async (req, rsp, next) => {
   try {
     const bindArgs: bindReq = bindReqSchema.parse(req.body);
 
-    const client = getClientById(bindArgs.clientId);
+    const client = getClientById(req.params.id);
 
     if (client === undefined) {
       rsp.status(404).send({ error: 'no such client exists' });
@@ -61,11 +61,9 @@ router.put('/bind', async (req, rsp, next) => {
   }
 });
 
-router.put('/unbind', async (req, rsp, next) => {
+router.put('/:id/unbind', async (req, rsp, next) => {
   try {
-    const args: unbindReq = unbindReqSchema.parse(req.body);
-
-    const client = getClientById(args.clientId);
+    const client = getClientById(req.params.id);
 
     if (client === undefined) {
       rsp.status(404).send({ error: 'no client exists' });
