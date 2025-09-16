@@ -31,14 +31,14 @@ router.post('/client', (req, rsp, next) => {
   }
 });
 
-router.post('/bind', async (req, rsp, next) => {
+router.put('/bind', async (req, rsp, next) => {
   try {
     const bindArgs: bindReq = bindReqSchema.parse(req.body);
 
     const client = getClientById(bindArgs.clientId);
 
     if (client === undefined) {
-      rsp.status(400).send({ error: 'no such client exists' });
+      rsp.status(404).send({ error: 'no such client exists' });
 
       return;
     }
@@ -74,8 +74,6 @@ router.delete('/unbind', async (req, rsp, next) => {
     }
 
     await client.unbind();
-
-    removeClientById(args.clientId);
 
     rsp.status(200).end();
   } catch (err) {
