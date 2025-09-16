@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
 import type { bindReq, clientReq } from '../utils/types';
-import { addNewClient, getClientById } from '../utils/state';
+import { addNewClient, getClientById, removeClientById } from '../utils/state';
 
 const router = express.Router();
 
@@ -74,6 +74,26 @@ router.put('/:id/unbind', async (req, rsp, next) => {
     await client.unbind();
 
     rsp.status(200).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/:id', (req, rsp, next) => {
+  try {
+    const client = getClientById(req.params.id);
+
+    if (client === undefined) {
+      rsp.status(404).send({ error: 'no client exists' });
+
+      return;
+    }
+
+    if (client.isConnected) {
+      rsp.status(409).send({ error: 'cannot delete client with active connection to database unbind first' });
+    }
+
+    removeClientById(req.params.id);
   } catch (err) {
     next(err);
   }
