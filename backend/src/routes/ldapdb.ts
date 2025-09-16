@@ -2,9 +2,9 @@ import express from 'express';
 import ldapts from 'ldapts';
 import * as z from 'zod';
 
-import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
-import type { bindReq, clientReq } from '../utils/types';
-import { addNewClient, getClientById } from '../utils/state';
+import { ldapDbNewClientSchema, bindReqSchema, unbindReqSchema } from '../utils/schemas';
+import type { bindReq, clientReq, unbindReq } from '../utils/types';
+import { addNewClient, getClientById, removeClientById } from '../utils/state';
 
 const router = express.Router();
 
@@ -57,6 +57,28 @@ router.post('/bind', async (req, rsp, next) => {
       return;
     }
 
+    next(err);
+  }
+});
+
+router.delete('/unbind', async (req, rsp, next) => {
+  try {
+    const args: unbindReq = unbindReqSchema.parse(req.body);
+
+    const client = getClientById(args.clientId);
+
+    if (client === undefined) {
+      rsp.status(404).send({ error: 'no client exists' });
+
+      return;
+    }
+
+    await client.unbind();
+
+    removeClientById(args.clientId);
+
+    rsp.status(200).end();
+  } catch (err) {
     next(err);
   }
 });

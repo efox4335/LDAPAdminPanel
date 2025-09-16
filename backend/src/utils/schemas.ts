@@ -11,3 +11,7 @@ export const bindReqSchema = z.object({
   password: z.string().optional(),
   clientId: z.int()
 });
+
+export const unbindReqSchema = z.object({
+  clientId: z.number()
+});

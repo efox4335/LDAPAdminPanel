@@ -7,3 +7,7 @@ export type bindReq = {
 export type clientReq = {
   url: string
 };
+
+export type unbindReq = {
+  clientId: number
+};

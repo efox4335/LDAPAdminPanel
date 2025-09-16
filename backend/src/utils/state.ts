@@ -16,3 +16,7 @@ export const addNewClient = (client: ldapts.Client): number => {
 export const getClientById = (clientId: number): ldapts.Client | undefined => {
   return clients.get(clientId);
 };
+
+export const removeClientById = (clientId: number) => {
+  clients.delete(clientId);
+};
