@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { serverUrl, invalidClientId, validBind, baseDn } from '../../testUtils';
+import { serverUrl, invalidClientId, validBind, baseDn, customErrorMessageValidator } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -32,9 +32,7 @@ describe('ldapdbs endpoint tests', () => {
           .send({ str: 'abcdef' })
           .expect(400);
 
-        expect(rsp.body.error).toBeDefined();
-        expect(typeof (rsp.body.error)).toStrictEqual('string');
-        expect(rsp.body.error).toStrictEqual('url is invalid');
+        customErrorMessageValidator(rsp.body.error, 'url is invalid');
       });
     });
   });
@@ -60,9 +58,7 @@ describe('ldapdbs endpoint tests', () => {
         .send(validBind)
         .expect(404);
 
-      expect(rsp.body.error).toBeDefined();
-      expect(typeof (rsp.body.error)).toStrictEqual('string');
-      expect(rsp.body.error).toStrictEqual('cannot bind: no client exists');
+      customErrorMessageValidator(rsp.body.error, 'cannot bind: no client exists');
     });
 
     test('invalid request', async () => {
@@ -78,9 +74,7 @@ describe('ldapdbs endpoint tests', () => {
           .send({ ...validBind, password: 'wrong' })
           .expect(401);
 
-        expect(rsp.body.error).toBeDefined();
-        expect(typeof (rsp.body.error)).toStrictEqual('string');
-        expect(rsp.body.error).toStrictEqual('cannot bind: invalid credentials');
+        customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid credentials');
       } finally {
         await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
       }
@@ -93,9 +87,7 @@ describe('ldapdbs endpoint tests', () => {
           .send({ ...validBind, dnOrSaslMechanism: 'abcdef' })
           .expect(400);
 
-        expect(rsp.body.error).toBeDefined();
-        expect(typeof (rsp.body.error)).toStrictEqual('string');
-        expect(rsp.body.error).toStrictEqual('cannot bind: invalid dn syntax');
+        customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid dn syntax');
       } finally {
         await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
       }
@@ -108,9 +100,7 @@ describe('ldapdbs endpoint tests', () => {
           .send({ ...validBind, dnOrSaslMechanism: baseDn })
           .expect(401);
 
-        expect(rsp.body.error).toBeDefined();
-        expect(typeof (rsp.body.error)).toStrictEqual('string');
-        expect(rsp.body.error).toStrictEqual('cannot bind: invalid credentials');
+        customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid credentials');
       } finally {
         await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
       }
@@ -148,9 +138,7 @@ describe('ldapdbs endpoint tests', () => {
         .put(`/ldapdbs/${invalidClientId}/unbind`)
         .expect(404);
 
-      expect(rsp.body.error).toBeDefined();
-      expect(typeof (rsp.body.error)).toStrictEqual('string');
-      expect(rsp.body.error).toStrictEqual('cannot unbind: no client exists');
+      customErrorMessageValidator(rsp.body.error, 'cannot unbind: no client exists');
     });
 
     test('client already unbound', async () => {
@@ -164,9 +152,7 @@ describe('ldapdbs endpoint tests', () => {
         .put(`/ldapdbs/${clientId}/unbind`)
         .expect(409);
 
-      expect(rsp.body.error).toBeDefined();
-      expect(typeof (rsp.body.error)).toStrictEqual('string');
-      expect(rsp.body.error).toStrictEqual('cannot unbind: client is not connected');
+      customErrorMessageValidator(rsp.body.error, 'cannot unbind: client is not connected');
     });
 
     test('valid unbind', async () => {
@@ -186,9 +172,7 @@ describe('ldapdbs endpoint tests', () => {
         .delete(`/ldapdbs/${invalidClientId}`)
         .expect(404);
 
-      expect(rsp.body.error).toBeDefined();
-      expect(typeof (rsp.body.error)).toStrictEqual('string');
-      expect(rsp.body.error).toStrictEqual('cannot delete: no client exists');
+      customErrorMessageValidator(rsp.body.error, 'cannot delete: no client exists');
 
       describe('client required tests', () => {
         let clientId: string;
@@ -211,9 +195,7 @@ describe('ldapdbs endpoint tests', () => {
               .delete(`/ldapdbs/${clientId}`)
               .expect(409);
 
-            expect(rsp.body.error).toBeDefined();
-            expect(typeof (rsp.body.error)).toStrictEqual('string');
-            expect(rsp.body.error).toStrictEqual('cannot delete: client has active connection to database');
+            customErrorMessageValidator(rsp.body.error, 'cannot delete: client has active connection to database');
           } finally {
             await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
             await supertest(app).delete(`/ldapdbs/${clientId}`);
