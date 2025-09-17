@@ -38,7 +38,7 @@ router.put('/:id/bind', async (req, rsp, next) => {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'no such client exists' });
+      rsp.status(404).send({ error: 'no client exists' });
 
       return;
     }
