@@ -35,6 +35,14 @@ router.put('/:id/bind', async (req, rsp, next) => {
   try {
     const bindArgs: bindReq = bindReqSchema.parse(req.body);
 
+    //removes password to prevent inclusion on logs
+    //eslint rule is useless in this case as req.body is already validated
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (req.body.password) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      req.body.password = 'redacted';
+    }
+
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
