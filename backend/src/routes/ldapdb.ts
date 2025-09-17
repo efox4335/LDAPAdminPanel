@@ -94,6 +94,8 @@ router.delete('/:id', (req, rsp, next) => {
     }
 
     removeClientById(req.params.id);
+
+    rsp.status(204).end();
   } catch (err) {
     next(err);
   }
