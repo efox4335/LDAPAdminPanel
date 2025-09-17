@@ -38,7 +38,7 @@ router.put('/:id/bind', async (req, rsp, next) => {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'no client exists' });
+      rsp.status(404).send({ error: 'cannot bind: no client exists' });
 
       return;
     }
@@ -66,7 +66,7 @@ router.put('/:id/unbind', async (req, rsp, next) => {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'no client exists' });
+      rsp.status(404).send({ error: 'cannont unbind: no client exists' });
 
       return;
     }
@@ -84,13 +84,13 @@ router.delete('/:id', (req, rsp, next) => {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'no client exists' });
+      rsp.status(404).send({ error: 'cannot delete: no client exists' });
 
       return;
     }
 
     if (client.isConnected) {
-      rsp.status(409).send({ error: 'cannot delete client with active connection to database unbind first' });
+      rsp.status(409).send({ error: 'cannot delete: client has active connection to database' });
     }
 
     removeClientById(req.params.id);
