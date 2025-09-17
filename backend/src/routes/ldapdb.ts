@@ -1,5 +1,5 @@
 import express from 'express';
-import ldapts from 'ldapts';
+import ldapts, { InvalidCredentialsError } from 'ldapts';
 import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
@@ -53,6 +53,12 @@ router.put('/:id/bind', async (req, rsp, next) => {
   } catch (err) {
     if (err instanceof z.ZodError) {
       rsp.status(400).send(err);
+
+      return;
+    }
+
+    if (err instanceof InvalidCredentialsError) {
+      rsp.status(401).send({ error: 'cannot bind: invalid credentials' });
 
       return;
     }
