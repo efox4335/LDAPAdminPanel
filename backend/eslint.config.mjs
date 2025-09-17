@@ -26,6 +26,7 @@ export default defineConfig([
 			'@stylistic/quotes': ['error', 'single'],
 			'@typescript-eslint/no-unsafe-assignment': 'error',
 			'@typescript-eslint/no-explicit-any': 'error',
+			"@typescript-eslint/no-unsafe-call": "error",
 			'@typescript-eslint/no-unused-vars': [
 				'error',
 				{ 'argsIgnorePattern': '^_' }
