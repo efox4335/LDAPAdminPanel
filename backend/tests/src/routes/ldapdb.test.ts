@@ -180,4 +180,53 @@ describe('ldapdbs endpoint tests', () => {
         .expect(200);
     });
   });
+
+  describe('delete client tests', () => {
+    test('no client', async () => {
+      const rsp = await supertest(app)
+        .delete(`/ldapdbs/${invalidClientId}`)
+        .expect(404);
+
+      expect(rsp.body.error).toBeDefined();
+      expect(typeof (rsp.body.error)).toStrictEqual('string');
+      expect(rsp.body.error).toStrictEqual('cannot delete: no client exists');
+
+      describe('client required tests', () => {
+        let clientId: string;
+
+        beforeEach(async () => {
+          const rsp = await supertest(app)
+            .post('/ldapdbs/')
+            .send({ url: serverUrl });
+
+          clientId = rsp.body.id;
+        });
+
+        test('client connected', async () => {
+          await supertest(app)
+            .put(`/ldapdbs/${clientId}/bind`)
+            .send(validBind);
+
+          try {
+            const rsp = await supertest(app)
+              .delete(`/ldapdbs/${clientId}`)
+              .expect(409);
+
+            expect(rsp.body.error).toBeDefined();
+            expect(typeof (rsp.body.error)).toStrictEqual('string');
+            expect(rsp.body.error).toStrictEqual('cannot delete: client has active connection to database');
+          } finally {
+            await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+            await supertest(app).delete(`/ldapdbs/${clientId}`);
+          }
+        });
+
+        test('successful delete', async () => {
+          await supertest(app)
+            .delete(`/ldapdbs/${clientId}`)
+            .expect(204);
+        });
+      });
+    });
+  });
 });
