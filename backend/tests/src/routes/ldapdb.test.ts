@@ -154,6 +154,22 @@ describe('ldapdbs endpoint tests', () => {
       expect(rsp.body.error).toStrictEqual('cannot unbind: no client exists');
     });
 
+    test('client already unbound', async () => {
+      await supertest(app)
+        .put(`/ldapdbs/${clientId}/bind`)
+        .send(validBind);
+
+      await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+
+      const rsp = await supertest(app)
+        .put(`/ldapdbs/${clientId}/unbind`)
+        .expect(409);
+
+      expect(rsp.body.error).toBeDefined();
+      expect(typeof (rsp.body.error)).toStrictEqual('string');
+      expect(rsp.body.error).toStrictEqual('cannot unbind: client is not connected');
+    });
+
     test('valid unbind', async () => {
       await supertest(app)
         .put(`/ldapdbs/${clientId}/bind`)

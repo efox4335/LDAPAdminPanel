@@ -83,6 +83,12 @@ router.put('/:id/unbind', async (req, rsp, next) => {
       return;
     }
 
+    if (!client.isConnected) {
+      rsp.status(409).send({ error: 'cannot unbind: client is not connected' });
+
+      return;
+    }
+
     await client.unbind();
 
     rsp.status(200).end();
