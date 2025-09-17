@@ -78,7 +78,7 @@ router.put('/:id/unbind', async (req, rsp, next) => {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'cannont unbind: no client exists' });
+      rsp.status(404).send({ error: 'cannot unbind: no client exists' });
 
       return;
     }
