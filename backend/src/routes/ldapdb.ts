@@ -1,5 +1,5 @@
 import express from 'express';
-import ldapts, { InvalidCredentialsError } from 'ldapts';
+import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError } from 'ldapts';
 import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
@@ -59,6 +59,12 @@ router.put('/:id/bind', async (req, rsp, next) => {
 
     if (err instanceof InvalidCredentialsError) {
       rsp.status(401).send({ error: 'cannot bind: invalid credentials' });
+
+      return;
+    }
+
+    if (err instanceof InvalidDNSyntaxError) {
+      rsp.status(400).send({ error: 'cannot bind: invalid dn syntax' });
 
       return;
     }
