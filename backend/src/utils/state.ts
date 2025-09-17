@@ -20,3 +20,20 @@ export const getClientById = (clientId: string): ldapts.Client | undefined => {
 export const removeClientById = (clientId: string) => {
   clients.delete(clientId);
 };
+
+//eventually settings like this will be read from a settings file and will be settable from the frontend
+export let logOutputFile: string;
+
+if (process.env.LOG_FILE) {
+  logOutputFile = process.env.LOG_FILE;
+} else {
+  logOutputFile = 'stdout';
+}
+
+export let enableLogs: boolean;
+
+if (process.env.ENABLE_LOGGING) {
+  enableLogs = true;
+} else {
+  enableLogs = false;
+}
