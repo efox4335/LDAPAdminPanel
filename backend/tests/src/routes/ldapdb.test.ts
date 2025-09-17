@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import test from 'node:test';
+import test, { afterEach, beforeEach } from 'node:test';
 import { describe } from 'node:test';
 import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { serverUrl } from '../../testUtils';
+import { serverUrl, invalidClientId, validBind, baseDn } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -25,6 +26,7 @@ describe('ldapdbs endpoint tests', () => {
         await supertest(app)
           .delete(`/ldapbds/${rsp.body.id}`);
       });
+
       test('object passed', async () => {
         const rsp = await supertest(app)
           .post('/ldapdbs/')
@@ -35,6 +37,95 @@ describe('ldapdbs endpoint tests', () => {
         expect(typeof (rsp.body.error)).toStrictEqual('string');
         expect(rsp.body.error).toStrictEqual('url is invalid');
       });
+    });
+  });
+
+  describe('bind tests', () => {
+    let clientId: string;
+
+    beforeEach(async () => {
+      const rsp = await supertest(app)
+        .post('/ldapdbs/')
+        .send({ url: serverUrl });
+
+      clientId = rsp.body.id;
+    });
+
+    afterEach(async () => {
+      await supertest(app).delete(`/ldapdbs/${clientId}`);
+    });
+
+    test('no client', async () => {
+      const rsp = await supertest(app)
+        .put(`/ldapdbs/${invalidClientId}/bind`)
+        .send(validBind)
+        .expect(404);
+
+      expect(rsp.body.error).toBeDefined();
+      expect(typeof (rsp.body.error)).toStrictEqual('string');
+      expect(rsp.body.error).toStrictEqual('cannot bind: no client exists');
+    });
+
+    test('invalid request', async () => {
+      await supertest(app)
+        .put(`/ldapdbs/${clientId}/bind`)
+        .expect(400);
+    });
+
+    test('wrong password', async () => {
+      try {
+        const rsp = await supertest(app)
+          .put(`/ldapdbs/${clientId}/bind`)
+          .send({ ...validBind, password: 'wrong' })
+          .expect(401);
+
+        expect(rsp.body.error).toBeDefined();
+        expect(typeof (rsp.body.error)).toStrictEqual('string');
+        expect(rsp.body.error).toStrictEqual('cannot bind: invalid credentials');
+      } finally {
+        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+      }
+    });
+
+    test('invalid dn syntax', async () => {
+      try {
+        const rsp = await supertest(app)
+          .put(`/ldapdbs/${clientId}/bind`)
+          .send({ ...validBind, dnOrSaslMechanism: 'abcdef' })
+          .expect(400);
+
+        expect(rsp.body.error).toBeDefined();
+        expect(typeof (rsp.body.error)).toStrictEqual('string');
+        expect(rsp.body.error).toStrictEqual('cannot bind: invalid dn syntax');
+      } finally {
+        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+      }
+    });
+
+    test('invalid dn', async () => {
+      try {
+        const rsp = await supertest(app)
+          .put(`/ldapdbs/${clientId}/bind`)
+          .send({ ...validBind, dnOrSaslMechanism: baseDn })
+          .expect(401);
+
+        expect(rsp.body.error).toBeDefined();
+        expect(typeof (rsp.body.error)).toStrictEqual('string');
+        expect(rsp.body.error).toStrictEqual('cannot bind: invalid credentials');
+      } finally {
+        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+      }
+    });
+
+    test('successful request', async () => {
+      try {
+        await supertest(app)
+          .put(`/ldapdbs/${clientId}/bind`)
+          .send(validBind)
+          .expect(200);
+      } finally {
+        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+      }
     });
   });
 });
