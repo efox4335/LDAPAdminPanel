@@ -109,6 +109,8 @@ router.delete('/:id', (req, rsp, next) => {
 
     if (client.isConnected) {
       rsp.status(409).send({ error: 'cannot delete: client has active connection to database' });
+
+      return;
     }
 
     removeClientById(req.params.id);
