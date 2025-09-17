@@ -128,4 +128,40 @@ describe('ldapdbs endpoint tests', () => {
       }
     });
   });
+
+  describe('unbind tests', () => {
+    let clientId: string;
+
+    beforeEach(async () => {
+      const rsp = await supertest(app)
+        .post('/ldapdbs/')
+        .send({ url: serverUrl });
+
+      clientId = rsp.body.id;
+    });
+
+    afterEach(async () => {
+      await supertest(app).delete(`/ldapdbs/${clientId}`);
+    });
+
+    test('invalid client id', async () => {
+      const rsp = await supertest(app)
+        .put(`/ldapdbs/${invalidClientId}/unbind`)
+        .expect(404);
+
+      expect(rsp.body.error).toBeDefined();
+      expect(typeof (rsp.body.error)).toStrictEqual('string');
+      expect(rsp.body.error).toStrictEqual('cannot unbind: no client exists');
+    });
+
+    test('valid unbind', async () => {
+      await supertest(app)
+        .put(`/ldapdbs/${clientId}/bind`)
+        .send(validBind);
+
+      await supertest(app)
+        .put(`/ldapdbs/${clientId}/unbind`)
+        .expect(200);
+    });
+  });
 });
