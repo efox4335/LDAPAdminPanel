@@ -236,11 +236,32 @@ describe('ldapdbs endpoint tests', () => {
         await supertest(app).delete(`/ldapdbs/${clientId}`);
       });
 
-      test('invalid body', async () => {
-        await supertest(app)
+      test('unbound search', async () => {
+        const rsp = await supertest(app)
           .post(`/ldapdbs/${clientId}/search`)
-          .send({ client: 'abc' })
-          .expect(400);
+          .send(basicSearch)
+          .expect(401);
+
+        customErrorMessageValidator(rsp.body.error, 'cannot search: client is not connected');
+      });
+
+      describe('bound client', () => {
+        beforeEach(async () => {
+          await supertest(app)
+            .put(`/ldapdbs/${clientId}/bind`)
+            .send(validBind);
+        });
+
+        afterEach(async () => {
+          await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+        });
+
+        test('invalid body', async () => {
+          await supertest(app)
+            .post(`/ldapdbs/${clientId}/search`)
+            .send({ client: 'abc' })
+            .expect(400);
+        });
       });
     });
   });
