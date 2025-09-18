@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import type { bindReq } from '../src/utils/types';
+import type { bindReq, searchReq } from '../src/utils/types';
 
 export const serverUrl = 'ldap://localhost:1389';
 
@@ -19,4 +19,21 @@ export const customErrorMessageValidator = (error: unknown, expectedError: strin
   }
 
   expect(error).toStrictEqual(expectedError);
+};
+
+export const basicSearch: searchReq = {
+  baseDn: '',
+
+  options: {
+    //to check newly created entries in testing
+    scope: 'base',
+    //matches any entry
+    filter: '(objectClass=*)',
+    derefAliases: 'never',
+    sizeLimit: 0,
+    timeLimit: 10,
+    paged: false,
+    //allows checking of entire entry during testing
+    attributes: ['*', '+']
+  }
 };
