@@ -220,5 +220,28 @@ describe('ldapdbs endpoint tests', () => {
 
       customErrorMessageValidator(rsp.body.error, 'cannot search: no client exists');
     });
+
+    describe('client required', () => {
+      let clientId: number;
+
+      beforeEach(async () => {
+        const rsp = await supertest(app)
+          .post('/ldapdbs/')
+          .send(basicNewClient);
+
+        clientId = rsp.body.id;
+      });
+
+      afterEach(async () => {
+        await supertest(app).delete(`/ldapdbs/${clientId}`);
+      });
+
+      test('invalid body', async () => {
+        await supertest(app)
+          .post(`/ldapdbs/${clientId}/search`)
+          .send({ client: 'abc' })
+          .expect(400);
+      });
+    });
   });
 });
