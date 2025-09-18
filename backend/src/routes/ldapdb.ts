@@ -139,12 +139,6 @@ router.post('/:id/search', async (req, rsp, next) => {
       return;
     }
 
-    if (!client.isConnected) {
-      rsp.status(409).send({ error: 'cannot search: client is not connected' });
-
-      return;
-    }
-
     const searchArgs: searchReq = searchReqSchema.parse(req.body);
 
     const res = await client.search(searchArgs.baseDn, searchArgs.options);
