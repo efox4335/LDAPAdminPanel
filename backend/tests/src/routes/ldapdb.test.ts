@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { serverUrl, invalidClientId, validBind, baseDn, customErrorMessageValidator, basicSearch } from '../../testUtils';
+import { basicNewClient, invalidClientId, validBind, baseDn, customErrorMessageValidator, basicSearch } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -15,7 +15,7 @@ describe('ldapdbs endpoint tests', () => {
       test('correct url', async () => {
         const rsp = await supertest(app)
           .post('/ldapdbs/')
-          .send({ url: serverUrl })
+          .send(basicNewClient)
           .expect(201);
 
         expect(rsp.body.id).toBeDefined();
@@ -43,7 +43,7 @@ describe('ldapdbs endpoint tests', () => {
     beforeEach(async () => {
       const rsp = await supertest(app)
         .post('/ldapdbs/')
-        .send({ url: serverUrl });
+        .send(basicNewClient);
 
       clientId = rsp.body.id;
     });
@@ -124,7 +124,7 @@ describe('ldapdbs endpoint tests', () => {
     beforeEach(async () => {
       const rsp = await supertest(app)
         .post('/ldapdbs/')
-        .send({ url: serverUrl });
+        .send(basicNewClient);
 
       clientId = rsp.body.id;
     });
@@ -180,7 +180,7 @@ describe('ldapdbs endpoint tests', () => {
         beforeEach(async () => {
           const rsp = await supertest(app)
             .post('/ldapdbs/')
-            .send({ url: serverUrl });
+            .send(basicNewClient);
 
           clientId = rsp.body.id;
         });
