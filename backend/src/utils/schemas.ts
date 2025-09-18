@@ -8,3 +8,16 @@ export const bindReqSchema = z.object({
   dnOrSaslMechanism: z.string(),
   password: z.string().optional(),
 });
+
+export const searchReqSchema = z.object({
+  baseDn: z.string(),
+  options: z.object({
+    scope: z.enum(['base', 'one', 'sub', 'children']),
+    filter: z.string(),
+    derefAliases: z.enum(['never', 'always', 'search', 'find']),
+    sizeLimit: z.int(),
+    timeLimit: z.int(),
+    paged: z.boolean(),
+    attributes: z.array(z.string())
+  })
+});
