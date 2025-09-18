@@ -1,12 +1,16 @@
 import expect from 'expect';
 
-import type { bindReq, searchReq } from '../src/utils/types';
+import type { bindReq, clientReq, searchReq } from '../src/utils/types';
 
 export const serverUrl = 'ldap://localhost:1389';
 
 export const invalidClientId: string = 'abcdef';
 
 export const baseDn = 'dc=example,dc=org';
+
+export const basicNewClient: clientReq = {
+  url: serverUrl
+};
 
 export const validBind: bindReq = {
   dnOrSaslMechanism: `cn=admin,${baseDn}`,
