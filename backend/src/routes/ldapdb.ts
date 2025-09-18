@@ -145,6 +145,12 @@ router.post('/:id/search', async (req, rsp, next) => {
 
     rsp.status(200).send(res);
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      rsp.status(400).send(err);
+
+      return;
+    }
+
     next(err);
   }
 });
