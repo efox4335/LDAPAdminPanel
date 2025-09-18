@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { serverUrl, invalidClientId, validBind, baseDn, customErrorMessageValidator } from '../../testUtils';
+import { serverUrl, invalidClientId, validBind, baseDn, customErrorMessageValidator, basicSearch } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -208,6 +208,17 @@ describe('ldapdbs endpoint tests', () => {
             .expect(204);
         });
       });
+    });
+  });
+
+  describe('search tests', () => {
+    test('no client', async () => {
+      const rsp = await supertest(app)
+        .post(`/ldapdbs/${invalidClientId}/search`)
+        .send(basicSearch)
+        .expect(404);
+
+      customErrorMessageValidator(rsp.body.error, 'cannot search: no client exists');
     });
   });
 });
