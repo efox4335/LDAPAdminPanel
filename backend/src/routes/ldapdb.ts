@@ -2,8 +2,8 @@ import express from 'express';
 import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError } from 'ldapts';
 import * as z from 'zod';
 
-import { ldapDbNewClientSchema, bindReqSchema } from '../utils/schemas';
-import type { bindReq, clientReq } from '../utils/types';
+import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema } from '../utils/schemas';
+import type { bindReq, clientReq, searchReq } from '../utils/types';
 import { addNewClient, getClientById, removeClientById } from '../utils/state';
 
 const router = express.Router();
@@ -124,6 +124,32 @@ router.delete('/:id', (req, rsp, next) => {
     removeClientById(req.params.id);
 
     rsp.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/search', async (req, rsp, next) => {
+  try {
+    const client = getClientById(req.params.id);
+
+    if (client === undefined) {
+      rsp.status(404).send({ error: 'cannot search: no client exists' });
+
+      return;
+    }
+
+    if (!client.isConnected) {
+      rsp.status(409).send({ error: 'cannot search: client is not connected' });
+
+      return;
+    }
+
+    const searchArgs: searchReq = searchReqSchema.parse(req.body);
+
+    const res = await client.search(searchArgs.baseDn, searchArgs.options);
+
+    rsp.status(200).send(res);
   } catch (err) {
     next(err);
   }
