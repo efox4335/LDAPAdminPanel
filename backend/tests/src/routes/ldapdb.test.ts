@@ -74,6 +74,7 @@ describe('ldapdbs endpoint tests', () => {
           .send({ ...validBind, password: 'wrong' })
           .expect(401);
 
+        expect(rsp.body.originalError).toStrictEqual({ code: 49, name: 'InvalidCredentialsError' });
         customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid credentials');
       } finally {
         await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
@@ -87,6 +88,7 @@ describe('ldapdbs endpoint tests', () => {
           .send({ ...validBind, dnOrSaslMechanism: 'abcdef' })
           .expect(400);
 
+        expect(rsp.body.originalError).toStrictEqual({ code: 34, name: 'InvalidDNSyntaxError' });
         customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid dn syntax');
       } finally {
         await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
@@ -269,6 +271,7 @@ describe('ldapdbs endpoint tests', () => {
             .send({ ...basicSearch, baseDn: 'dc=abc' })
             .expect(404);
 
+          expect(rsp.body.originalError).toStrictEqual({ code: 32, name: 'NoSuchObjectError' });
           customErrorMessageValidator(rsp.body.error, 'cannot search: base dn does not match any in server');
         });
 

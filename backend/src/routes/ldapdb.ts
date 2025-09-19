@@ -66,13 +66,13 @@ router.put('/:id/bind', async (req, rsp, next) => {
     }
 
     if (err instanceof InvalidCredentialsError) {
-      rsp.status(401).send({ error: 'cannot bind: invalid credentials' });
+      rsp.status(401).send({ error: 'cannot bind: invalid credentials', originalError: err });
 
       return;
     }
 
     if (err instanceof InvalidDNSyntaxError) {
-      rsp.status(400).send({ error: 'cannot bind: invalid dn syntax' });
+      rsp.status(400).send({ error: 'cannot bind: invalid dn syntax', originalError: err });
 
       return;
     }
@@ -160,7 +160,7 @@ router.post('/:id/search', async (req, rsp, next) => {
     }
 
     if (err instanceof NoSuchObjectError) {
-      rsp.status(404).send({ error: 'cannot search: base dn does not match any in server' });
+      rsp.status(404).send({ error: 'cannot search: base dn does not match any in server', originalError: err });
 
       return;
     }
