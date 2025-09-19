@@ -275,6 +275,16 @@ describe('ldapdbs endpoint tests', () => {
           customErrorMessageValidator(rsp.body.error, 'cannot search: base dn does not match any in server');
         });
 
+        test('invalid dn syntax', async () => {
+          const rsp = await supertest(app)
+            .post(`/ldapdbs/${clientId}/search`)
+            .send({ ...basicSearch, baseDn: 'abcdef' })
+            .expect(400);
+
+          expect(rsp.body.originalError).toStrictEqual({ code: 34, name: 'InvalidDNSyntaxError' });
+          customErrorMessageValidator(rsp.body.error, 'cannot search: base dn syntax is invalid');
+        });
+
         test('correct search', async () => {
           const rsp = await supertest(app)
             .post(`/ldapdbs/${clientId}/search`)

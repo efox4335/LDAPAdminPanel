@@ -165,6 +165,12 @@ router.post('/:id/search', async (req, rsp, next) => {
       return;
     }
 
+    if (err instanceof InvalidDNSyntaxError) {
+      rsp.status(400).send({ error: 'cannot search: base dn syntax is invalid', originalError: err });
+
+      return;
+    }
+
     next(err);
   }
 });
