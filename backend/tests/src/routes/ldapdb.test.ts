@@ -262,6 +262,19 @@ describe('ldapdbs endpoint tests', () => {
             .send({ client: 'abc' })
             .expect(400);
         });
+
+        test('correct search', async () => {
+          const rsp = await supertest(app)
+            .post(`/ldapdbs/${clientId}/search`)
+            .send(basicSearch)
+            .expect(200);
+
+          expect(rsp.body).toBeDefined();
+          expect(rsp.body.searchEntries).toBeDefined();
+          expect(rsp.body.searchEntries[0]).toBeDefined();
+          expect(rsp.body.searchEntries[0].namingContexts).toBeDefined();
+          expect(rsp.body.searchEntries[0].namingContexts).toStrictEqual('dc=example,dc=org');
+        });
       });
     });
   });
