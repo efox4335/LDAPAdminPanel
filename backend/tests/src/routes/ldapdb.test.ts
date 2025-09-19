@@ -263,6 +263,15 @@ describe('ldapdbs endpoint tests', () => {
             .expect(400);
         });
 
+        test('non existent dn', async () => {
+          const rsp = await supertest(app)
+            .post(`/ldapdbs/${clientId}/search`)
+            .send({ ...basicSearch, baseDn: 'dc=abc' })
+            .expect(404);
+
+          customErrorMessageValidator(rsp.body.error, 'cannot search: base dn does not match any in server');
+        });
+
         test('correct search', async () => {
           const rsp = await supertest(app)
             .post(`/ldapdbs/${clientId}/search`)

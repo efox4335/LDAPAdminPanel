@@ -1,5 +1,5 @@
 import express from 'express';
-import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError } from 'ldapts';
+import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError, NoSuchObjectError } from 'ldapts';
 import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema } from '../utils/schemas';
@@ -155,6 +155,12 @@ router.post('/:id/search', async (req, rsp, next) => {
   } catch (err) {
     if (err instanceof z.ZodError) {
       rsp.status(400).send(err);
+
+      return;
+    }
+
+    if (err instanceof NoSuchObjectError) {
+      rsp.status(404).send({ error: 'cannot search: base dn does not match any in server' });
 
       return;
     }
