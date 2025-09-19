@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "rm ./tests/testLog.log && LOG_FILE=\"./tests/testLog.log\" ENABLE_LOGGING=true tsx --test",
+    "test": "rm ./tests/testLog.log || true && LOG_FILE=\"./tests/testLog.log\" ENABLE_LOGGING=true tsx --test",
     "build": "tsc --project tsconfig.build.json",
     "dev": "LOG_FILE=stdout ENABLE_LOGGING=true tsx --watch ./src/index.ts",
     "lint": "eslint ."
