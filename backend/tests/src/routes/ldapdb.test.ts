@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, validBind, baseDn, customErrorMessageValidator, basicSearch } from '../../testUtils';
+import { basicNewClient, invalidClientId, validBind, baseDn, customErrorMessageValidator, basicSearch, basicAdd, basicDel } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -296,6 +296,69 @@ describe('ldapdbs endpoint tests', () => {
           expect(rsp.body.searchEntries[0]).toBeDefined();
           expect(rsp.body.searchEntries[0].namingContexts).toBeDefined();
           expect(rsp.body.searchEntries[0].namingContexts).toStrictEqual('dc=example,dc=org');
+        });
+      });
+    });
+  });
+
+  describe('add tests', () => {
+    test('no client', async () => {
+      const rsp = await supertest(app)
+        .post(`/ldapdbs/${invalidClientId}/add`)
+        .send(basicAdd)
+        .expect(404);
+
+      customErrorMessageValidator(rsp.body.error, 'cannot add: no client exists');
+    });
+
+    describe('client required', () => {
+      let clientId: string;
+
+      beforeEach(async () => {
+        const rsp = await supertest(app)
+          .post('/ldapdbs/')
+          .send(basicNewClient);
+
+        clientId = rsp.body.id;
+      });
+
+      afterEach(async () => {
+        await supertest(app).delete(`/ldapdbs/${clientId}`);
+      });
+
+      test('unbound client', async () => {
+        const rsp = await supertest(app)
+          .post(`/ldapdbs/${clientId}/add`)
+          .send(basicAdd)
+          .expect(409);
+
+        customErrorMessageValidator(rsp.body.error, 'cannot add: client is not connected');
+
+        const conStat = await supertest(app).get(`/ldapdbs/${clientId}/isconnected`);
+
+        expect(conStat.body.isConnected).toStrictEqual(false);
+      });
+
+      describe('bound client', () => {
+        beforeEach(async () => {
+          await supertest(app)
+            .put(`/ldapdbs/${clientId}/bind`)
+            .send(validBind);
+        });
+
+        afterEach(async () => {
+          await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+        });
+
+        test('correct add', async () => {
+          await supertest(app)
+            .post(`/ldapdbs/${clientId}/add`)
+            .send(basicAdd)
+            .expect(201);
+
+          await supertest(app)
+            .delete(`/ldapdbs/${clientId}/del`)
+            .send(basicDel);
         });
       });
     });
