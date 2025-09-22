@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import type { bindReq, clientReq, searchReq } from '../src/utils/types';
+import type { addReq, bindReq, clientReq, delReq, searchReq } from '../src/utils/types';
 
 export const serverUrl = 'ldap://localhost:1389';
 
@@ -40,4 +40,20 @@ export const basicSearch: searchReq = {
     //allows checking of entire entry during testing
     attributes: ['*', '+']
   }
+};
+
+export const testUserDn: string = 'ou=users,dc=example,dc=org';
+
+export const basicAdd: addReq = {
+  baseDn: testUserDn,
+
+  entry: {
+    objectClass: 'person',
+    cn: 'test',
+    sn: 'test'
+  }
+};
+
+export const basicDel: delReq = {
+  dn: testUserDn
 };
