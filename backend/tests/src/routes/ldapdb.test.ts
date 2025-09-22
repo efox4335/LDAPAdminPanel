@@ -242,7 +242,7 @@ describe('ldapdbs endpoint tests', () => {
         const rsp = await supertest(app)
           .post(`/ldapdbs/${clientId}/search`)
           .send(basicSearch)
-          .expect(401);
+          .expect(409);
 
         customErrorMessageValidator(rsp.body.error, 'cannot search: client is not connected');
       });

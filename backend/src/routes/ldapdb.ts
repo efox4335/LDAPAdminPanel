@@ -142,7 +142,7 @@ router.post('/:id/search', async (req, rsp, next) => {
     //i don't like the idea of a search changing the client state
     //if binding where allowed bind errors would also have to be handeled here
     if (!client.isConnected) {
-      rsp.status(401).send({ error: 'cannot search: client is not connected' });
+      rsp.status(409).send({ error: 'cannot search: client is not connected' });
 
       return;
     }
@@ -207,7 +207,7 @@ router.post('/:id/add', async (req, rsp, next) => {
     }
 
     if (!client.isConnected) {
-      rsp.status(401).send({ error: 'cannot add: client is not connected' });
+      rsp.status(409).send({ error: 'cannot add: client is not connected' });
 
       return;
     }
