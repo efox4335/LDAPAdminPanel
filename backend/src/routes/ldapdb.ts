@@ -8,7 +8,6 @@ import { addNewClient, getClientById, removeClientById } from '../utils/state';
 
 const router = express.Router();
 
-//returns index of client in clients array for future refrence
 router.post('/', (req, rsp, next) => {
   try {
     const serverUrl: clientReq = ldapDbNewClientSchema.parse(req.body);
