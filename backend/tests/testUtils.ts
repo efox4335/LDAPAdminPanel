@@ -14,7 +14,7 @@ export const basicNewClient: clientReq = {
   url: serverUrl
 };
 
-export const validBind: bindReq = {
+export const adminBind: bindReq = {
   dnOrSaslMechanism: `cn=admin,${baseDn}`,
   password: 'password'
 };
@@ -79,7 +79,7 @@ export class testClients {
   }
 
   async bindClients(app: Express) {
-    await supertest(app).put(`/ldapdbs/${this.adminClient}/bind`).send(validBind);
+    await supertest(app).put(`/ldapdbs/${this.adminClient}/bind`).send(adminBind);
   }
 
   async unbindClients(app: Express) {

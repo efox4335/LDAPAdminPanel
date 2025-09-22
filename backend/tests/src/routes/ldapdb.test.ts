@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, validBind, baseDn, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients } from '../../testUtils';
+import { basicNewClient, invalidClientId, adminBind, baseDn, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -55,7 +55,7 @@ describe('ldapdbs endpoint tests', () => {
     test('no client', async () => {
       const rsp = await supertest(app)
         .put(`/ldapdbs/${invalidClientId}/bind`)
-        .send(validBind)
+        .send(adminBind)
         .expect(404);
 
       customErrorMessageValidator(rsp.body.error, 'cannot bind: no client exists');
@@ -71,7 +71,7 @@ describe('ldapdbs endpoint tests', () => {
       try {
         const rsp = await supertest(app)
           .put(`/ldapdbs/${clientId}/bind`)
-          .send({ ...validBind, password: 'wrong' })
+          .send({ ...adminBind, password: 'wrong' })
           .expect(401);
 
         expect(rsp.body.originalError).toStrictEqual({ code: 49, name: 'InvalidCredentialsError' });
@@ -85,7 +85,7 @@ describe('ldapdbs endpoint tests', () => {
       try {
         const rsp = await supertest(app)
           .put(`/ldapdbs/${clientId}/bind`)
-          .send({ ...validBind, dnOrSaslMechanism: 'abcdef' })
+          .send({ ...adminBind, dnOrSaslMechanism: 'abcdef' })
           .expect(400);
 
         expect(rsp.body.originalError).toStrictEqual({ code: 34, name: 'InvalidDNSyntaxError' });
@@ -99,7 +99,7 @@ describe('ldapdbs endpoint tests', () => {
       try {
         const rsp = await supertest(app)
           .put(`/ldapdbs/${clientId}/bind`)
-          .send({ ...validBind, dnOrSaslMechanism: baseDn })
+          .send({ ...adminBind, dnOrSaslMechanism: baseDn })
           .expect(401);
 
         customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid credentials');
@@ -112,7 +112,7 @@ describe('ldapdbs endpoint tests', () => {
       try {
         await supertest(app)
           .put(`/ldapdbs/${clientId}/bind`)
-          .send(validBind)
+          .send(adminBind)
           .expect(200);
       } finally {
         await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
@@ -146,7 +146,7 @@ describe('ldapdbs endpoint tests', () => {
     test('client already unbound', async () => {
       await supertest(app)
         .put(`/ldapdbs/${clientId}/bind`)
-        .send(validBind);
+        .send(adminBind);
 
       await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
 
@@ -160,7 +160,7 @@ describe('ldapdbs endpoint tests', () => {
     test('valid unbind', async () => {
       await supertest(app)
         .put(`/ldapdbs/${clientId}/bind`)
-        .send(validBind);
+        .send(adminBind);
 
       await supertest(app)
         .put(`/ldapdbs/${clientId}/unbind`)
@@ -190,7 +190,7 @@ describe('ldapdbs endpoint tests', () => {
         test('client connected', async () => {
           await supertest(app)
             .put(`/ldapdbs/${clientId}/bind`)
-            .send(validBind);
+            .send(adminBind);
 
           try {
             const rsp = await supertest(app)
