@@ -2,8 +2,8 @@ import express from 'express';
 import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError, NoSuchObjectError, SizeLimitExceededError, TimeLimitExceededError, UndefinedTypeError } from 'ldapts';
 import * as z from 'zod';
 
-import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema } from '../utils/schemas';
-import type { bindReq, clientReq, searchReq } from '../utils/types';
+import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema } from '../utils/schemas';
+import type { addReq, bindReq, clientReq, searchReq } from '../utils/types';
 import { addNewClient, getClientById, removeClientById } from '../utils/state';
 
 const router = express.Router();
@@ -192,6 +192,32 @@ router.post('/:id/search', async (req, rsp, next) => {
       return;
     }
 
+    next(err);
+  }
+});
+
+router.post('/:id/add', async (req, rsp, next) => {
+  try {
+    const client = getClientById(req.params.id);
+
+    if (!client) {
+      rsp.status(404).send({ error: 'cannot add: no client exists' });
+
+      return;
+    }
+
+    if (!client.isConnected) {
+      rsp.status(401).send({ error: 'cannot add: client is not connected' });
+
+      return;
+    }
+
+    const addArgs: addReq = addReqSchema.parse(req.body);
+
+    await client.add(addArgs.baseDn, addArgs.entry);
+
+    rsp.status(201).end();
+  } catch (err) {
     next(err);
   }
 });
