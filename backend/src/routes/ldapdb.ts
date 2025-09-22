@@ -221,7 +221,7 @@ router.post('/:id/add', async (req, rsp, next) => {
   }
 });
 
-router.post('/:id/del', async (req, rsp, next) => {
+router.delete('/:id/del', async (req, rsp, next) => {
   try {
     const client = getClientById(req.params.id);
 
