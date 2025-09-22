@@ -247,4 +247,16 @@ router.post('/:id/del', async (req, rsp, next) => {
   }
 });
 
+router.get('/:id/isconnected', (req, rsp) => {
+  const client = getClientById(req.params.id);
+
+  if (!client) {
+    rsp.status(404).send({ error: 'no client exists' });
+
+    return;
+  }
+
+  rsp.status(200).send({ isConnected: client.isConnected });
+});
+
 export default router;
