@@ -26,3 +26,7 @@ export const addReqSchema = z.object({
   baseDn: z.string(),
   entry: z.record(z.string(), z.union([z.string(), z.array(z.string())]))
 });
+
+export const delReqSchema = z.object({
+  dn: z.string()
+});

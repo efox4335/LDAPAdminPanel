@@ -24,3 +24,7 @@ export type addReq = {
   baseDn: string,
   entry: Record<string, string[] | string>
 };
+
+export type delReq = {
+  dn: string
+};
