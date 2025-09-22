@@ -19,3 +19,8 @@ export type searchReq = {
     attributes: string[]
   }
 };
+
+export type addReq = {
+  baseDn: string,
+  entry: Record<string, string[] | string>
+};

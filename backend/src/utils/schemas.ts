@@ -21,3 +21,8 @@ export const searchReqSchema = z.object({
     attributes: z.array(z.string())
   })
 });
+
+export const addReqSchema = z.object({
+  baseDn: z.string(),
+  entry: z.record(z.string(), z.union([z.string(), z.array(z.string())]))
+});
