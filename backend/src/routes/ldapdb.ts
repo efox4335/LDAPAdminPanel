@@ -1,5 +1,5 @@
 import express from 'express';
-import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError, NoSuchObjectError } from 'ldapts';
+import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError, NoSuchObjectError, SizeLimitExceededError, TimeLimitExceededError, UndefinedTypeError } from 'ldapts';
 import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema } from '../utils/schemas';
@@ -167,6 +167,27 @@ router.post('/:id/search', async (req, rsp, next) => {
 
     if (err instanceof InvalidDNSyntaxError) {
       rsp.status(400).send({ error: 'cannot search: base dn syntax is invalid', originalError: err });
+
+      return;
+    }
+
+    //TODO: figure out a way to test
+    if (err instanceof UndefinedTypeError) {
+      rsp.status(400).send({ error: 'cannot search: attribute does not exist in server', originalError: err });
+
+      return;
+    }
+
+    //TODO: figure out a way to test
+    if (err instanceof SizeLimitExceededError) {
+      rsp.status(400).send({ error: 'cannot search: size limit has been exceeded', originalError: err });
+
+      return;
+    }
+
+    //TODO: figure out a way to test
+    if (err instanceof TimeLimitExceededError) {
+      rsp.status(408).send({ error: 'cannot search: time limit exceeded', originalError: err });
 
       return;
     }
