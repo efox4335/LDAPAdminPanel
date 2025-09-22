@@ -1,4 +1,6 @@
 import expect from 'expect';
+import supertest from 'supertest';
+import { Express } from 'express';
 
 import type { addReq, bindReq, clientReq, delReq, searchReq } from '../src/utils/types';
 
@@ -56,4 +58,31 @@ export const basicAdd: addReq = {
 
 export const basicDel: delReq = {
   dn: testUserDn
+};
+
+export class testClients {
+  public adminClient: string;
+
+  constructor() {
+    this.adminClient = '';
+  }
+
+  async addClients(app: Express) {
+    const rsp = await supertest(app).post('/ldapdbs').send(basicNewClient);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    this.adminClient = rsp.body.id;
+  }
+
+  async delClients(app: Express) {
+    await supertest(app).delete(`/ldapdbs/${this.adminClient}`);
+  }
+
+  async bindClients(app: Express) {
+    await supertest(app).put(`/ldapdbs/${this.adminClient}/bind`).send(validBind);
+  }
+
+  async unbindClients(app: Express) {
+    await supertest(app).put(`/ldapdbs/${this.adminClient}/unbind`);
+  }
 };
