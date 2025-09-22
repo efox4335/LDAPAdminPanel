@@ -42,7 +42,7 @@ export const basicSearch: searchReq = {
   }
 };
 
-export const testUserDn: string = 'ou=users,dc=example,dc=org';
+export const testUserDn: string = 'cn=test,ou=users,dc=example,dc=org';
 
 export const basicAdd: addReq = {
   baseDn: testUserDn,
