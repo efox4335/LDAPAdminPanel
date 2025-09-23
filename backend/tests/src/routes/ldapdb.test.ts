@@ -375,6 +375,16 @@ describe('ldapdbs endpoint tests', () => {
           customErrorMessageValidator(rsp.body.error, 'cannot add: attributes given do not match schema');
         });
 
+        test('invalid attribute syntax', async () => {
+          const rsp = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send({ ...basicAdd, entry: { ...basicAdd.entry, seeAlso: 'abcdef' } })
+            .expect(400);
+
+          expect(rsp.body.originalError).toStrictEqual({ code: 21, name: 'InvalidSyntaxError' });
+          customErrorMessageValidator(rsp.body.error, 'cannot add: attributes given do not match their syntax');
+        });
+
         test('correct add', async () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)

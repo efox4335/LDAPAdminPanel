@@ -1,5 +1,5 @@
 import express from 'express';
-import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError, NoSuchObjectError, SizeLimitExceededError, TimeLimitExceededError, UndefinedTypeError } from 'ldapts';
+import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError, InvalidSyntaxError, NoSuchObjectError, SizeLimitExceededError, TimeLimitExceededError, UndefinedTypeError } from 'ldapts';
 import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema } from '../utils/schemas';
@@ -237,6 +237,12 @@ router.post('/:id/add', async (req, rsp, next) => {
 
     if (err instanceof UndefinedTypeError) {
       rsp.status(400).send({ error: 'cannot add: attributes given do not match schema', originalError: err });
+
+      return;
+    }
+
+    if (err instanceof InvalidSyntaxError) {
+      rsp.status(400).send({ error: 'cannot add: attributes given do not match their syntax', originalError: err });
 
       return;
     }
