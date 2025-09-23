@@ -217,6 +217,12 @@ router.post('/:id/add', async (req, rsp, next) => {
 
     rsp.status(201).end();
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      rsp.status(400).send(err);
+
+      return;
+    }
+
     next(err);
   }
 });

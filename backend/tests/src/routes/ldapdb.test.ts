@@ -338,6 +338,13 @@ describe('ldapdbs endpoint tests', () => {
           await clients.unbindClients(app);
         });
 
+        test('invalid body', async () => {
+          await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send({ abc: 'def' })
+            .expect(400);
+        });
+
         test('correct add', async () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)
