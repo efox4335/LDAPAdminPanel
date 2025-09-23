@@ -8,7 +8,7 @@ import { addNewClient, getClientById, removeClientById } from '../utils/state';
 
 const router = express.Router();
 
-router.post('/', (req, rsp, next) => {
+router.post('/', (req, res, next) => {
   try {
     const serverUrl: clientReq = ldapDbNewClientSchema.parse(req.body);
 
@@ -18,10 +18,10 @@ router.post('/', (req, rsp, next) => {
 
     const clientId = addNewClient(client);
 
-    rsp.status(201).send({ id: clientId });
+    res.status(201).send({ id: clientId });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      rsp.status(400).send({ error: 'url is invalid' });
+      res.status(400).send({ error: 'url is invalid' });
 
       return;
     }
@@ -30,7 +30,7 @@ router.post('/', (req, rsp, next) => {
   }
 });
 
-router.put('/:id/bind', async (req, rsp, next) => {
+router.put('/:id/bind', async (req, res, next) => {
   try {
     const bindArgs: bindReq = bindReqSchema.parse(req.body);
 
@@ -45,7 +45,7 @@ router.put('/:id/bind', async (req, rsp, next) => {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'cannot bind: no client exists' });
+      res.status(404).send({ error: 'cannot bind: no client exists' });
 
       return;
     }
@@ -56,10 +56,10 @@ router.put('/:id/bind', async (req, rsp, next) => {
       await client.bind(bindArgs.dnOrSaslMechanism);
     }
 
-    rsp.status(200).end();
+    res.status(200).end();
   } catch (err) {
     if (err instanceof z.ZodError) {
-      rsp.status(400).send(err);
+      res.status(400).send(err);
 
       return;
     }
@@ -68,60 +68,60 @@ router.put('/:id/bind', async (req, rsp, next) => {
   }
 });
 
-router.put('/:id/unbind', async (req, rsp, next) => {
+router.put('/:id/unbind', async (req, res, next) => {
   try {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'cannot unbind: no client exists' });
+      res.status(404).send({ error: 'cannot unbind: no client exists' });
 
       return;
     }
 
     if (!client.isConnected) {
-      rsp.status(409).send({ error: 'cannot unbind: client is not connected' });
+      res.status(409).send({ error: 'cannot unbind: client is not connected' });
 
       return;
     }
 
     await client.unbind();
 
-    rsp.status(200).end();
+    res.status(200).end();
   } catch (err) {
     next(err);
   }
 });
 
-router.delete('/:id', (req, rsp, next) => {
+router.delete('/:id', (req, res, next) => {
   try {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'cannot delete: no client exists' });
+      res.status(404).send({ error: 'cannot delete: no client exists' });
 
       return;
     }
 
     if (client.isConnected) {
-      rsp.status(409).send({ error: 'cannot delete: client has active connection to database' });
+      res.status(409).send({ error: 'cannot delete: client has active connection to database' });
 
       return;
     }
 
     removeClientById(req.params.id);
 
-    rsp.status(204).end();
+    res.status(204).end();
   } catch (err) {
     next(err);
   }
 });
 
-router.post('/:id/search', async (req, rsp, next) => {
+router.post('/:id/search', async (req, res, next) => {
   try {
     const client = getClientById(req.params.id);
 
     if (client === undefined) {
-      rsp.status(404).send({ error: 'cannot search: no client exists' });
+      res.status(404).send({ error: 'cannot search: no client exists' });
 
       return;
     }
@@ -129,19 +129,19 @@ router.post('/:id/search', async (req, rsp, next) => {
     //i don't like the idea of a search changing the client state
     //if binding where allowed bind errors would also have to be handeled here
     if (!client.isConnected) {
-      rsp.status(409).send({ error: 'cannot search: client is not connected' });
+      res.status(409).send({ error: 'cannot search: client is not connected' });
 
       return;
     }
 
     const searchArgs: searchReq = searchReqSchema.parse(req.body);
 
-    const res = await client.search(searchArgs.baseDn, searchArgs.options);
+    const searchRes = await client.search(searchArgs.baseDn, searchArgs.options);
 
-    rsp.status(200).send(res);
+    res.status(200).send(searchRes);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      rsp.status(400).send(err);
+      res.status(400).send(err);
 
       return;
     }
@@ -150,18 +150,18 @@ router.post('/:id/search', async (req, rsp, next) => {
   }
 });
 
-router.post('/:id/add', async (req, rsp, next) => {
+router.post('/:id/add', async (req, res, next) => {
   try {
     const client = getClientById(req.params.id);
 
     if (!client) {
-      rsp.status(404).send({ error: 'cannot add: no client exists' });
+      res.status(404).send({ error: 'cannot add: no client exists' });
 
       return;
     }
 
     if (!client.isConnected) {
-      rsp.status(409).send({ error: 'cannot add: client is not connected' });
+      res.status(409).send({ error: 'cannot add: client is not connected' });
 
       return;
     }
@@ -170,10 +170,10 @@ router.post('/:id/add', async (req, rsp, next) => {
 
     await client.add(addArgs.baseDn, addArgs.entry);
 
-    rsp.status(201).end();
+    res.status(201).end();
   } catch (err) {
     if (err instanceof z.ZodError) {
-      rsp.status(400).send(err);
+      res.status(400).send(err);
 
       return;
     }
@@ -182,18 +182,18 @@ router.post('/:id/add', async (req, rsp, next) => {
   }
 });
 
-router.delete('/:id/del', async (req, rsp, next) => {
+router.delete('/:id/del', async (req, res, next) => {
   try {
     const client = getClientById(req.params.id);
 
     if (!client) {
-      rsp.status(404).send({ error: 'cannot del: no client exists' });
+      res.status(404).send({ error: 'cannot del: no client exists' });
 
       return;
     }
 
     if (!client.isConnected) {
-      rsp.status(409).send({ error: 'cannot del: client is not connected' });
+      res.status(409).send({ error: 'cannot del: client is not connected' });
 
       return;
     }
@@ -202,17 +202,17 @@ router.delete('/:id/del', async (req, rsp, next) => {
 
     await client.del(delArgs.dn);
 
-    rsp.status(204).end();
+    res.status(204).end();
   } catch (err) {
     next(err);
   }
 });
 
-router.get('/:id', (req, rsp) => {
+router.get('/:id', (req, res) => {
   const client = getClientById(req.params.id);
 
   if (!client) {
-    rsp.status(404).send({ error: 'no client exists' });
+    res.status(404).send({ error: 'no client exists' });
 
     return;
   }
@@ -221,7 +221,7 @@ router.get('/:id', (req, rsp) => {
     isConnected: client.isConnected
   };
 
-  rsp.status(200).send(clientMetaData);
+  res.status(200).send(clientMetaData);
 });
 
 export default router;

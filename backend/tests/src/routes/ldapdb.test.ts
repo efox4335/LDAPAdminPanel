@@ -13,26 +13,26 @@ describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
     describe('ldap dp url tests', () => {
       test('correct url', async () => {
-        const rsp = await supertest(app)
+        const res = await supertest(app)
           .post('/ldapdbs/')
           .send(basicNewClient)
           .expect(201);
 
-        expect(rsp.body.id).toBeDefined();
-        expect(typeof (rsp.body.id)).toStrictEqual('string');
+        expect(res.body.id).toBeDefined();
+        expect(typeof (res.body.id)).toStrictEqual('string');
 
         //required to not pollute server with unused client
         await supertest(app)
-          .delete(`/ldapbds/${rsp.body.id}`);
+          .delete(`/ldapbds/${res.body.id}`);
       });
 
       test('object passed', async () => {
-        const rsp = await supertest(app)
+        const res = await supertest(app)
           .post('/ldapdbs/')
           .send({ str: 'abcdef' })
           .expect(400);
 
-        customErrorMessageValidator(rsp.body.error, 'url is invalid');
+        customErrorMessageValidator(res.body.error, 'url is invalid');
       });
     });
   });
@@ -41,11 +41,11 @@ describe('ldapdbs endpoint tests', () => {
     let clientId: string;
 
     beforeEach(async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .post('/ldapdbs/')
         .send(basicNewClient);
 
-      clientId = rsp.body.id;
+      clientId = res.body.id;
     });
 
     afterEach(async () => {
@@ -53,12 +53,12 @@ describe('ldapdbs endpoint tests', () => {
     });
 
     test('no client', async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .put(`/ldapdbs/${invalidClientId}/bind`)
         .send(adminBind)
         .expect(404);
 
-      customErrorMessageValidator(rsp.body.error, 'cannot bind: no client exists');
+      customErrorMessageValidator(res.body.error, 'cannot bind: no client exists');
     });
 
     test('invalid request', async () => {
@@ -83,11 +83,11 @@ describe('ldapdbs endpoint tests', () => {
     let clientId: string;
 
     beforeEach(async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .post('/ldapdbs/')
         .send(basicNewClient);
 
-      clientId = rsp.body.id;
+      clientId = res.body.id;
     });
 
     afterEach(async () => {
@@ -95,11 +95,11 @@ describe('ldapdbs endpoint tests', () => {
     });
 
     test('invalid client id', async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .put(`/ldapdbs/${invalidClientId}/unbind`)
         .expect(404);
 
-      customErrorMessageValidator(rsp.body.error, 'cannot unbind: no client exists');
+      customErrorMessageValidator(res.body.error, 'cannot unbind: no client exists');
     });
 
     test('client already unbound', async () => {
@@ -109,11 +109,11 @@ describe('ldapdbs endpoint tests', () => {
 
       await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
 
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .put(`/ldapdbs/${clientId}/unbind`)
         .expect(409);
 
-      customErrorMessageValidator(rsp.body.error, 'cannot unbind: client is not connected');
+      customErrorMessageValidator(res.body.error, 'cannot unbind: client is not connected');
     });
 
     test('valid unbind', async () => {
@@ -129,21 +129,21 @@ describe('ldapdbs endpoint tests', () => {
 
   describe('delete client tests', () => {
     test('no client', async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .delete(`/ldapdbs/${invalidClientId}`)
         .expect(404);
 
-      customErrorMessageValidator(rsp.body.error, 'cannot delete: no client exists');
+      customErrorMessageValidator(res.body.error, 'cannot delete: no client exists');
 
       describe('client required tests', () => {
         let clientId: string;
 
         beforeEach(async () => {
-          const rsp = await supertest(app)
+          const res = await supertest(app)
             .post('/ldapdbs/')
             .send(basicNewClient);
 
-          clientId = rsp.body.id;
+          clientId = res.body.id;
         });
 
         test('client connected', async () => {
@@ -152,11 +152,11 @@ describe('ldapdbs endpoint tests', () => {
             .send(adminBind);
 
           try {
-            const rsp = await supertest(app)
+            const res = await supertest(app)
               .delete(`/ldapdbs/${clientId}`)
               .expect(409);
 
-            customErrorMessageValidator(rsp.body.error, 'cannot delete: client has active connection to database');
+            customErrorMessageValidator(res.body.error, 'cannot delete: client has active connection to database');
           } finally {
             await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
             await supertest(app).delete(`/ldapdbs/${clientId}`);
@@ -174,12 +174,12 @@ describe('ldapdbs endpoint tests', () => {
 
   describe('search tests', () => {
     test('no client', async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .post(`/ldapdbs/${invalidClientId}/search`)
         .send(basicSearch)
         .expect(404);
 
-      customErrorMessageValidator(rsp.body.error, 'cannot search: no client exists');
+      customErrorMessageValidator(res.body.error, 'cannot search: no client exists');
     });
 
     describe('client required', () => {
@@ -194,12 +194,12 @@ describe('ldapdbs endpoint tests', () => {
       });
 
       test('unbound search', async () => {
-        const rsp = await supertest(app)
+        const res = await supertest(app)
           .post(`/ldapdbs/${clients.adminClient}/search`)
           .send(basicSearch)
           .expect(409);
 
-        customErrorMessageValidator(rsp.body.error, 'cannot search: client is not connected');
+        customErrorMessageValidator(res.body.error, 'cannot search: client is not connected');
       });
 
       describe('bound client', () => {
@@ -219,16 +219,16 @@ describe('ldapdbs endpoint tests', () => {
         });
 
         test('correct search', async () => {
-          const rsp = await supertest(app)
+          const res = await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/search`)
             .send(basicSearch)
             .expect(200);
 
-          expect(rsp.body).toBeDefined();
-          expect(rsp.body.searchEntries).toBeDefined();
-          expect(rsp.body.searchEntries[0]).toBeDefined();
-          expect(rsp.body.searchEntries[0].namingContexts).toBeDefined();
-          expect(rsp.body.searchEntries[0].namingContexts).toStrictEqual('dc=example,dc=org');
+          expect(res.body).toBeDefined();
+          expect(res.body.searchEntries).toBeDefined();
+          expect(res.body.searchEntries[0]).toBeDefined();
+          expect(res.body.searchEntries[0].namingContexts).toBeDefined();
+          expect(res.body.searchEntries[0].namingContexts).toStrictEqual('dc=example,dc=org');
         });
       });
     });
@@ -236,12 +236,12 @@ describe('ldapdbs endpoint tests', () => {
 
   describe('add tests', () => {
     test('no client', async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .post(`/ldapdbs/${invalidClientId}/add`)
         .send(basicAdd)
         .expect(404);
 
-      customErrorMessageValidator(rsp.body.error, 'cannot add: no client exists');
+      customErrorMessageValidator(res.body.error, 'cannot add: no client exists');
     });
 
     describe('client required', () => {
@@ -256,12 +256,12 @@ describe('ldapdbs endpoint tests', () => {
       });
 
       test('unbound client', async () => {
-        const rsp = await supertest(app)
+        const res = await supertest(app)
           .post(`/ldapdbs/${clients.adminClient}/add`)
           .send(basicAdd)
           .expect(409);
 
-        customErrorMessageValidator(rsp.body.error, 'cannot add: client is not connected');
+        customErrorMessageValidator(res.body.error, 'cannot add: client is not connected');
 
         const conStat = await supertest(app).get(`/ldapdbs/${clients.adminClient}`);
 
@@ -300,11 +300,11 @@ describe('ldapdbs endpoint tests', () => {
 
   describe('client info tests', () => {
     test('no client', async () => {
-      const rsp = await supertest(app)
+      const res = await supertest(app)
         .get(`/ldapdbs/${invalidClientId}`)
         .expect(404);
 
-      customErrorMessageValidator(rsp.body.error, 'no client exists');
+      customErrorMessageValidator(res.body.error, 'no client exists');
     });
 
     describe('client required', () => {
@@ -319,13 +319,13 @@ describe('ldapdbs endpoint tests', () => {
       });
 
       test('not connected', async () => {
-        const rsp = await supertest(app)
+        const res = await supertest(app)
           .get(`/ldapdbs/${clients.adminClient}`)
           .expect(200);
 
-        expect(rsp.body).toBeDefined();
-        expect(rsp.body.isConnected).toBeDefined();
-        expect(rsp.body.isConnected).toStrictEqual(false);
+        expect(res.body).toBeDefined();
+        expect(res.body.isConnected).toBeDefined();
+        expect(res.body.isConnected).toStrictEqual(false);
       });
 
       describe('bind required', () => {
@@ -338,13 +338,13 @@ describe('ldapdbs endpoint tests', () => {
         });
 
         test('client connected', async () => {
-          const rsp = await supertest(app)
+          const res = await supertest(app)
             .get(`/ldapdbs/${clients.adminClient}`)
             .expect(200);
 
-          expect(rsp.body).toBeDefined();
-          expect(rsp.body.isConnected).toBeDefined();
-          expect(rsp.body.isConnected).toStrictEqual(true);
+          expect(res.body).toBeDefined();
+          expect(res.body.isConnected).toBeDefined();
+          expect(res.body.isConnected).toStrictEqual(true);
         });
       });
     });
