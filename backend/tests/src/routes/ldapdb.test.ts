@@ -351,4 +351,56 @@ describe('ldapdbs endpoint tests', () => {
       });
     });
   });
+
+  describe('client info tests', () => {
+    test('no client', async () => {
+      const rsp = await supertest(app)
+        .get(`/ldapdbs/${invalidClientId}`)
+        .expect(404);
+
+      customErrorMessageValidator(rsp.body.error, 'no client exists');
+    });
+
+    describe('client required', () => {
+      const clients = new testClients;
+
+      beforeEach(async () => {
+        await clients.addClients(app);
+      });
+
+      afterEach(async () => {
+        await clients.delClients(app);
+      });
+
+      test('not connected', async () => {
+        const rsp = await supertest(app)
+          .get(`/ldapdbs/${clients.adminClient}`)
+          .expect(200);
+
+        expect(rsp.body).toBeDefined();
+        expect(rsp.body.isConnected).toBeDefined();
+        expect(rsp.body.isConnected).toStrictEqual(false);
+      });
+
+      describe('bind required', () => {
+        beforeEach(async () => {
+          await clients.bindClients(app);
+        });
+
+        afterEach(async () => {
+          await clients.unbindClients(app);
+        });
+
+        test('client connected', async () => {
+          const rsp = await supertest(app)
+            .get(`/ldapdbs/${clients.adminClient}`)
+            .expect(200);
+
+          expect(rsp.body).toBeDefined();
+          expect(rsp.body.isConnected).toBeDefined();
+          expect(rsp.body.isConnected).toStrictEqual(true);
+        });
+      });
+    });
+  });
 });
