@@ -345,6 +345,16 @@ describe('ldapdbs endpoint tests', () => {
             .expect(400);
         });
 
+        test('invalid dn syntax', async () => {
+          const rsp = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send({ ...basicAdd, baseDn: 'abcdef' })
+            .expect(400);
+
+          expect(rsp.body.originalError).toStrictEqual({ code: 34, name: 'InvalidDNSyntaxError' });
+          customErrorMessageValidator(rsp.body.error, 'cannot add: base dn syntax is invalid');
+        });
+
         test('correct add', async () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)

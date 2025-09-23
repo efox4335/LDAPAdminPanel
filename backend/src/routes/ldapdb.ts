@@ -223,6 +223,12 @@ router.post('/:id/add', async (req, rsp, next) => {
       return;
     }
 
+    if (err instanceof InvalidDNSyntaxError) {
+      rsp.status(400).send({ error: 'cannot add: base dn syntax is invalid', originalError: err });
+
+      return;
+    }
+
     next(err);
   }
 });
