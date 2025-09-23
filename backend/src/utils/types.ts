@@ -1,3 +1,5 @@
+import { ZodError } from 'zod';
+
 export type bindReq = {
   dnOrSaslMechanism: string,
   password?: string | undefined
@@ -32,3 +34,21 @@ export type delReq = {
 export type clientMetaData = {
   isConnected: boolean
 };
+
+type ldapError = {
+  type: 'ldapError',
+  code: number,
+  name: string
+};
+
+type zodError = {
+  type: 'zodError',
+  error: ZodError
+};
+
+type customErrorMessage = {
+  type: 'customErrorMessage',
+  message: string
+};
+
+export type responseError = ldapError | zodError | customErrorMessage;
