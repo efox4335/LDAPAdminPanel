@@ -1,6 +1,5 @@
 import express from 'express';
 import ldapts from 'ldapts';
-import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema } from '../utils/schemas';
 import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq } from '../utils/types';
@@ -20,12 +19,6 @@ router.post('/', (req, res, next) => {
 
     res.status(201).send({ id: clientId });
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      res.status(400).send({ error: 'url is invalid' });
-
-      return;
-    }
-
     next(err);
   }
 });
@@ -58,12 +51,6 @@ router.put('/:id/bind', async (req, res, next) => {
 
     res.status(200).end();
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      res.status(400).send(err);
-
-      return;
-    }
-
     next(err);
   }
 });
@@ -140,12 +127,6 @@ router.post('/:id/search', async (req, res, next) => {
 
     res.status(200).send(searchRes);
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      res.status(400).send(err);
-
-      return;
-    }
-
     next(err);
   }
 });
@@ -172,12 +153,6 @@ router.post('/:id/add', async (req, res, next) => {
 
     res.status(201).end();
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      res.status(400).send(err);
-
-      return;
-    }
-
     next(err);
   }
 });

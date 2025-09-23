@@ -26,13 +26,13 @@ describe('ldapdbs endpoint tests', () => {
           .delete(`/ldapbds/${res.body.id}`);
       });
 
-      test('object passed', async () => {
+      test('invalid body', async () => {
         const res = await supertest(app)
           .post('/ldapdbs/')
           .send({ str: 'abcdef' })
           .expect(400);
 
-        customErrorMessageValidator(res.body.error, 'url is invalid');
+        expect(res.body.type).toStrictEqual('zodError');
       });
     });
   });
@@ -61,10 +61,12 @@ describe('ldapdbs endpoint tests', () => {
       customErrorMessageValidator(res.body.error, 'cannot bind: no client exists');
     });
 
-    test('invalid request', async () => {
-      await supertest(app)
+    test('invalid body', async () => {
+      const res = await supertest(app)
         .put(`/ldapdbs/${clientId}/bind`)
         .expect(400);
+
+      expect(res.body.type).toStrictEqual('zodError');
     });
 
     test('successful request', async () => {
@@ -212,10 +214,12 @@ describe('ldapdbs endpoint tests', () => {
         });
 
         test('invalid body', async () => {
-          await supertest(app)
+          const res = await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/search`)
             .send({ client: 'abc' })
             .expect(400);
+
+          expect(res.body.type).toStrictEqual('zodError');
         });
 
         test('correct search', async () => {
@@ -278,10 +282,12 @@ describe('ldapdbs endpoint tests', () => {
         });
 
         test('invalid body', async () => {
-          await supertest(app)
+          const res = await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)
             .send({ abc: 'def' })
             .expect(400);
+
+          expect(res.body.type).toStrictEqual('zodError');
         });
 
         test('correct add', async () => {
