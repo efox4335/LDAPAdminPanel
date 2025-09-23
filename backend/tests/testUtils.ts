@@ -20,11 +20,24 @@ export const adminBind: bindReq = {
 };
 
 export const customErrorMessageValidator = (error: unknown, expectedError: string) => {
-  if (typeof (error) !== 'string') {
-    throw new Error('error is not of type string');
+  if (typeof (error) !== 'object') {
+    throw new Error('error is not of type object');
   }
 
-  expect(error).toStrictEqual(expectedError);
+  if (!error) {
+    throw new Error('error is falsy');
+  }
+
+  if (!('message' in error)) {
+    throw new Error('no message in error');
+  }
+
+  if (!('type' in error)) {
+    throw new Error('no type in error');
+  }
+
+  expect(error.type).toStrictEqual('customErrorMessage');
+  expect(error.message).toStrictEqual(expectedError);
 };
 
 export const basicSearch: searchReq = {
