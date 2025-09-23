@@ -304,6 +304,59 @@ describe('ldapdbs endpoint tests', () => {
     });
   });
 
+  describe('del tests', () => {
+    test('no client', async () => {
+      const res = await supertest(app)
+        .delete(`/ldapdbs/${invalidClientId}/del`)
+        .send(basicDel)
+        .expect(404);
+
+      customErrorMessageValidator(res.body, 'cannot del: no client exists');
+    });
+
+    describe('client required', () => {
+      const clients = new testClients;
+
+      beforeEach(async () => {
+        await clients.addClients(app);
+      });
+
+      afterEach(async () => {
+        await clients.delClients(app);
+      });
+
+      test('unbound client', async () => {
+        const res = await supertest(app)
+          .delete(`/ldapdbs/${clients.adminClient}/del`)
+          .send(basicDel)
+          .expect(409);
+
+        customErrorMessageValidator(res.body, 'cannot del: client is not connected');
+      });
+
+      describe('bound client', () => {
+        beforeEach(async () => {
+          await clients.bindClients(app);
+        });
+
+        afterEach(async () => {
+          await clients.unbindClients(app);
+        });
+
+        test('correct del', async () => {
+          await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send(basicAdd);
+
+          await supertest(app)
+            .delete(`/ldapdbs/${clients.adminClient}/del`)
+            .send(basicDel)
+            .expect(204);
+        });
+      });
+    });
+  });
+
   describe('client info tests', () => {
     test('no client', async () => {
       const res = await supertest(app)
