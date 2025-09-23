@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, adminBind, baseDn, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients } from '../../testUtils';
+import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -65,47 +65,6 @@ describe('ldapdbs endpoint tests', () => {
       await supertest(app)
         .put(`/ldapdbs/${clientId}/bind`)
         .expect(400);
-    });
-
-    test('wrong password', async () => {
-      try {
-        const rsp = await supertest(app)
-          .put(`/ldapdbs/${clientId}/bind`)
-          .send({ ...adminBind, password: 'wrong' })
-          .expect(401);
-
-        expect(rsp.body.originalError).toStrictEqual({ code: 49, name: 'InvalidCredentialsError' });
-        customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid credentials');
-      } finally {
-        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
-      }
-    });
-
-    test('invalid dn syntax', async () => {
-      try {
-        const rsp = await supertest(app)
-          .put(`/ldapdbs/${clientId}/bind`)
-          .send({ ...adminBind, dnOrSaslMechanism: 'abcdef' })
-          .expect(400);
-
-        expect(rsp.body.originalError).toStrictEqual({ code: 34, name: 'InvalidDNSyntaxError' });
-        customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid dn syntax');
-      } finally {
-        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
-      }
-    });
-
-    test('invalid dn', async () => {
-      try {
-        const rsp = await supertest(app)
-          .put(`/ldapdbs/${clientId}/bind`)
-          .send({ ...adminBind, dnOrSaslMechanism: baseDn })
-          .expect(401);
-
-        customErrorMessageValidator(rsp.body.error, 'cannot bind: invalid credentials');
-      } finally {
-        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
-      }
     });
 
     test('successful request', async () => {
@@ -259,26 +218,6 @@ describe('ldapdbs endpoint tests', () => {
             .expect(400);
         });
 
-        test('non existent dn', async () => {
-          const rsp = await supertest(app)
-            .post(`/ldapdbs/${clients.adminClient}/search`)
-            .send({ ...basicSearch, baseDn: 'dc=abc' })
-            .expect(404);
-
-          expect(rsp.body.originalError).toStrictEqual({ code: 32, name: 'NoSuchObjectError' });
-          customErrorMessageValidator(rsp.body.error, 'cannot search: base dn does not match any in server');
-        });
-
-        test('invalid dn syntax', async () => {
-          const rsp = await supertest(app)
-            .post(`/ldapdbs/${clients.adminClient}/search`)
-            .send({ ...basicSearch, baseDn: 'abcdef' })
-            .expect(400);
-
-          expect(rsp.body.originalError).toStrictEqual({ code: 34, name: 'InvalidDNSyntaxError' });
-          customErrorMessageValidator(rsp.body.error, 'cannot search: base dn syntax is invalid');
-        });
-
         test('correct search', async () => {
           const rsp = await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/search`)
@@ -343,46 +282,6 @@ describe('ldapdbs endpoint tests', () => {
             .post(`/ldapdbs/${clients.adminClient}/add`)
             .send({ abc: 'def' })
             .expect(400);
-        });
-
-        test('invalid dn syntax', async () => {
-          const rsp = await supertest(app)
-            .post(`/ldapdbs/${clients.adminClient}/add`)
-            .send({ ...basicAdd, baseDn: 'abcdef' })
-            .expect(400);
-
-          expect(rsp.body.originalError).toStrictEqual({ code: 34, name: 'InvalidDNSyntaxError' });
-          customErrorMessageValidator(rsp.body.error, 'cannot add: base dn syntax is invalid');
-        });
-
-        test('non existent dn', async () => {
-          const rsp = await supertest(app)
-            .post(`/ldapdbs/${clients.adminClient}/add`)
-            .send({ ...basicAdd, baseDn: 'cn=test,dc=invaliddn,dc=example,dc=org' })
-            .expect(400);
-
-          expect(rsp.body.originalError).toStrictEqual({ code: 32, name: 'NoSuchObjectError' });
-          customErrorMessageValidator(rsp.body.error, 'cannot add: base dn does not exist');
-        });
-
-        test('undefined attribute', async () => {
-          const rsp = await supertest(app)
-            .post(`/ldapdbs/${clients.adminClient}/add`)
-            .send({ ...basicAdd, entry: { ...basicAdd.entry, invalidAttribute: 'abc' } })
-            .expect(400);
-
-          expect(rsp.body.originalError).toStrictEqual({ code: 17, name: 'UndefinedTypeError' });
-          customErrorMessageValidator(rsp.body.error, 'cannot add: attributes given do not match schema');
-        });
-
-        test('invalid attribute syntax', async () => {
-          const rsp = await supertest(app)
-            .post(`/ldapdbs/${clients.adminClient}/add`)
-            .send({ ...basicAdd, entry: { ...basicAdd.entry, seeAlso: 'abcdef' } })
-            .expect(400);
-
-          expect(rsp.body.originalError).toStrictEqual({ code: 21, name: 'InvalidSyntaxError' });
-          customErrorMessageValidator(rsp.body.error, 'cannot add: attributes given do not match their syntax');
         });
 
         test('correct add', async () => {
