@@ -229,6 +229,12 @@ router.post('/:id/add', async (req, rsp, next) => {
       return;
     }
 
+    if (err instanceof NoSuchObjectError) {
+      rsp.status(400).send({ error: 'cannot add: base dn does not exist', originalError: err });
+
+      return;
+    }
+
     next(err);
   }
 });

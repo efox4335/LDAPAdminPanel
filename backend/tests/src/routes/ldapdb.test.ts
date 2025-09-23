@@ -355,6 +355,16 @@ describe('ldapdbs endpoint tests', () => {
           customErrorMessageValidator(rsp.body.error, 'cannot add: base dn syntax is invalid');
         });
 
+        test('non existent dn', async () => {
+          const rsp = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send({ ...basicAdd, baseDn: 'cn=test,dc=invaliddn,dc=example,dc=org' })
+            .expect(400);
+
+          expect(rsp.body.originalError).toStrictEqual({ code: 32, name: 'NoSuchObjectError' });
+          customErrorMessageValidator(rsp.body.error, 'cannot add: base dn does not exist');
+        });
+
         test('correct add', async () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)
