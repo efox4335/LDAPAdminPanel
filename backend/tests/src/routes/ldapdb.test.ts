@@ -365,6 +365,16 @@ describe('ldapdbs endpoint tests', () => {
           customErrorMessageValidator(rsp.body.error, 'cannot add: base dn does not exist');
         });
 
+        test('undefined attribute', async () => {
+          const rsp = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send({ ...basicAdd, entry: { ...basicAdd.entry, invalidAttribute: 'abc' } })
+            .expect(400);
+
+          expect(rsp.body.originalError).toStrictEqual({ code: 17, name: 'UndefinedTypeError' });
+          customErrorMessageValidator(rsp.body.error, 'cannot add: attributes given do not match schema');
+        });
+
         test('correct add', async () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)

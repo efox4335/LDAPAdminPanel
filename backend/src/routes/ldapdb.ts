@@ -235,6 +235,12 @@ router.post('/:id/add', async (req, rsp, next) => {
       return;
     }
 
+    if (err instanceof UndefinedTypeError) {
+      rsp.status(400).send({ error: 'cannot add: attributes given do not match schema', originalError: err });
+
+      return;
+    }
+
     next(err);
   }
 });
