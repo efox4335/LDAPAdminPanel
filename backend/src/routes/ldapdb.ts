@@ -3,7 +3,7 @@ import ldapts, { InvalidCredentialsError, InvalidDNSyntaxError, NoSuchObjectErro
 import * as z from 'zod';
 
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema } from '../utils/schemas';
-import type { addReq, bindReq, clientReq, delReq, searchReq } from '../utils/types';
+import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq } from '../utils/types';
 import { addNewClient, getClientById, removeClientById } from '../utils/state';
 
 const router = express.Router();
@@ -247,7 +247,7 @@ router.delete('/:id/del', async (req, rsp, next) => {
   }
 });
 
-router.get('/:id/isconnected', (req, rsp) => {
+router.get('/:id', (req, rsp) => {
   const client = getClientById(req.params.id);
 
   if (!client) {
@@ -256,7 +256,11 @@ router.get('/:id/isconnected', (req, rsp) => {
     return;
   }
 
-  rsp.status(200).send({ isConnected: client.isConnected });
+  const clientMetaData: clientMetaData = {
+    isConnected: client.isConnected
+  };
+
+  rsp.status(200).send(clientMetaData);
 });
 
 export default router;

@@ -324,7 +324,7 @@ describe('ldapdbs endpoint tests', () => {
 
         customErrorMessageValidator(rsp.body.error, 'cannot add: client is not connected');
 
-        const conStat = await supertest(app).get(`/ldapdbs/${clients.adminClient}/isconnected`);
+        const conStat = await supertest(app).get(`/ldapdbs/${clients.adminClient}`);
 
         expect(conStat.body.isConnected).toStrictEqual(false);
       });

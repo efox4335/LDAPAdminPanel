@@ -28,3 +28,7 @@ export type addReq = {
 export type delReq = {
   dn: string
 };
+
+export type clientMetaData = {
+  isConnected: boolean
+};
