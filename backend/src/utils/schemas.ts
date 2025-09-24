@@ -70,5 +70,5 @@ export const modifyReqSchema = z.object({
     operation: z.enum(['replace', 'add', 'delete']),
     type: z.string(),
     values: z.array(z.string())
-  }))
+  })).min(1)
 });
