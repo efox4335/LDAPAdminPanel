@@ -1,15 +1,24 @@
 import { ZodError } from 'zod';
 
-export type bindReq = {
+interface controlObject {
+  type: string,
+  critical: boolean
+};
+
+interface control {
+  control?: controlObject | controlObject[] | undefined
+};
+
+export interface bindReq extends control {
   dnOrSaslMechanism: string,
-  password?: string | undefined
+  password?: string | undefined,
 };
 
 export type clientReq = {
   url: string
 };
 
-export type searchReq = {
+export interface searchReq extends control {
   baseDn: string,
   options: {
     scope: 'base' | 'one' | 'sub' | 'children',
@@ -22,12 +31,12 @@ export type searchReq = {
   }
 };
 
-export type addReq = {
+export interface addReq extends control {
   baseDn: string,
   entry: Record<string, string[] | string>
 };
 
-export type delReq = {
+export interface delReq extends control {
   dn: string
 };
 
