@@ -5,7 +5,7 @@ interface controlObject {
   critical: boolean
 };
 
-interface control {
+export interface control {
   control?: controlObject | controlObject[] | undefined
 };
 
