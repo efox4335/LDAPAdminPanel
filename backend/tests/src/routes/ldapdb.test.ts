@@ -374,6 +374,15 @@ describe('ldapdbs endpoint tests', () => {
           await clients.unbindClients(app);
         });
 
+        test('invalid body', async () => {
+          const res = await supertest(app)
+            .delete(`/ldapdbs/${clients.adminClient}/del`)
+            .send({ abc: 'def' })
+            .expect(400);
+
+          expect(res.body.type).toStrictEqual('zodError');
+        });
+
         test('correct del', async () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)
