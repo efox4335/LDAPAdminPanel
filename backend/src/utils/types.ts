@@ -5,7 +5,7 @@ interface controlObject {
   critical: boolean
 };
 
-type modifyReqChange = {
+export type modifyReqChange = {
   operation: 'replace' | 'add' | 'delete',
   type: string,
   values: string[]
