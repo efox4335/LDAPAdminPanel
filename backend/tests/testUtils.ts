@@ -2,7 +2,7 @@ import expect from 'expect';
 import supertest from 'supertest';
 import { Express } from 'express';
 
-import type { addReq, bindReq, clientReq, delReq, searchReq } from '../src/utils/types';
+import type { addReq, bindReq, clientReq, delReq, exopReq, searchReq } from '../src/utils/types';
 
 export const serverUrl = 'ldap://localhost:1389';
 
@@ -97,6 +97,10 @@ export const unavailableCriticalValiadator = (error: unknown) => {
 
 export const basicDel: delReq = {
   dn: testUserDn
+};
+
+export const basicExop: exopReq = {
+  oid: '1.3.6.1.4.1.4203.1.11.3' //who am i request
 };
 
 export class testClients {

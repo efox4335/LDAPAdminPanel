@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator } from '../../testUtils';
+import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -412,6 +412,66 @@ describe('ldapdbs endpoint tests', () => {
               .send(basicDel)
               .expect(204);
           }
+        });
+      });
+    });
+  });
+
+  describe('exop tests', () => {
+    test('no client', async () => {
+      const res = await supertest(app)
+        .post(`/ldapdbs/${invalidClientId}/exop`)
+        .send(basicExop)
+        .expect(404);
+
+      customErrorMessageValidator(res.body, 'cannot exop: no client exists');
+    });
+
+    describe('client required', () => {
+      const clients = new testClients;
+
+      beforeEach(async () => {
+        await clients.addClients(app);
+      });
+
+      afterEach(async () => {
+        await clients.delClients(app);
+      });
+
+      test('not connected', async () => {
+        const res = await supertest(app)
+          .post(`/ldapdbs/${clients.adminClient}/exop`)
+          .send(basicExop)
+          .expect(409);
+
+        customErrorMessageValidator(res.body, 'cannot exop: client is not connected');
+      });
+
+      describe('bound client', () => {
+        beforeEach(async () => {
+          await clients.bindClients(app);
+        });
+
+        afterEach(async () => {
+          await clients.unbindClients(app);
+        });
+
+        test('correct exop', async () => {
+          const res = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/exop`)
+            .send(basicExop)
+            .expect(200);
+
+          expect(res.body.value).toStrictEqual(`dn:cn=admin,${baseDn}`);
+        });
+
+        test('control passed', async () => {
+          const res = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/exop`)
+            .send({ ...basicExop, control: testControl })
+            .expect(400);
+
+          unavailableCriticalValiadator(res.body);
         });
       });
     });

@@ -1,8 +1,8 @@
 import express from 'express';
 import ldapts from 'ldapts';
 
-import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema } from '../utils/schemas';
-import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq, responseError } from '../utils/types';
+import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema, exopReqSchema } from '../utils/schemas';
+import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq, responseError, exopReq } from '../utils/types';
 import { addNewClient, getClientById, removeClientById } from '../utils/state';
 import controlParser from '../utils/controlParser';
 
@@ -238,6 +238,44 @@ router.delete('/:id/del', async (req, res, next) => {
     await client.del(delArgs.dn, controlArg);
 
     res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/exop', async (req, res, next) => {
+  try {
+    const client = getClientById(req.params.id);
+
+    if (!client) {
+      const err: responseError = {
+        type: 'customErrorMessage',
+        message: 'cannot exop: no client exists'
+      };
+
+      res.status(404).send(err);
+
+      return;
+    }
+
+    if (!client.isConnected) {
+      const err: responseError = {
+        type: 'customErrorMessage',
+        message: 'cannot exop: client is not connected'
+      };
+
+      res.status(409).send(err);
+
+      return;
+    }
+
+    const exopArgs: exopReq = exopReqSchema.parse(req.body);
+
+    const controlArg = controlParser(exopArgs);
+
+    const exopRes = await client.exop(exopArgs.oid, exopArgs.value, controlArg);
+
+    res.status(200).send(exopRes);
   } catch (err) {
     next(err);
   }
