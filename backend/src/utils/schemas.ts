@@ -49,3 +49,10 @@ export const exopReqSchema = z.object({
   oid: z.string(),
   value: z.string().optional()
 });
+
+export const compareReqSchema = z.object({
+  ...controlSchema.shape,
+  dn: z.string(),
+  attribute: z.string(),
+  value: z.string()
+});

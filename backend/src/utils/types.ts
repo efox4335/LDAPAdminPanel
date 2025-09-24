@@ -45,6 +45,12 @@ export interface exopReq extends control {
   value?: string | undefined
 };
 
+export interface compareReq extends control {
+  dn: string,
+  attribute: string,
+  value: string
+};
+
 export type clientMetaData = {
   isConnected: boolean
 };
