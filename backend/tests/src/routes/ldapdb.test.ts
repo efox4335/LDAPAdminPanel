@@ -32,7 +32,7 @@ describe('ldapdbs endpoint tests', () => {
           .send({ str: 'abcdef' })
           .expect(400);
 
-        expect(res.body.type).toStrictEqual('zodError');
+        expect(res.body.type).toStrictEqual('validationError');
       });
     });
   });
@@ -66,7 +66,7 @@ describe('ldapdbs endpoint tests', () => {
         .put(`/ldapdbs/${clientId}/bind`)
         .expect(400);
 
-      expect(res.body.type).toStrictEqual('zodError');
+      expect(res.body.type).toStrictEqual('validationError');
     });
 
     test('control passed', async () => {
@@ -232,7 +232,7 @@ describe('ldapdbs endpoint tests', () => {
             .send({ client: 'abc' })
             .expect(400);
 
-          expect(res.body.type).toStrictEqual('zodError');
+          expect(res.body.type).toStrictEqual('validationError');
         });
 
         test('control passed', async () => {
@@ -309,7 +309,7 @@ describe('ldapdbs endpoint tests', () => {
             .send({ abc: 'def' })
             .expect(400);
 
-          expect(res.body.type).toStrictEqual('zodError');
+          expect(res.body.type).toStrictEqual('validationError');
         });
 
         test('control passed', async () => {
@@ -380,7 +380,7 @@ describe('ldapdbs endpoint tests', () => {
             .send({ abc: 'def' })
             .expect(400);
 
-          expect(res.body.type).toStrictEqual('zodError');
+          expect(res.body.type).toStrictEqual('validationError');
         });
 
         test('correct del', async () => {

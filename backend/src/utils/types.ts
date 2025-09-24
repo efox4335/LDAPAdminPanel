@@ -77,8 +77,8 @@ type ldapError = {
   name: string
 };
 
-type zodError = {
-  type: 'zodError',
+type validationError = {
+  type: 'validationError',
   error: ZodError
 };
 
@@ -87,4 +87,4 @@ type customErrorMessage = {
   message: string
 };
 
-export type responseError = ldapError | zodError | customErrorMessage;
+export type responseError = ldapError | validationError | customErrorMessage;

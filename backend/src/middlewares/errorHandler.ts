@@ -15,7 +15,7 @@ const errorHandler = (err: unknown, _req: express.Request, res: express.Response
 
   if (err instanceof ZodError) {
     const error: responseError = {
-      type: 'zodError',
+      type: 'validationError',
       error: err
     };
 
