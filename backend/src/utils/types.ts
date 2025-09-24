@@ -51,6 +51,11 @@ export interface compareReq extends control {
   value: string
 };
 
+export interface modifyDnReq extends control {
+  dn: string,
+  newDN: string
+};
+
 export type clientMetaData = {
   isConnected: boolean
 };

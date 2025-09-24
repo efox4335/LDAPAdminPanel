@@ -56,3 +56,9 @@ export const compareReqSchema = z.object({
   attribute: z.string(),
   value: z.string()
 });
+
+export const modifyDNReqSchema = z.object({
+  ...controlSchema.shape,
+  dn: z.string(),
+  newDN: z.string()
+});
