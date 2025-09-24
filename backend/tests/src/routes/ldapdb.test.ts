@@ -395,21 +395,23 @@ describe('ldapdbs endpoint tests', () => {
         });
 
         test('control passed', async () => {
-          await supertest(app)
-            .post(`/ldapdbs/${clients.adminClient}/add`)
-            .send(basicAdd);
+          try {
+            await supertest(app)
+              .post(`/ldapdbs/${clients.adminClient}/add`)
+              .send(basicAdd);
 
-          const res = await supertest(app)
-            .delete(`/ldapdbs/${clients.adminClient}/del`)
-            .send({ ...basicDel, control: testControl })
-            .expect(400);
+            const res = await supertest(app)
+              .delete(`/ldapdbs/${clients.adminClient}/del`)
+              .send({ ...basicDel, control: testControl })
+              .expect(400);
 
-          unavailableCriticalValiadator(res.body);
-
-          await supertest(app)
-            .delete(`/ldapdbs/${clients.adminClient}/del`)
-            .send(basicDel)
-            .expect(204);
+            unavailableCriticalValiadator(res.body);
+          } finally {
+            await supertest(app)
+              .delete(`/ldapdbs/${clients.adminClient}/del`)
+              .send(basicDel)
+              .expect(204);
+          }
         });
       });
     });
