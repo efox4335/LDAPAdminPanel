@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients } from '../../testUtils';
+import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -67,6 +67,19 @@ describe('ldapdbs endpoint tests', () => {
         .expect(400);
 
       expect(res.body.type).toStrictEqual('zodError');
+    });
+
+    test('control passed', async () => {
+      try {
+        const res = await supertest(app)
+          .put(`/ldapdbs/${clientId}/bind`)
+          .send({ ...adminBind, control: testControl })
+          .expect(400);
+
+        unavailableCriticalValiadator(res.body);
+      } finally {
+        await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+      }
     });
 
     test('successful request', async () => {
@@ -222,6 +235,15 @@ describe('ldapdbs endpoint tests', () => {
           expect(res.body.type).toStrictEqual('zodError');
         });
 
+        test('control passed', async () => {
+          const res = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/search`)
+            .send({ ...basicSearch, control: testControl })
+            .expect(400);
+
+          unavailableCriticalValiadator(res.body);
+        });
+
         test('correct search', async () => {
           const res = await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/search`)
@@ -290,6 +312,15 @@ describe('ldapdbs endpoint tests', () => {
           expect(res.body.type).toStrictEqual('zodError');
         });
 
+        test('control passed', async () => {
+          const res = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send({ ...basicAdd, control: testControl })
+            .expect(400);
+
+          unavailableCriticalValiadator(res.body);
+        });
+
         test('correct add', async () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)
@@ -347,6 +378,24 @@ describe('ldapdbs endpoint tests', () => {
           await supertest(app)
             .post(`/ldapdbs/${clients.adminClient}/add`)
             .send(basicAdd);
+
+          await supertest(app)
+            .delete(`/ldapdbs/${clients.adminClient}/del`)
+            .send(basicDel)
+            .expect(204);
+        });
+
+        test('control passed', async () => {
+          await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/add`)
+            .send(basicAdd);
+
+          const res = await supertest(app)
+            .delete(`/ldapdbs/${clients.adminClient}/del`)
+            .send({ ...basicDel, control: testControl })
+            .expect(400);
+
+          unavailableCriticalValiadator(res.body);
 
           await supertest(app)
             .delete(`/ldapdbs/${clients.adminClient}/del`)

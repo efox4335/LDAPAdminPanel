@@ -69,6 +69,32 @@ export const basicAdd: addReq = {
   }
 };
 
+export const unavailableCriticalValiadator = (error: unknown) => {
+  if (typeof (error) !== 'object') {
+    throw new Error('error is not of type object');
+  }
+
+  if (!error) {
+    throw new Error('error is falsy');
+  }
+
+  if (!('type' in error)) {
+    throw new Error('no type in error');
+  }
+
+  if (!('code' in error)) {
+    throw new Error('no code in error');
+  }
+
+  if (!('name' in error)) {
+    throw new Error('no name in error');
+  }
+
+  expect(error.type).toStrictEqual('ldapError');
+  expect(error.code).toStrictEqual(12);
+  expect(error.name).toStrictEqual('UnavailableCriticalExtensionError');
+};
+
 export const basicDel: delReq = {
   dn: testUserDn
 };
@@ -98,4 +124,10 @@ export class testClients {
   async unbindClients(app: Express) {
     await supertest(app).put(`/ldapdbs/${this.adminClient}/unbind`);
   }
+};
+
+//testing a failed critical control allows reuse for all endpoints
+export const testControl = {
+  type: '1.2',
+  critical: true
 };

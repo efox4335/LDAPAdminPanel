@@ -4,6 +4,7 @@ import ldapts from 'ldapts';
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema } from '../utils/schemas';
 import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq, responseError } from '../utils/types';
 import { addNewClient, getClientById, removeClientById } from '../utils/state';
+import controlParser from '../utils/controlParser';
 
 const router = express.Router();
 
@@ -48,11 +49,9 @@ router.put('/:id/bind', async (req, res, next) => {
       return;
     }
 
-    if (bindArgs.password) {
-      await client.bind(bindArgs.dnOrSaslMechanism, bindArgs.password);
-    } else {
-      await client.bind(bindArgs.dnOrSaslMechanism);
-    }
+    const controlArg = controlParser(bindArgs);
+
+    await client.bind(bindArgs.dnOrSaslMechanism, bindArgs.password, controlArg);
 
     res.status(200).end();
   } catch (err) {
@@ -158,7 +157,9 @@ router.post('/:id/search', async (req, res, next) => {
 
     const searchArgs: searchReq = searchReqSchema.parse(req.body);
 
-    const searchRes = await client.search(searchArgs.baseDn, searchArgs.options);
+    const controlArg = controlParser(searchArgs);
+
+    const searchRes = await client.search(searchArgs.baseDn, searchArgs.options, controlArg);
 
     res.status(200).send(searchRes);
   } catch (err) {
@@ -194,7 +195,9 @@ router.post('/:id/add', async (req, res, next) => {
 
     const addArgs: addReq = addReqSchema.parse(req.body);
 
-    await client.add(addArgs.baseDn, addArgs.entry);
+    const controlArg = controlParser(addArgs);
+
+    await client.add(addArgs.baseDn, addArgs.entry, controlArg);
 
     res.status(201).end();
   } catch (err) {
@@ -230,7 +233,9 @@ router.delete('/:id/del', async (req, res, next) => {
 
     const delArgs: delReq = delReqSchema.parse(req.body);
 
-    await client.del(delArgs.dn);
+    const controlArg = controlParser(delArgs);
+
+    await client.del(delArgs.dn, controlArg);
 
     res.status(204).end();
   } catch (err) {
