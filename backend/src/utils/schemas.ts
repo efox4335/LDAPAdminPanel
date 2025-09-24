@@ -43,3 +43,9 @@ export const delReqSchema = z.object({
   ...controlSchema.shape,
   dn: z.string()
 });
+
+export const exopReqSchema = z.object({
+  ...controlSchema.shape,
+  oid: z.string(),
+  value: z.string().optional()
+});

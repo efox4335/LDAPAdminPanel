@@ -40,6 +40,11 @@ export interface delReq extends control {
   dn: string
 };
 
+export interface exopReq extends control {
+  oid: string,
+  value?: string | undefined
+};
+
 export type clientMetaData = {
   isConnected: boolean
 };
