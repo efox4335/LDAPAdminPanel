@@ -10,7 +10,7 @@ const controlObjectSchema = z.object({
 });
 
 const controlSchema = z.object({
-  control: z.union([controlObjectSchema, z.array(controlObjectSchema)]).optional()
+  control: z.array(controlObjectSchema).optional()
 });
 
 export const bindReqSchema = z.object({

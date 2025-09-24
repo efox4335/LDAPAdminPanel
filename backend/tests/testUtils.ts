@@ -131,7 +131,8 @@ export class testClients {
 };
 
 //testing a failed critical control allows reuse for all endpoints
-export const testControl = {
+export const testControl = [{
   type: '1.2',
   critical: true
-};
+
+}];

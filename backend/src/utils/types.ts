@@ -12,7 +12,7 @@ export type modifyReqChange = {
 };
 
 export interface control {
-  control?: controlObject | controlObject[] | undefined
+  control?: controlObject[] | undefined
 };
 
 export interface bindReq extends control {
