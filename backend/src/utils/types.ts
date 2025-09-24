@@ -5,6 +5,12 @@ interface controlObject {
   critical: boolean
 };
 
+type modifyReqChange = {
+  operation: 'replace' | 'add' | 'delete',
+  type: string,
+  values: string[]
+};
+
 export interface control {
   control?: controlObject | controlObject[] | undefined
 };
@@ -54,6 +60,11 @@ export interface compareReq extends control {
 export interface modifyDnReq extends control {
   dn: string,
   newDN: string
+};
+
+export interface modifyReq extends control {
+  dn: string,
+  changes: modifyReqChange[]
 };
 
 export type clientMetaData = {

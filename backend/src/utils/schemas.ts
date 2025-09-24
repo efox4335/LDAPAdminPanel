@@ -62,3 +62,13 @@ export const modifyDNReqSchema = z.object({
   dn: z.string(),
   newDN: z.string()
 });
+
+export const modifyReqSchema = z.object({
+  ...controlSchema.shape,
+  dn: z.string(),
+  changes: z.array(z.object({
+    operation: z.enum(['replace', 'add', 'delete']),
+    type: z.string(),
+    values: z.array(z.string())
+  }))
+});
