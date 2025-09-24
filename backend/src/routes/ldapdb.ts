@@ -1,10 +1,11 @@
 import express from 'express';
 import ldapts from 'ldapts';
 
-import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema, exopReqSchema, compareReqSchema, modifyDNReqSchema } from '../utils/schemas';
-import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq, responseError, exopReq, compareReq, modifyDnReq } from '../utils/types';
+import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema, exopReqSchema, compareReqSchema, modifyDNReqSchema, modifyReqSchema } from '../utils/schemas';
+import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq, responseError, exopReq, compareReq, modifyDnReq, modifyReq } from '../utils/types';
 import { addNewClient, getClientById, removeClientById } from '../utils/state';
 import controlParser from '../utils/controlParser';
+import changeParser from '../utils/changeParser';
 
 const router = express.Router();
 
@@ -350,6 +351,46 @@ router.put('/:id/modifydn', async (req, res, next) => {
     const controlArg = controlParser(modifyDnArgs);
 
     await client.modifyDN(modifyDnArgs.dn, modifyDnArgs.newDN, controlArg);
+
+    res.status(201).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/:id/modify', async (req, res, next) => {
+  try {
+    const client = getClientById(req.params.id);
+
+    if (!client) {
+      const err: responseError = {
+        type: 'customErrorMessage',
+        message: 'cannot exop: no client exists'
+      };
+
+      res.status(404).send(err);
+
+      return;
+    }
+
+    if (!client.isConnected) {
+      const err: responseError = {
+        type: 'customErrorMessage',
+        message: 'cannot exop: client is not connected'
+      };
+
+      res.status(409).send(err);
+
+      return;
+    }
+
+    const modifyArgs: modifyReq = modifyReqSchema.parse(req.body);
+
+    const controlArg = controlParser(modifyArgs);
+
+    const changes = changeParser(modifyArgs.changes);
+
+    await client.modify(modifyArgs.dn, changes, controlArg);
 
     res.status(201).end();
   } catch (err) {
