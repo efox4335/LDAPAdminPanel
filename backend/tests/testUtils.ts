@@ -2,7 +2,7 @@ import expect from 'expect';
 import supertest from 'supertest';
 import { Express } from 'express';
 
-import type { addReq, bindReq, clientReq, compareReq, delReq, exopReq, searchReq } from '../src/utils/types';
+import type { addReq, bindReq, clientReq, compareReq, delReq, exopReq, modifyReq, searchReq } from '../src/utils/types';
 
 export const serverUrl = 'ldap://localhost:1389';
 
@@ -107,6 +107,21 @@ export const basicDel: delReq = {
 
 export const basicExop: exopReq = {
   oid: '1.3.6.1.4.1.4203.1.11.3' //who am i request
+};
+
+export const basicModify: modifyReq = {
+  dn: testUserDn,
+  changes: [{
+    operation: 'replace',
+    type: 'sn',
+    values: ['newName']
+  }]
+};
+
+export const validateBasicModify: compareReq = {
+  dn: testUserDn,
+  attribute: 'sn',
+  value: 'newName'
 };
 
 export class testClients {
