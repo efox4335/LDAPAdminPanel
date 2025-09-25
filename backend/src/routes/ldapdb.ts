@@ -282,7 +282,7 @@ router.post('/:id/exop', async (req, res, next) => {
   }
 });
 
-router.post('/:id/comapre', async (req, res, next) => {
+router.post('/:id/compare', async (req, res, next) => {
   try {
     const client = getClientById(req.params.id);
 
