@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn, basicCompare, basicModify, validateBasicModify } from '../../testUtils';
+import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn, basicCompare, basicModify, validateBasicModify, basicModifyDn, undoBasicModifyDn, validateBasicModifyDn } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -631,6 +631,93 @@ describe('ldapdbs endpoint tests', () => {
             const res = await supertest(app)
               .put(`/ldapdbs/${clients.adminClient}/modify`)
               .send({ ...basicModify, control: testControl })
+              .expect(400);
+
+            unavailableCriticalValiadator(res.body);
+          });
+        });
+      });
+    });
+  });
+
+  describe('modify dn tests', () => {
+    test('no client', async () => {
+      const res = await supertest(app)
+        .put(`/ldapdbs/${invalidClientId}/modifydn`)
+        .send(basicModifyDn)
+        .expect(404);
+
+      customErrorMessageValidator(res.body, 'cannot modify dn: no client exists');
+    });
+
+    describe('client required', () => {
+      const clients = new testClients;
+
+      beforeEach(async () => {
+        await clients.addClients(app);
+      });
+
+      afterEach(async () => {
+        await clients.delClients(app);
+      });
+
+      test('not connected', async () => {
+        const res = await supertest(app)
+          .put(`/ldapdbs/${clients.adminClient}/modifydn`)
+          .send(basicModifyDn)
+          .expect(409);
+
+        customErrorMessageValidator(res.body, 'cannot modify dn: client is not connected');
+      });
+
+      describe('bound client', () => {
+        beforeEach(async () => {
+          await clients.bindClients(app);
+        });
+
+        afterEach(async () => {
+          await clients.unbindClients(app);
+        });
+
+        test('validation error', async () => {
+          const res = await supertest(app)
+            .put(`/ldapdbs/${clients.adminClient}/modifydn`)
+            .send({ abc: 'def' })
+            .expect(400);
+
+          expect(res.body.type).toStrictEqual('validationError');
+        });
+
+        describe('entry required', () => {
+          beforeEach(async () => {
+            await clients.addEntries(app);
+          });
+
+          afterEach(async () => {
+            await clients.delEntries(app);
+          });
+
+          test('correct modify dn', async () => {
+            await supertest(app)
+              .put(`/ldapdbs/${clients.adminClient}/modifydn`)
+              .send(basicModifyDn)
+              .expect(201);
+
+            await supertest(app)
+              .post(`/ldapdbs/${clients.adminClient}/search`)
+              .send(validateBasicModifyDn)
+              .expect(200);
+
+            await supertest(app)
+              .put(`/ldapdbs/${clients.adminClient}/modifydn`)
+              .send(undoBasicModifyDn)
+              .expect(201);
+          });
+
+          test('control passed', async () => {
+            const res = await supertest(app)
+              .put(`/ldapdbs/${clients.adminClient}/modifydn`)
+              .send({ ...basicModifyDn, control: testControl })
               .expect(400);
 
             unavailableCriticalValiadator(res.body);
