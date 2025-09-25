@@ -24,7 +24,7 @@ describe('ldapdbs endpoint tests', () => {
 
         //required to not pollute server with unused client
         await supertest(app)
-          .delete(`/ldapbds/${res.body.id}`);
+          .delete(`/ldapdbs/${res.body.id}`);
       });
 
       test('invalid body', async () => {
