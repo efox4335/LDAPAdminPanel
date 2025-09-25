@@ -2,7 +2,7 @@ import expect from 'expect';
 import supertest from 'supertest';
 import { Express } from 'express';
 
-import type { addReq, bindReq, clientReq, delReq, exopReq, searchReq } from '../src/utils/types';
+import type { addReq, bindReq, clientReq, compareReq, delReq, exopReq, searchReq } from '../src/utils/types';
 
 export const serverUrl = 'ldap://localhost:1389';
 
@@ -69,6 +69,12 @@ export const basicAdd: addReq = {
   }
 };
 
+export const basicCompare: compareReq = {
+  dn: testUserDn,
+  attribute: 'cn',
+  value: 'test'
+};
+
 export const unavailableCriticalValiadator = (error: unknown) => {
   if (typeof (error) !== 'object') {
     throw new Error('error is not of type object');
@@ -127,6 +133,14 @@ export class testClients {
 
   async unbindClients(app: Express) {
     await supertest(app).put(`/ldapdbs/${this.adminClient}/unbind`);
+  }
+
+  async addEntries(app: Express) {
+    await supertest(app).post(`/ldapdbs/${this.adminClient}/add`).send(basicAdd);
+  }
+
+  async delEntries(app: Express) {
+    await supertest(app).delete(`/ldapdbs/${this.adminClient}/del`).send(basicDel);
   }
 };
 

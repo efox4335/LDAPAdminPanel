@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn } from '../../testUtils';
+import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn, basicCompare } from '../../testUtils';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -472,6 +472,85 @@ describe('ldapdbs endpoint tests', () => {
             .expect(400);
 
           unavailableCriticalValiadator(res.body);
+        });
+      });
+    });
+  });
+
+  describe('compare tests', () => {
+    test('no client', async () => {
+      const res = await supertest(app)
+        .post(`/ldapdbs/${invalidClientId}/compare`)
+        .send(basicCompare)
+        .expect(404);
+
+      customErrorMessageValidator(res.body, 'cannot compare: no client exists');
+    });
+
+    describe('client required', () => {
+      const clients = new testClients;
+
+      beforeEach(async () => {
+        await clients.addClients(app);
+      });
+
+      afterEach(async () => {
+        await clients.delClients(app);
+      });
+
+      test('not connected', async () => {
+        const res = await supertest(app)
+          .post(`/ldapdbs/${clients.adminClient}/compare`)
+          .send(basicCompare)
+          .expect(409);
+
+        customErrorMessageValidator(res.body, 'cannot compare: client is not connected');
+      });
+
+      describe('bound client', () => {
+        beforeEach(async () => {
+          await clients.bindClients(app);
+        });
+
+        afterEach(async () => {
+          await clients.unbindClients(app);
+        });
+
+        test('validation error', async () => {
+          const res = await supertest(app)
+            .post(`/ldapdbs/${clients.adminClient}/compare`)
+            .send({ abc: 'def' })
+            .expect(400);
+
+          expect(res.body.type).toStrictEqual('validationError');
+        });
+
+        describe('entry required', () => {
+          beforeEach(async () => {
+            await clients.addEntries(app);
+          });
+
+          afterEach(async () => {
+            await clients.delEntries(app);
+          });
+
+          test('correct compare', async () => {
+            const res = await supertest(app)
+              .post(`/ldapdbs/${clients.adminClient}/compare`)
+              .send(basicCompare)
+              .expect(200);
+
+            expect(res.body.result).toStrictEqual(true);
+          });
+
+          test('control passed', async () => {
+            const res = await supertest(app)
+              .post(`/ldapdbs/${clients.adminClient}/compare`)
+              .send({ ...basicCompare, control: testControl })
+              .expect(400);
+
+            unavailableCriticalValiadator(res.body);
+          });
         });
       });
     });
