@@ -3,7 +3,7 @@ import ldapts from 'ldapts';
 
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema, exopReqSchema, compareReqSchema, modifyDNReqSchema, modifyReqSchema } from '../utils/schemas';
 import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq, responseError, exopReq, compareReq, modifyDnReq, modifyReq } from '../utils/types';
-import { addNewClient, getClientById, getStoredClientMetaDataById, removeClientById, setBoundDnById } from '../utils/state';
+import { addNewClient, getAllStoredClientMetaData, getClientById, getStoredClientMetaDataById, removeClientById, setBoundDnById } from '../utils/state';
 import controlParser from '../utils/controlParser';
 import changeParser from '../utils/changeParser';
 
@@ -424,6 +424,21 @@ router.get('/:id', (req, res) => {
   };
 
   res.status(200).send(clientMetaData);
+});
+
+router.get('/', (_req, res) => {
+  const clients = getAllStoredClientMetaData();
+
+  const clientsMetaData: clientMetaData[] = clients.map((val) => {
+    return {
+      id: val.id,
+      serverUrl: val.serverUrl,
+      boundDn: val.boundDn,
+      isConnected: val.ldapClient.isConnected
+    };
+  });
+
+  res.status(200).send(clientsMetaData);
 });
 
 export default router;

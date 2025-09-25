@@ -810,4 +810,34 @@ describe('ldapdbs endpoint tests', () => {
       });
     });
   });
+
+  describe('get ldapdbs enpoint', () => {
+    test('no clients', async () => {
+      const res = await supertest(app)
+        .get('/ldapdbs/')
+        .expect(200);
+
+      expect(res.body).toStrictEqual([]);
+    });
+
+    describe('clients required', () => {
+      const clients = new testClients;
+
+      beforeEach(async () => {
+        await clients.addClients(app);
+      });
+
+      afterEach(async () => {
+        await clients.delClients(app);
+      });
+
+      test('with clients', async () => {
+        const res = await supertest(app)
+          .get('/ldapdbs/')
+          .expect(200);
+
+        expect(res.body.length).toStrictEqual(2);
+      });
+    });
+  });
 });

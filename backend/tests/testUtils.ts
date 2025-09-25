@@ -5,6 +5,7 @@ import { Express } from 'express';
 import type { addReq, bindReq, clientReq, compareReq, delReq, exopReq, modifyDnReq, modifyReq, searchReq } from '../src/utils/types';
 
 export const serverUrl = 'ldap://localhost:1389';
+const noAnonBindServerUrl = 'ldap://localhost:1390';
 
 export const invalidClientId: string = 'abcdef';
 
@@ -12,6 +13,10 @@ export const baseDn = 'dc=example,dc=org';
 
 export const basicNewClient: clientReq = {
   url: serverUrl
+};
+
+const noAnonBindNewClient: clientReq = {
+  url: noAnonBindServerUrl
 };
 
 export const adminDn = `cn=admin,${baseDn}`;
@@ -145,36 +150,48 @@ export const undoBasicModifyDn: modifyDnReq = {
 
 export class testClients {
   public adminClient: string;
+  public noAnonBindAdminClient: string;
 
   constructor() {
     this.adminClient = '';
+    this.noAnonBindAdminClient = '';
   }
 
   async addClients(app: Express) {
-    const rsp = await supertest(app).post('/ldapdbs').send(basicNewClient);
+    let res = await supertest(app).post('/ldapdbs/').send(basicNewClient);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    this.adminClient = rsp.body.id;
+    this.adminClient = res.body.id;
+
+    res = await supertest(app).post('/ldapdbs/').send(noAnonBindNewClient);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    this.noAnonBindAdminClient = res.body.id;
   }
 
   async delClients(app: Express) {
     await supertest(app).delete(`/ldapdbs/${this.adminClient}`);
+    await supertest(app).delete(`/ldapdbs/${this.noAnonBindAdminClient}`);
   }
 
   async bindClients(app: Express) {
     await supertest(app).put(`/ldapdbs/${this.adminClient}/bind`).send(adminBind);
+    await supertest(app).put(`/ldapdbs/${this.noAnonBindAdminClient}/bind`).send(adminBind);
   }
 
   async unbindClients(app: Express) {
     await supertest(app).put(`/ldapdbs/${this.adminClient}/unbind`);
+    await supertest(app).put(`/ldapdbs/${this.noAnonBindAdminClient}/unbind`);
   }
 
   async addEntries(app: Express) {
     await supertest(app).post(`/ldapdbs/${this.adminClient}/add`).send(basicAdd);
+    await supertest(app).post(`/ldapdbs/${this.noAnonBindAdminClient}/add`).send(basicAdd);
   }
 
   async delEntries(app: Express) {
     await supertest(app).delete(`/ldapdbs/${this.adminClient}/del`).send(basicDel);
+    await supertest(app).delete(`/ldapdbs/${this.noAnonBindAdminClient}/del`).send(basicDel);
   }
 };
 

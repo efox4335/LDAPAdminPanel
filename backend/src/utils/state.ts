@@ -50,6 +50,10 @@ export const setBoundDnById = (clientId: string, newBoundDn: string | null) => {
   client.boundDn = newBoundDn;
 };
 
+export const getAllStoredClientMetaData = (): storedClientMetaData[] => {
+  return [...clients.entries()].map(([_key, value]) => value);
+};
+
 //eventually settings like this will be read from a settings file and will be settable from the frontend
 export let logOutputFile: string;
 
