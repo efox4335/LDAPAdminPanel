@@ -4,3 +4,5 @@ export type client = {
   boundDn: string | null,
   isConnected: boolean
 };
+
+export type clientStore = Record<string, client>;
