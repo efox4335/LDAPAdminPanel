@@ -365,7 +365,7 @@ router.put('/:id/modify', async (req, res, next) => {
     if (!client) {
       const err: responseError = {
         type: 'customErrorMessage',
-        message: 'cannot exop: no client exists'
+        message: 'cannot modify: no client exists'
       };
 
       res.status(404).send(err);
@@ -376,7 +376,7 @@ router.put('/:id/modify', async (req, res, next) => {
     if (!client.isConnected) {
       const err: responseError = {
         type: 'customErrorMessage',
-        message: 'cannot exop: client is not connected'
+        message: 'cannot modify: client is not connected'
       };
 
       res.status(409).send(err);
