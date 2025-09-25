@@ -7,7 +7,8 @@ import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn, basicCompare, basicModify, validateBasicModify, basicModifyDn, undoBasicModifyDn, validateBasicModifyDn } from '../../testUtils';
+import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn, basicCompare, basicModify, validateBasicModify, basicModifyDn, undoBasicModifyDn, validateBasicModifyDn, serverUrl, adminDn } from '../../testUtils';
+import { clientMetaData } from '../../../src/utils/types';
 
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
@@ -752,9 +753,14 @@ describe('ldapdbs endpoint tests', () => {
           .get(`/ldapdbs/${clients.adminClient}`)
           .expect(200);
 
-        expect(res.body).toBeDefined();
-        expect(res.body.isConnected).toBeDefined();
-        expect(res.body.isConnected).toStrictEqual(false);
+        const compObj: clientMetaData = {
+          id: clients.adminClient,
+          serverUrl: serverUrl,
+          boundDn: null,
+          isConnected: false
+        };
+
+        expect(res.body).toStrictEqual(compObj);
       });
 
       describe('bind required', () => {
@@ -771,9 +777,35 @@ describe('ldapdbs endpoint tests', () => {
             .get(`/ldapdbs/${clients.adminClient}`)
             .expect(200);
 
-          expect(res.body).toBeDefined();
-          expect(res.body.isConnected).toBeDefined();
-          expect(res.body.isConnected).toStrictEqual(true);
+          const compObj: clientMetaData = {
+            id: clients.adminClient,
+            serverUrl: serverUrl,
+            boundDn: adminDn,
+            isConnected: true
+          };
+
+          expect(res.body).toStrictEqual(compObj);
+        });
+
+        test('unbind set boundDn to null', async () => {
+          try {
+            await clients.unbindClients(app);
+
+            const res = await supertest(app)
+              .get(`/ldapdbs/${clients.adminClient}`)
+              .expect(200);
+
+            const compObj: clientMetaData = {
+              id: clients.adminClient,
+              serverUrl: serverUrl,
+              boundDn: null,
+              isConnected: false
+            };
+
+            expect(res.body).toStrictEqual(compObj);
+          } finally {
+            await clients.bindClients(app);
+          }
         });
       });
     });

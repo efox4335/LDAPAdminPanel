@@ -14,8 +14,10 @@ export const basicNewClient: clientReq = {
   url: serverUrl
 };
 
+export const adminDn = `cn=admin,${baseDn}`;
+
 export const adminBind: bindReq = {
-  dnOrSaslMechanism: `cn=admin,${baseDn}`,
+  dnOrSaslMechanism: adminDn,
   password: 'password'
 };
 

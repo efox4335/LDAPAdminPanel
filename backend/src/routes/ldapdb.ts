@@ -3,7 +3,7 @@ import ldapts from 'ldapts';
 
 import { ldapDbNewClientSchema, bindReqSchema, searchReqSchema, addReqSchema, delReqSchema, exopReqSchema, compareReqSchema, modifyDNReqSchema, modifyReqSchema } from '../utils/schemas';
 import type { addReq, bindReq, clientMetaData, clientReq, delReq, searchReq, responseError, exopReq, compareReq, modifyDnReq, modifyReq } from '../utils/types';
-import { addNewClient, getClientById, removeClientById } from '../utils/state';
+import { addNewClient, getClientById, getStoredClientMetaDataById, removeClientById, setBoundDnById } from '../utils/state';
 import controlParser from '../utils/controlParser';
 import changeParser from '../utils/changeParser';
 
@@ -17,7 +17,7 @@ router.post('/', (req, res, next) => {
       url: serverUrl.url
     });
 
-    const clientId = addNewClient(client);
+    const clientId = addNewClient(client, serverUrl.url);
 
     res.status(201).send({ id: clientId });
   } catch (err) {
@@ -52,6 +52,8 @@ router.put('/:id/bind', async (req, res, next) => {
 
     const controlArg = controlParser(bindArgs);
 
+    setBoundDnById(req.params.id, bindArgs.dnOrSaslMechanism);
+
     await client.bind(bindArgs.dnOrSaslMechanism, bindArgs.password, controlArg);
 
     res.status(200).end();
@@ -85,6 +87,8 @@ router.put('/:id/unbind', async (req, res, next) => {
 
       return;
     }
+
+    setBoundDnById(req.params.id, null);
 
     await client.unbind();
 
@@ -399,7 +403,7 @@ router.put('/:id/modify', async (req, res, next) => {
 });
 
 router.get('/:id', (req, res) => {
-  const client = getClientById(req.params.id);
+  const client = getStoredClientMetaDataById(req.params.id);
 
   if (!client) {
     const err: responseError = {
@@ -413,7 +417,10 @@ router.get('/:id', (req, res) => {
   }
 
   const clientMetaData: clientMetaData = {
-    isConnected: client.isConnected
+    id: req.params.id,
+    serverUrl: client.serverUrl,
+    boundDn: client.boundDn,
+    isConnected: client.ldapClient.isConnected
   };
 
   res.status(200).send(clientMetaData);

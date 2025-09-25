@@ -1,4 +1,5 @@
 import { ZodError } from 'zod';
+import { Client } from 'ldapts';
 
 interface controlObject {
   type: string,
@@ -67,7 +68,14 @@ export interface modifyReq extends control {
   changes: modifyReqChange[]
 };
 
-export type clientMetaData = {
+export interface storedClientMetaData {
+  id: string,
+  serverUrl: string,
+  boundDn: string | null,
+  ldapClient: Client
+};
+
+export interface clientMetaData extends Omit<storedClientMetaData, 'ldapClient'> {
   isConnected: boolean
 };
 

@@ -1,24 +1,53 @@
 //all server state will be stored here
 import ldapts from 'ldapts';
 
-const clients = new Map<string, ldapts.Client>();
+import { storedClientMetaData } from './types';
+
+const clients = new Map<string, storedClientMetaData>();
 let newClientId: number = 0;
 
-export const addNewClient = (client: ldapts.Client): string => {
+export const addNewClient = (client: ldapts.Client, serverUrl: string): string => {
   const currentClientId = newClientId.toString();
   newClientId += 1;
 
-  clients.set(currentClientId, client);
+  const newClient: storedClientMetaData = {
+    id: currentClientId,
+    ldapClient: client,
+    serverUrl: serverUrl,
+    boundDn: null
+  };
+
+  clients.set(currentClientId, newClient);
 
   return currentClientId;
 };
 
 export const getClientById = (clientId: string): ldapts.Client | undefined => {
-  return clients.get(clientId);
+  const client: storedClientMetaData | undefined = clients.get(clientId);
+
+  if (client === undefined) {
+    return client;
+  }
+
+  return client.ldapClient;
 };
 
 export const removeClientById = (clientId: string) => {
   clients.delete(clientId);
+};
+
+export const getStoredClientMetaDataById = (clientId: string): storedClientMetaData | undefined => {
+  return clients.get(clientId);
+};
+
+export const setBoundDnById = (clientId: string, newBoundDn: string | null) => {
+  const client = clients.get(clientId);
+
+  if (client === undefined) {
+    throw new Error('tried to set bound dn with invalid client id');
+  }
+
+  client.boundDn = newBoundDn;
 };
 
 //eventually settings like this will be read from a settings file and will be settable from the frontend
