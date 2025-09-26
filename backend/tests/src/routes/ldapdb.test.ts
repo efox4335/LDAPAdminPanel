@@ -13,6 +13,15 @@ import { clientMetaData } from '../../../src/utils/types';
 describe('ldapdbs endpoint tests', () => {
   describe('new client tests', (): void => {
     describe('ldap dp url tests', () => {
+      test('invalid url', async () => {
+        const res = await supertest(app)
+          .post('/ldapdbs/')
+          .send({ ...basicNewClient, url: 'invalid url' })
+          .expect(400);
+
+        expect(res.body.type).toStrictEqual('validationError');
+      });
+
       test('correct url', async () => {
         const res = await supertest(app)
           .post('/ldapdbs/')

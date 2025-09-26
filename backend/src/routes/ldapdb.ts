@@ -21,6 +21,19 @@ router.post('/', (req, res, next) => {
 
     res.status(201).send({ id: clientId });
   } catch (err) {
+    if (err instanceof Error) {
+      if (/.*is an invalid LDAP URL \(protocol\)/.test(err.message)) {
+        const retError: responseError = {
+          type: 'validationError',
+          error: err.message
+        };
+
+        res.status(400).send(retError);
+
+        return;
+      }
+    }
+
     next(err);
   }
 });

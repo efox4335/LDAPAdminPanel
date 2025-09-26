@@ -87,7 +87,7 @@ type ldapError = {
 
 type validationError = {
   type: 'validationError',
-  error: ZodError
+  error: ZodError | string
 };
 
 type customErrorMessage = {
