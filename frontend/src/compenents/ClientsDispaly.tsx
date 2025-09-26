@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 
 import { selectClients } from '../slices/client';
 import SingleClient from './SingleClient';
+import NewClientForm from './NewClientForm';
 
 const ClientsDispaly = () => {
   const clients = useSelector(selectClients);
@@ -16,6 +17,7 @@ const ClientsDispaly = () => {
           </div>
         );
       })}
+      <NewClientForm />
     </div>
   );
 };

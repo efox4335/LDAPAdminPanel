@@ -6,3 +6,7 @@ export type client = {
 };
 
 export type clientStore = Record<string, client>;
+
+export type newClientResponse = {
+  id: string
+};
