@@ -23,7 +23,7 @@ const clientsSlice = createSlice({
   },
   selectors: {
     selectClients: (sliceState) => {
-      return Object.keys(sliceState).map((ele) => sliceState[ele]);
+      return sliceState;
     }
   }
 });

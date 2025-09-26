@@ -10,7 +10,9 @@ const ClientsDispaly = () => {
   return (
     <div>
       <h2>Clients:</h2>
-      {clients.map((client) => {
+      {Object.keys(clients).map((clientIndex) => {
+        const client = clients[clientIndex];
+
         return (
           <div key={client.id}>
             <SingleClient client={client} />
