@@ -15,17 +15,20 @@ const clientsSlice = createSlice({
 
     delClient: (state, action: PayloadAction<string>) => {
       delete state[action.payload];
+    },
+
+    addClients: (state, action: PayloadAction<client[]>) => {
+      action.payload.forEach((client) => state[client.id] = client);
     }
   },
   selectors: {
     selectClients: (sliceState) => {
-      console.log('here', sliceState);
       return Object.keys(sliceState).map((ele) => sliceState[ele]);
     }
   }
 });
 
-export const { addClient, delClient } = clientsSlice.actions;
+export const { addClient, delClient, addClients } = clientsSlice.actions;
 export const { selectClients } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;
