@@ -4,7 +4,7 @@ import { selectClients } from '../slices/client';
 import SingleClient from './SingleClient';
 import NewClientForm from './NewClientForm';
 
-const ClientsDispaly = () => {
+const ClientsDisplay = () => {
   const clients = useSelector(selectClients);
 
   return (
@@ -24,4 +24,4 @@ const ClientsDispaly = () => {
   );
 };
 
-export default ClientsDispaly;
+export default ClientsDisplay;

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { getAllClients } from './services/ldapdbsService';
 import { addClients } from './slices/client';
-import ClientsDispaly from './compenents/ClientsDispaly';
+import ClientsDisplay from './compenents/ClientsDisplay';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -20,7 +20,7 @@ const App = () => {
 
   return (
     <div>
-      <ClientsDispaly />
+      <ClientsDisplay />
     </div>
   );
 };
