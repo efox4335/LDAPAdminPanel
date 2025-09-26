@@ -1,7 +1,26 @@
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { getAllClients } from './services/ldapdbsService';
+import { addClients } from './slices/client';
+import ClientsDispaly from './compenents/ClientsDispaly';
+
 const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      const clients = await getAllClients();
+
+      dispatch(addClients(clients));
+    };
+
+    void fetchClients();
+  });
+
   return (
     <div>
-      first
+      <ClientsDispaly />
     </div>
   );
 };
