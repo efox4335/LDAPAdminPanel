@@ -15,3 +15,7 @@ export const addNewClient = async (serverUrl: string) => {
 
   return res.data;
 };
+
+export const deleteClient = async (id: string) => {
+  await axios.delete(`${baseUrl}${id}`);
+};
