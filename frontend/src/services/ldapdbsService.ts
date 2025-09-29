@@ -23,3 +23,7 @@ export const deleteClient = async (id: string) => {
 export const bindClient = async (id: string, req: bindReq) => {
   await axios.put(`${baseUrl}${id}/bind`, req);
 };
+
+export const unbindClient = async (id: string) => {
+  await axios.put(`${baseUrl}${id}/unbind`);
+};

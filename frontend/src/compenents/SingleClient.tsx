@@ -2,7 +2,7 @@ import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
 import type { bindReq, client } from '../utils/types';
-import { deleteClient, bindClient } from '../services/ldapdbsService';
+import { deleteClient, bindClient, unbindClient } from '../services/ldapdbsService';
 import { delClient, addClient } from '../slices/client';
 import { addError } from '../slices/error';
 
@@ -51,6 +51,21 @@ const SingleClient = ({ client }: { client: client }) => {
     }
   };
 
+  const handleUnbind = async () => {
+    try {
+      await unbindClient(client.id);
+
+      const newClient = {
+        ...client,
+        boundDn: null
+      };
+
+      dispatch(addClient(newClient));
+    } catch (err) {
+      dispatch(addError(err));
+    }
+  };
+
   return (
     <div>
       Server Url: {client.serverUrl}
@@ -69,6 +84,7 @@ const SingleClient = ({ client }: { client: client }) => {
         <button>bind</button>
       </form>
       <br></br>
+      <button onClick={handleUnbind}>unbind</button>
       <button onClick={handleDelete}>remove</button>
     </div >
   );
