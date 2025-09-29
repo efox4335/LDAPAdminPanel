@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { addNewClient } from '../services/ldapdbsService';
 import { addClient } from '../slices/client';
+import { addError } from '../slices/error';
 import type { client } from '../utils/types';
 
 const NewClientForm = () => {
@@ -27,7 +28,7 @@ const NewClientForm = () => {
 
       setNewLdapUrl('');
     } catch (err) {
-      console.log(err);
+      dispatch(addError(err));
     }
   };
 

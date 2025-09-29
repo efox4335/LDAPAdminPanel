@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import type { client } from '../utils/types';
 import { deleteClient } from '../services/ldapdbsService';
 import { delClient } from '../slices/client';
+import { addError } from '../slices/error';
 
 const SingleClient = ({ client }: { client: client }) => {
   const dispatch = useDispatch();
@@ -17,7 +18,7 @@ const SingleClient = ({ client }: { client: client }) => {
 
       dispatch(delClient(client.id));
     } catch (err) {
-      console.log(err);
+      dispatch(addError(err));
     }
   };
 
