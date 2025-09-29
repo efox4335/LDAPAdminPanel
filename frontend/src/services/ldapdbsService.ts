@@ -1,6 +1,6 @@
 import axios, { type AxiosResponse } from 'axios';
 
-import type { client, newClientResponse } from '../utils/types';
+import type { bindReq, client, newClientResponse } from '../utils/types';
 
 const baseUrl = '/ldapdbs/';
 
@@ -18,4 +18,8 @@ export const addNewClient = async (serverUrl: string) => {
 
 export const deleteClient = async (id: string) => {
   await axios.delete(`${baseUrl}${id}`);
+};
+
+export const bindClient = async (id: string, req: bindReq) => {
+  await axios.put(`${baseUrl}${id}/bind`, req);
 };

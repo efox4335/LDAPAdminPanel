@@ -11,6 +11,11 @@ export type newClientResponse = {
   id: string
 };
 
+export type bindReq = {
+  dnOrSaslMechanism: string,
+  password?: string | undefined,
+};
+
 type zodError = {
   error: {
     issues: [
