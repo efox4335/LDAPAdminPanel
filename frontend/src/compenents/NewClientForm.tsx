@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { addNewClient } from '../services/ldapdbsService';
@@ -11,7 +11,7 @@ const NewClientForm = () => {
 
   const dispatch = useDispatch();
 
-  const handleNewClient = async (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleNewClient = async (event: SyntheticEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
 
