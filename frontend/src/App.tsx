@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { getAllClients } from './services/ldapdbsService';
 import { addClients } from './slices/client';
 import ClientsDisplay from './compenents/ClientsDisplay';
+import ErrorsDisplay from './compenents/ErrorsDisplay';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -20,6 +21,7 @@ const App = () => {
 
   return (
     <div>
+      <ErrorsDisplay />
       <ClientsDisplay />
     </div>
   );
