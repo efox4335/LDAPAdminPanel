@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import type { rawError } from './types';
 
 const generateErrorMessage = (err: unknown): string => {
@@ -5,7 +6,13 @@ const generateErrorMessage = (err: unknown): string => {
     return 'unrecognized error';
   }
 
-  const validError = err as rawError;
+  let validError;
+
+  if (err instanceof AxiosError) {
+    validError = err.response?.data as rawError;
+  } else {
+    validError = err as rawError;
+  }
 
   switch (validError.type) {
     case 'ldapError':
