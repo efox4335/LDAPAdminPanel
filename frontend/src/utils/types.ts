@@ -53,3 +53,20 @@ export type displayError = {
   message: string,
   rawError: string
 };
+
+interface ldapEntryReqAttributes {
+  dn: string,
+  objectClass: string | string[],
+};
+
+export type ldapEntry = ldapEntryReqAttributes &
+  Record<string, string | string[]>;
+
+export type searchRes = {
+  searchEntries: [
+    ldapEntry
+  ],
+  searchReferences: [
+    string
+  ]
+};
