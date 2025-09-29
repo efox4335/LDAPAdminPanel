@@ -14,7 +14,7 @@ const SingleError = ({ err }: { err: displayError }) => {
       message: {err.message}
       {displayRaw ? <>raw: {err.rawError}</> : <></>}
       <button onClick={() => displayRaw ? setDisplayRaw(false) : setDisplayRaw(true)}>
-        {displayRaw ? <>show</> : <>hide</>}
+        {displayRaw ? <>hide</> : <>show</>}
       </button>
       <button onClick={() => {
         dispatch(delError(err.id));
