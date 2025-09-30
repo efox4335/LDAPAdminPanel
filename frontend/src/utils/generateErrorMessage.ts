@@ -6,6 +6,10 @@ const generateErrorMessage = (err: unknown): string => {
     return 'unrecognized error';
   }
 
+  if (err instanceof Error) {
+    return err.message;
+  }
+
   let validError;
 
   if (err instanceof AxiosError) {
