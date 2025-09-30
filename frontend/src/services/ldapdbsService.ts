@@ -1,6 +1,6 @@
 import axios, { type AxiosResponse } from 'axios';
 
-import type { bindReq, client, newClientResponse } from '../utils/types';
+import type { bindReq, client, newClientResponse, searchReq, searchRes } from '../utils/types';
 
 const baseUrl = '/ldapdbs/';
 
@@ -26,4 +26,10 @@ export const bindClient = async (id: string, req: bindReq) => {
 
 export const unbindClient = async (id: string) => {
   await axios.put(`${baseUrl}${id}/unbind`);
+};
+
+export const searchClient = async (id: string, req: searchReq) => {
+  const res: AxiosResponse<searchRes> = await axios.post(`${baseUrl}${id}/search`, req);
+
+  return res.data;
 };
