@@ -21,9 +21,7 @@ type zodError = {
     issues: [
       {
         code: string,
-        path: [
-          string | number
-        ],
+        path: (string | number)[],
         message: string
       }
     ]
@@ -63,10 +61,7 @@ export type ldapEntry = ldapEntryReqAttributes &
   Record<string, string | string[]>;
 
 export type searchRes = {
-  searchEntries: [
-    ldapEntry
-  ],
-  searchReferences: [
-    string
-  ]
+  searchEntries: ldapEntry[],
+  searchReferences: string[]
+};
 };
