@@ -42,6 +42,7 @@ const SingleClient = ({ client }: { client: client }) => {
 
       const newClient = {
         ...client,
+        isConnected: true,
         boundDn: req.dnOrSaslMechanism
       };
 
@@ -57,6 +58,7 @@ const SingleClient = ({ client }: { client: client }) => {
 
       const newClient = {
         ...client,
+        isConnected: false,
         boundDn: null
       };
 
