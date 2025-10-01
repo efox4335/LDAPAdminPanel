@@ -216,16 +216,16 @@ test('mock test', async () => {
   const ldapTreeRoot: serverTreeEntry = await generateLdapServerTree('id');
 
   expect(ldapTreeRoot.visible).toStrictEqual(true);
-  expect(ldapTreeRoot.children.length).toStrictEqual(1);
-  expect(ldapTreeRoot.children[0].visible).toStrictEqual(false);
-  expect(ldapTreeRoot.children[0].dn).toStrictEqual('dc=org');
-  expect(ldapTreeRoot.children[0].children[0].visible).toStrictEqual(true);
-  expect(ldapTreeRoot.children[0].children[0].children.length).toStrictEqual(2);
-  expect(ldapTreeRoot.children[0].children[0].dn).toStrictEqual('dc=example,dc=org');
+  expect(Object.keys(ldapTreeRoot.children).length).toStrictEqual(1);
+  expect(ldapTreeRoot.children['dc=org'].visible).toStrictEqual(false);
+  expect(ldapTreeRoot.children['dc=org'].dn).toStrictEqual('dc=org');
+  expect(ldapTreeRoot.children['dc=org'].children['dc=example'].visible).toStrictEqual(true);
+  expect(Object.keys(ldapTreeRoot.children['dc=org'].children['dc=example'].children).length).toStrictEqual(2);
+  expect(ldapTreeRoot.children['dc=org'].children['dc=example'].dn).toStrictEqual('dc=example,dc=org');
 
-  const exampleDitRoot: serverTreeEntry = ldapTreeRoot.children[0].children[0];
+  const exampleDitRoot: serverTreeEntry = ldapTreeRoot.children['dc=org'].children['dc=example'];
 
-  const users = exampleDitRoot.children.find((entry) => entry.dn === 'ou=users,dc=example,dc=org');
+  const users = Object.values(exampleDitRoot.children).find((entry) => entry.dn === 'ou=users,dc=example,dc=org');
 
   expect(users).toBeDefined();
   if (!users) {
@@ -236,10 +236,10 @@ test('mock test', async () => {
     return;
   }
   expect(users.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === users.dn));
-  expect(users.children.length).toStrictEqual(2);
+  expect(Object.keys(users.children).length).toStrictEqual(2);
 
-  users.children.forEach((user) => {
-    expect(user.children.length).toStrictEqual(0);
+  Object.values(users.children).forEach((user) => {
+    expect(Object.keys(user.children).length).toStrictEqual(0);
     expect(user.visible).toStrictEqual(true);
     if (user.visible !== true) {
       return;
@@ -247,7 +247,7 @@ test('mock test', async () => {
     expect(user.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === user.dn));
   });
 
-  const groups = exampleDitRoot.children.find((entry) => entry.dn === `ou=groups,${exampleDitRoot.dn}`);
+  const groups = Object.values(exampleDitRoot.children).find((entry) => entry.dn === `ou=groups,${exampleDitRoot.dn}`);
 
   expect(groups).toBeDefined();
   if (!groups) {
@@ -258,8 +258,8 @@ test('mock test', async () => {
     return;
   }
   expect(groups.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === groups.dn));
-  groups.children.forEach((group) => {
-    expect(group.children.length).toStrictEqual(0);
+  Object.values(groups.children).forEach((group) => {
+    expect(Object.keys(group.children).length).toStrictEqual(0);
     expect(group.visible).toStrictEqual(true);
     if (group.visible !== true) {
       return;

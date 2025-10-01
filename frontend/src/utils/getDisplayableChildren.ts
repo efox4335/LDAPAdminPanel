@@ -4,7 +4,7 @@ import getDisplayDc from './getDisplayDc';
 const getDisplayableChildren = (parentDn: string, children: serverTreeEntry[]): displayChild[] => {
   const retArr: displayChild[] = children.reduce((arr: displayChild[], entry: serverTreeEntry) => {
     if (!entry.visible) {
-      const visibleChildren = getDisplayableChildren(parentDn, entry.children);
+      const visibleChildren = getDisplayableChildren(parentDn, Object.values(entry.children));
 
       return arr.concat(visibleChildren);
     }

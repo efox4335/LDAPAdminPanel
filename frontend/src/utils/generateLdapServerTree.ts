@@ -42,13 +42,13 @@ const addEntry = (entryMap: Map<string, serverTreeEntry>, newEntry: serverTreeEn
     parentEntry = {
       dn: parentDn,
       visible: false,
-      children: []
+      children: {}
     };
 
     addEntry(entryMap, parentEntry);
   }
 
-  parentEntry.children.push(newEntry);
+  parentEntry.children[newEntry.dn.split(',')[0]] = newEntry;
 
   entryMap.set(newEntry.dn, newEntry);
 };
@@ -73,7 +73,7 @@ const generateLdapServerTree = async (id: string): Promise<Extract<serverTreeEnt
     dn: dseSearch.searchEntries[0].dn,
     visible: true,
     entry: dseSearch.searchEntries[0],
-    children: []
+    children: {}
   };
 
   addEntry(entryMap, rootTreeEntry);
@@ -109,7 +109,7 @@ const generateLdapServerTree = async (id: string): Promise<Extract<serverTreeEnt
         dn: entry.dn,
         visible: true,
         entry: entry,
-        children: []
+        children: {}
       });
     });
   }

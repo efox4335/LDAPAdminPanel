@@ -2,7 +2,7 @@ import type { serverTreeEntry, displayChild } from '../utils/types';
 import getDisplayableChildren from '../utils/getDisplayableChildren';
 
 const LdapTree = ({ displayDc, entry }: { displayDc: string, entry: Extract<serverTreeEntry, { visible: true }> }) => {
-  const children: displayChild[] = getDisplayableChildren(entry.dn, entry.children);
+  const children: displayChild[] = getDisplayableChildren(entry.dn, Object.values(entry.children));
 
   return (
     <div>

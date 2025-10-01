@@ -71,7 +71,7 @@ export type searchRes = {
 
 interface baseServerTreeEntry<T> {
   dn: string
-  children: T[]
+  children: Record<string, T>
 };
 
 interface visibleServerTreeEntry<T> extends baseServerTreeEntry<T> {
