@@ -21,7 +21,8 @@ const NewClientForm = () => {
         id: newClientId.id,
         serverUrl: newLdapUrl,
         isConnected: false,
-        boundDn: null
+        boundDn: null,
+        serverTree: undefined
       };
 
       dispatch(addClient(newClient));

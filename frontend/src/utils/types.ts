@@ -1,12 +1,3 @@
-export type client = {
-  id: string,
-  serverUrl: string,
-  boundDn: string | null,
-  isConnected: boolean
-};
-
-export type clientStore = Record<string, client>;
-
 export type newClientResponse = {
   id: string
 };
@@ -97,3 +88,19 @@ interface hiddenServerTreeEntry<T> extends baseServerTreeEntry<T> {
  * can't be a class because classes shouldn't be stored in redux store
 */
 export type serverTreeEntry = visibleServerTreeEntry<serverTreeEntry> | hiddenServerTreeEntry<serverTreeEntry>;
+
+export type client = {
+  id: string,
+  serverUrl: string,
+  boundDn: string | null,
+  isConnected: boolean,
+  serverTree: Extract<serverTreeEntry, { visible: true }> | undefined
+};
+
+export type clientStore = Record<string, client>;
+
+export type displayChild = {
+  displayDc: string,
+
+  entry: Extract<serverTreeEntry, { visible: true }>
+};

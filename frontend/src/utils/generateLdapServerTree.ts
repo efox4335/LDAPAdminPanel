@@ -53,7 +53,7 @@ const addEntry = (entryMap: Map<string, serverTreeEntry>, newEntry: serverTreeEn
   entryMap.set(newEntry.dn, newEntry);
 };
 
-const generateLdapServerTree = async (id: string): Promise<serverTreeEntry> => {
+const generateLdapServerTree = async (id: string): Promise<Extract<serverTreeEntry, { visible: true }>> => {
   const entryMap = new Map<string, serverTreeEntry>();
 
   const dseSearch: searchRes = await searchClient(id, {
@@ -69,7 +69,7 @@ const generateLdapServerTree = async (id: string): Promise<serverTreeEntry> => {
     }
   });
 
-  const rootTreeEntry: serverTreeEntry = {
+  const rootTreeEntry: Extract<serverTreeEntry, { visible: true }> = {
     dn: dseSearch.searchEntries[0].dn,
     visible: true,
     entry: dseSearch.searchEntries[0],

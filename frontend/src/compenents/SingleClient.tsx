@@ -5,6 +5,8 @@ import type { bindReq, client } from '../utils/types';
 import { deleteClient, bindClient, unbindClient } from '../services/ldapdbsService';
 import { delClient, addClient } from '../slices/client';
 import { addError } from '../slices/error';
+import LdapTree from './LdapTree';
+import generateLdapServerTree from '../utils/generateLdapServerTree';
 
 const SingleClient = ({ client }: { client: client }) => {
   const [newDn, setNewDn] = useState<string>('');
@@ -56,10 +58,11 @@ const SingleClient = ({ client }: { client: client }) => {
     try {
       await unbindClient(client.id);
 
-      const newClient = {
+      const newClient: client = {
         ...client,
         isConnected: false,
-        boundDn: null
+        boundDn: null,
+        serverTree: undefined
       };
 
       dispatch(addClient(newClient));
@@ -67,6 +70,21 @@ const SingleClient = ({ client }: { client: client }) => {
       dispatch(addError(err));
     }
   };
+
+  const fetchServerTree = async () => {
+    const treeRoot = await generateLdapServerTree(client.id);
+
+    const newClient: client = {
+      ...client,
+      serverTree: treeRoot
+    };
+
+    dispatch(addClient(newClient));
+  };
+
+  if (client.isConnected && !client.serverTree) {
+    void fetchServerTree();
+  }
 
   return (
     <div>
@@ -88,7 +106,9 @@ const SingleClient = ({ client }: { client: client }) => {
       <br></br>
       <button onClick={handleUnbind}>unbind</button>
       <button onClick={handleDelete}>remove</button>
-    </div >
+      <br></br>
+      {(client.serverTree === undefined) ? <></> : <LdapTree displayDc='' entry={client.serverTree} />}
+    </div>
   );
 };
 
