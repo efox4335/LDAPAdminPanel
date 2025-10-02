@@ -1,5 +1,5 @@
 import { useState, type SyntheticEvent } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch as useDispatch } from '../utils/reduxHooks';
 
 import type { bindReq, client } from '../utils/types';
 import { deleteClient, bindClient, unbindClient } from '../services/ldapdbsService';
@@ -62,7 +62,7 @@ const SingleClient = ({ client }: { client: client }) => {
         ...client,
         isConnected: false,
         boundDn: null,
-        serverTree: undefined
+        entryMap: undefined
       };
 
       dispatch(addClient(newClient));
@@ -72,17 +72,21 @@ const SingleClient = ({ client }: { client: client }) => {
   };
 
   const fetchServerTree = async () => {
-    const treeRoot = await generateLdapServerTree(client.id);
+    try {
+      const entryMap = await generateLdapServerTree(client.id);
 
-    const newClient: client = {
-      ...client,
-      serverTree: treeRoot
-    };
+      const newClient: client = {
+        ...client,
+        entryMap: entryMap
+      };
 
-    dispatch(addClient(newClient));
+      dispatch(addClient(newClient));
+    } catch (err) {
+      dispatch(addError(err));
+    }
   };
 
-  if (client.isConnected && !client.serverTree) {
+  if (client.isConnected && !client.entryMap) {
     void fetchServerTree();
   }
 
@@ -107,7 +111,7 @@ const SingleClient = ({ client }: { client: client }) => {
       <button onClick={handleUnbind}>unbind</button>
       <button onClick={handleDelete}>remove</button>
       <br></br>
-      {(client.serverTree === undefined) ? <></> : <LdapTree displayDc='' entry={client.serverTree} />}
+      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <LdapTree id={client.id} lastVisibleDn='' entryDn='dse' />}
     </div>
   );
 };

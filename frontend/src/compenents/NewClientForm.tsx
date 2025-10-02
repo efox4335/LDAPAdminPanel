@@ -1,5 +1,5 @@
 import { useState, type SyntheticEvent } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch as useDispatch } from '../utils/reduxHooks';
 
 import { addNewClient } from '../services/ldapdbsService';
 import { addClient } from '../slices/client';
@@ -22,7 +22,7 @@ const NewClientForm = () => {
         serverUrl: newLdapUrl,
         isConnected: false,
         boundDn: null,
-        serverTree: undefined
+        entryMap: undefined
       };
 
       dispatch(addClient(newClient));

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch as useDispatch } from '../utils/reduxHooks';
 
 import type { displayError } from '../utils/types';
 import { delError } from '../slices/error';

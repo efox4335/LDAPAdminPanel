@@ -6,7 +6,7 @@ const getParentDn = (dn: string) => {
   const res = dn.split(/,(.*)/s);
 
   if (res.length === 1) {
-    return '';
+    return 'dse';
   }
 
   return res[1];
@@ -15,10 +15,10 @@ const getParentDn = (dn: string) => {
 /*
  * map used otherwise entries with lots of children would slow down the finding of parents
 */
-const addEntry = (entryMap: Map<string, serverTreeEntry>, newEntry: serverTreeEntry) => {
-  const preExistingEntry = entryMap.get(newEntry.dn);
+const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTreeEntry) => {
+  if (newEntry.dn in entryMap) {
+    const preExistingEntry = entryMap[newEntry.dn];
 
-  if (preExistingEntry !== undefined) {
     preExistingEntry.visible = newEntry.visible;
 
     if (preExistingEntry.visible === true && newEntry.visible === true) {
@@ -28,18 +28,16 @@ const addEntry = (entryMap: Map<string, serverTreeEntry>, newEntry: serverTreeEn
     return;
   }
 
-  if (newEntry.dn === '') {
-    entryMap.set(newEntry.dn, newEntry);
+  if (newEntry.dn === 'dse') {
+    entryMap[newEntry.dn] = newEntry;
 
     return;
   }
 
   const parentDn = getParentDn(newEntry.dn);
 
-  let parentEntry = entryMap.get(parentDn);
-
-  if (parentEntry === undefined) {
-    parentEntry = {
+  if (!(parentDn in entryMap)) {
+    const parentEntry: serverTreeEntry = {
       dn: parentDn,
       visible: false,
       children: {}
@@ -48,13 +46,15 @@ const addEntry = (entryMap: Map<string, serverTreeEntry>, newEntry: serverTreeEn
     addEntry(entryMap, parentEntry);
   }
 
-  parentEntry.children[newEntry.dn.split(',')[0]] = newEntry;
+  const parentEntry = entryMap[parentDn];
 
-  entryMap.set(newEntry.dn, newEntry);
+  parentEntry.children[newEntry.dn] = newEntry.dn;
+
+  entryMap[newEntry.dn] = newEntry;
 };
 
-const generateLdapServerTree = async (id: string): Promise<Extract<serverTreeEntry, { visible: true }>> => {
-  const entryMap = new Map<string, serverTreeEntry>();
+const generateLdapServerTree = async (id: string): Promise<Record<string, serverTreeEntry>> => {
+  const entryMap: Record<string, serverTreeEntry> = {};
 
   const dseSearch: searchRes = await searchClient(id, {
     baseDn: '',
@@ -70,13 +70,13 @@ const generateLdapServerTree = async (id: string): Promise<Extract<serverTreeEnt
   });
 
   const rootTreeEntry: Extract<serverTreeEntry, { visible: true }> = {
-    dn: dseSearch.searchEntries[0].dn,
+    dn: 'dse',
     visible: true,
     entry: dseSearch.searchEntries[0],
     children: {}
   };
 
-  addEntry(entryMap, rootTreeEntry);
+  entryMap[rootTreeEntry.dn] = rootTreeEntry;
 
   if (!dseSearch.searchEntries[0].namingContexts) {
     throw new Error('root DSE has no namingContexts');
@@ -114,7 +114,7 @@ const generateLdapServerTree = async (id: string): Promise<Extract<serverTreeEnt
     });
   }
 
-  return rootTreeEntry;
+  return entryMap;
 };
 
 export default generateLdapServerTree;

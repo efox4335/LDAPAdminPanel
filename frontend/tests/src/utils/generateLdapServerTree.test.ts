@@ -213,19 +213,31 @@ test('mock test', async () => {
     };
   });
 
-  const ldapTreeRoot: serverTreeEntry = await generateLdapServerTree('id');
+  const entryMap: Record<string, serverTreeEntry> = await generateLdapServerTree('id');
+  const ldapTreeRoot: serverTreeEntry = entryMap['dse'];
 
   expect(ldapTreeRoot.visible).toStrictEqual(true);
   expect(Object.keys(ldapTreeRoot.children).length).toStrictEqual(1);
-  expect(ldapTreeRoot.children['dc=org'].visible).toStrictEqual(false);
-  expect(ldapTreeRoot.children['dc=org'].dn).toStrictEqual('dc=org');
-  expect(ldapTreeRoot.children['dc=org'].children['dc=example'].visible).toStrictEqual(true);
-  expect(Object.keys(ldapTreeRoot.children['dc=org'].children['dc=example'].children).length).toStrictEqual(2);
-  expect(ldapTreeRoot.children['dc=org'].children['dc=example'].dn).toStrictEqual('dc=example,dc=org');
 
-  const exampleDitRoot: serverTreeEntry = ldapTreeRoot.children['dc=org'].children['dc=example'];
+  const hiddenOrg = entryMap[ldapTreeRoot.children['dc=org']];
 
-  const users = Object.values(exampleDitRoot.children).find((entry) => entry.dn === 'ou=users,dc=example,dc=org');
+  expect(hiddenOrg.visible).toStrictEqual(false);
+  expect(hiddenOrg.dn).toStrictEqual('dc=org');
+
+  const exampleDn = entryMap[Object.keys(hiddenOrg.children)[0]];
+
+  expect(exampleDn.visible).toStrictEqual(true);
+  expect(Object.keys(exampleDn.children).length).toStrictEqual(2);
+  expect(exampleDn.dn).toStrictEqual('dc=example,dc=org');
+
+  const usersDn = Object.values(exampleDn.children).find((entry) => entry === 'ou=users,dc=example,dc=org');
+
+  expect(usersDn).toBeDefined();
+  if (!usersDn) {
+    return;
+  }
+
+  const users = entryMap[usersDn];
 
   expect(users).toBeDefined();
   if (!users) {
@@ -238,7 +250,9 @@ test('mock test', async () => {
   expect(users.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === users.dn));
   expect(Object.keys(users.children).length).toStrictEqual(2);
 
-  Object.values(users.children).forEach((user) => {
+  Object.values(users.children).forEach((userDn) => {
+    const user = entryMap[userDn];
+
     expect(Object.keys(user.children).length).toStrictEqual(0);
     expect(user.visible).toStrictEqual(true);
     if (user.visible !== true) {
@@ -247,18 +261,23 @@ test('mock test', async () => {
     expect(user.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === user.dn));
   });
 
-  const groups = Object.values(exampleDitRoot.children).find((entry) => entry.dn === `ou=groups,${exampleDitRoot.dn}`);
+  const groupsDn = Object.values(exampleDn.children).find((entry) => entry === `ou=groups,${exampleDn.dn}`);
 
-  expect(groups).toBeDefined();
-  if (!groups) {
+  expect(groupsDn).toBeDefined();
+  if (!groupsDn) {
     return;
   }
+
+  const groups = entryMap[groupsDn];
+
   expect(groups.visible).toStrictEqual(true);
   if (groups.visible !== true) {
     return;
   }
   expect(groups.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === groups.dn));
-  Object.values(groups.children).forEach((group) => {
+  Object.keys(groups.children).forEach((groupDn) => {
+    const group = entryMap[groupDn];
+
     expect(Object.keys(group.children).length).toStrictEqual(0);
     expect(group.visible).toStrictEqual(true);
     if (group.visible !== true) {

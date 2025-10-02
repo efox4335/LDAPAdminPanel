@@ -69,38 +69,28 @@ export type searchRes = {
   searchReferences: string[]
 };
 
-interface baseServerTreeEntry<T> {
+interface baseServerTreeEntry {
   dn: string
-  children: Record<string, T>
+  children: Record<string, string>
 };
 
-interface visibleServerTreeEntry<T> extends baseServerTreeEntry<T> {
+interface visibleServerTreeEntry extends baseServerTreeEntry {
   visible: true,
   entry: ldapEntry
 };
 
-interface hiddenServerTreeEntry<T> extends baseServerTreeEntry<T> {
+interface hiddenServerTreeEntry extends baseServerTreeEntry {
   visible: false
 };
 
-/*
- * no parent links because immer does not like circular references
- * can't be a class because classes shouldn't be stored in redux store
-*/
-export type serverTreeEntry = visibleServerTreeEntry<serverTreeEntry> | hiddenServerTreeEntry<serverTreeEntry>;
+export type serverTreeEntry = visibleServerTreeEntry | hiddenServerTreeEntry;
 
 export type client = {
   id: string,
   serverUrl: string,
   boundDn: string | null,
   isConnected: boolean,
-  serverTree: Extract<serverTreeEntry, { visible: true }> | undefined
+  entryMap: Record<string, serverTreeEntry> | undefined
 };
 
 export type clientStore = Record<string, client>;
-
-export type displayChild = {
-  displayDc: string,
-
-  entry: Extract<serverTreeEntry, { visible: true }>
-};

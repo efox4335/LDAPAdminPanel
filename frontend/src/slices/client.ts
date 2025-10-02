@@ -24,11 +24,19 @@ const clientsSlice = createSlice({
   selectors: {
     selectClients: (sliceState) => {
       return sliceState;
+    },
+
+    selectLdapEntry: (sliceState, id: string, dn: string) => {
+      if (!sliceState[id].entryMap) {
+        return undefined;
+      }
+
+      return sliceState[id].entryMap[dn];
     }
   }
 });
 
 export const { addClient, delClient, addClients } = clientsSlice.actions;
-export const { selectClients } = clientsSlice.selectors;
+export const { selectClients, selectLdapEntry } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

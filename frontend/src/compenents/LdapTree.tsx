@@ -1,21 +1,37 @@
-import type { serverTreeEntry, displayChild } from '../utils/types';
-import getDisplayableChildren from '../utils/getDisplayableChildren';
+import { useAppSelector as useSelector } from '../utils/reduxHooks';
 
-const LdapTree = ({ displayDc, entry }: { displayDc: string, entry: Extract<serverTreeEntry, { visible: true }> }) => {
-  const children: displayChild[] = getDisplayableChildren(entry.dn, Object.values(entry.children));
+import getDisplayDc from '../utils/getDisplayDc';
+import { selectLdapEntry } from '../slices/client';
+
+const LdapTree = ({ id, lastVisibleDn, entryDn }: { id: string, lastVisibleDn: string, entryDn: string }) => {
+  const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
+
+  if (!entry) {
+    console.log(`dn ${entryDn} does not exist in store`);
+
+    return (
+      <></>
+    );
+  }
+
+  const childDns: string[] = Object.values(entry.children);
+  const childLastVisibleDn = (entry.visible) ? entry.dn : lastVisibleDn;
+  const displayDc = getDisplayDc(lastVisibleDn, entryDn);
 
   return (
     <div>
       dc: {displayDc}
       <br></br>
-      entry: {JSON.stringify(entry.entry)}
+      {(entry.visible) ?
+        <>entry: {JSON.stringify(entry.entry)}</>
+        : <></>}
       <br></br>
 
       <ul>
-        {children.map((child) => {
+        {childDns.map((childDn) => {
           return (
-            <li key={child.entry.dn}>
-              <LdapTree displayDc={child.displayDc} entry={child.entry} />
+            <li key={childDn}>
+              <LdapTree id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
             </li>
           );
         })}

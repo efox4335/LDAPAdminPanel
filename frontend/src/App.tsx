@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch as useDispatch } from './utils/reduxHooks';
 
 import { getAllClients } from './services/ldapdbsService';
 import { addClients } from './slices/client';
