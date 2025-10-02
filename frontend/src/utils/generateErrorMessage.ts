@@ -2,12 +2,8 @@ import { AxiosError } from 'axios';
 import type { rawError } from './types';
 
 const generateErrorMessage = (err: unknown): string => {
-  if (!(typeof (err) === 'object')) {
+  if (!(typeof (err) === 'object') || err === null || err === undefined) {
     return 'unrecognized error';
-  }
-
-  if (err instanceof Error) {
-    return err.message;
   }
 
   let validError;
@@ -35,6 +31,10 @@ const generateErrorMessage = (err: unknown): string => {
       }, '');
 
     default:
+      if ('message' in err && typeof (err.message) === 'string') {
+        return err.message;
+      }
+
       return 'unrecognized error';
   }
 };
