@@ -1,4 +1,4 @@
-import { test, vi, expect } from 'vitest';
+import { test, vi, expect, describe } from 'vitest';
 
 import generateLdapServerTree from '../../../src/utils/generateLdapServerTree';
 import type { searchReq, searchRes, serverTreeEntry } from '../../../src/utils/types';
@@ -194,95 +194,149 @@ export const exampleDitSearchRes: searchRes = {
   'searchReferences': []
 };
 
+let mockedSearchClient = (_id: string, _req: searchReq): searchRes => {
+  throw new Error('assign first');
+};
 
-test('mock test', async () => {
-  vi.mock('../../../src/services/ldapdbsService', (original) => {
-    const mod = original;
+vi.mock('../../../src/services/ldapdbsService', (original) => {
+  const mod = original;
 
-    return {
-      ...mod,
-      searchClient: vi.fn((_id: string, req: searchReq): searchRes => {
-        if (req.baseDn === '') {
-          return rootDseSearchRes;
-        } if (req.baseDn === 'dc=example,dc=org') {
-          return exampleDitSearchRes;
-        }
+  return {
+    ...mod,
+    searchClient: vi.fn((id: string, req: searchReq): searchRes => {
+      return mockedSearchClient(id, req);
+    })
+  };
+});
 
-        throw new Error(`unexpected basedn: ${req.baseDn}`);
-      })
+describe('generateLdapServerTree.ts tests', () => {
+  test('no root DSE', async () => {
+    mockedSearchClient = (_id: string, _req: searchReq): searchRes => {
+      return {
+        searchEntries: [],
+        searchReferences: []
+      };
     };
+
+    try {
+      await generateLdapServerTree('id');
+
+      throw new Error('no error');
+    } catch (err) {
+      expect(err).instanceOf(Error);
+      if (!(err instanceof Error)) {
+        throw err;
+      }
+
+      expect(err.message).toStrictEqual('no root DSE found');
+    }
   });
 
-  const entryMap: Record<string, serverTreeEntry> = await generateLdapServerTree('id');
-  const ldapTreeRoot: serverTreeEntry = entryMap['dse'];
+  test('no namingContexts', async () => {
+    mockedSearchClient = (_id: string, _req: searchReq): searchRes => {
+      const res = { ...rootDseSearchRes, searchEntries: [{ ...rootDseSearchRes.searchEntries[0] }] };
 
-  expect(ldapTreeRoot.visible).toStrictEqual(true);
-  expect(Object.keys(ldapTreeRoot.children).length).toStrictEqual(1);
+      delete res.searchEntries[0].namingContexts;
 
-  const hiddenOrg = entryMap[ldapTreeRoot.children['dc=org']];
+      return res;
+    };
 
-  expect(hiddenOrg.visible).toStrictEqual(false);
-  expect(hiddenOrg.dn).toStrictEqual('dc=org');
+    try {
+      await generateLdapServerTree('id');
 
-  const exampleDn = entryMap[Object.keys(hiddenOrg.children)[0]];
+      throw new Error('no error');
+    } catch (err) {
+      expect(err).instanceOf(Error);
+      if (!(err instanceof Error)) {
+        throw err;
+      }
 
-  expect(exampleDn.visible).toStrictEqual(true);
-  expect(Object.keys(exampleDn.children).length).toStrictEqual(2);
-  expect(exampleDn.dn).toStrictEqual('dc=example,dc=org');
-
-  const usersDn = Object.values(exampleDn.children).find((entry) => entry === 'ou=users,dc=example,dc=org');
-
-  expect(usersDn).toBeDefined();
-  if (!usersDn) {
-    return;
-  }
-
-  const users = entryMap[usersDn];
-
-  expect(users).toBeDefined();
-  if (!users) {
-    return;
-  }
-  expect(users.visible).toStrictEqual(true);
-  if (users.visible !== true) {
-    return;
-  }
-  expect(users.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === users.dn));
-  expect(Object.keys(users.children).length).toStrictEqual(2);
-
-  Object.values(users.children).forEach((userDn) => {
-    const user = entryMap[userDn];
-
-    expect(Object.keys(user.children).length).toStrictEqual(0);
-    expect(user.visible).toStrictEqual(true);
-    if (user.visible !== true) {
-      return;
+      expect(err.message).toStrictEqual('root DSE has no namingContexts');
     }
-    expect(user.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === user.dn));
   });
 
-  const groupsDn = Object.values(exampleDn.children).find((entry) => entry === `ou=groups,${exampleDn.dn}`);
+  test('success test', async () => {
+    mockedSearchClient = (_id: string, req: searchReq): searchRes => {
+      if (req.baseDn === '') {
+        return rootDseSearchRes;
+      } if (req.baseDn === 'dc=example,dc=org') {
+        return exampleDitSearchRes;
+      }
 
-  expect(groupsDn).toBeDefined();
-  if (!groupsDn) {
-    return;
-  }
+      throw new Error(`unexpected basedn: ${req.baseDn}`);
+    };
 
-  const groups = entryMap[groupsDn];
+    const entryMap: Record<string, serverTreeEntry> = await generateLdapServerTree('id');
+    const ldapTreeRoot: serverTreeEntry = entryMap['dse'];
 
-  expect(groups.visible).toStrictEqual(true);
-  if (groups.visible !== true) {
-    return;
-  }
-  expect(groups.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === groups.dn));
-  Object.keys(groups.children).forEach((groupDn) => {
-    const group = entryMap[groupDn];
+    expect(ldapTreeRoot.visible).toStrictEqual(true);
+    expect(Object.keys(ldapTreeRoot.children).length).toStrictEqual(1);
 
-    expect(Object.keys(group.children).length).toStrictEqual(0);
-    expect(group.visible).toStrictEqual(true);
-    if (group.visible !== true) {
+    const hiddenOrg = entryMap[ldapTreeRoot.children['dc=org']];
+
+    expect(hiddenOrg.visible).toStrictEqual(false);
+    expect(hiddenOrg.dn).toStrictEqual('dc=org');
+
+    const exampleDn = entryMap[Object.keys(hiddenOrg.children)[0]];
+
+    expect(exampleDn.visible).toStrictEqual(true);
+    expect(Object.keys(exampleDn.children).length).toStrictEqual(2);
+    expect(exampleDn.dn).toStrictEqual('dc=example,dc=org');
+
+    const usersDn = Object.values(exampleDn.children).find((entry) => entry === 'ou=users,dc=example,dc=org');
+
+    expect(usersDn).toBeDefined();
+    if (!usersDn) {
       return;
     }
-    expect(group.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === group.dn));
+
+    const users = entryMap[usersDn];
+
+    expect(users).toBeDefined();
+    if (!users) {
+      return;
+    }
+    expect(users.visible).toStrictEqual(true);
+    if (users.visible !== true) {
+      return;
+    }
+    expect(users.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === users.dn));
+    expect(Object.keys(users.children).length).toStrictEqual(2);
+
+    Object.values(users.children).forEach((userDn) => {
+      const user = entryMap[userDn];
+
+      expect(Object.keys(user.children).length).toStrictEqual(0);
+      expect(user.visible).toStrictEqual(true);
+      if (user.visible !== true) {
+        return;
+      }
+      expect(user.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === user.dn));
+    });
+
+    const groupsDn = Object.values(exampleDn.children).find((entry) => entry === `ou=groups,${exampleDn.dn}`);
+
+    expect(groupsDn).toBeDefined();
+    if (!groupsDn) {
+      return;
+    }
+
+    const groups = entryMap[groupsDn];
+
+    expect(groups.visible).toStrictEqual(true);
+    if (groups.visible !== true) {
+      return;
+    }
+    expect(groups.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === groups.dn));
+    Object.keys(groups.children).forEach((groupDn) => {
+      const group = entryMap[groupDn];
+
+      expect(Object.keys(group.children).length).toStrictEqual(0);
+      expect(group.visible).toStrictEqual(true);
+      if (group.visible !== true) {
+        return;
+      }
+      expect(group.entry).toStrictEqual(exampleDitSearchRes.searchEntries.find((entry) => entry.dn === group.dn));
+    });
   });
 });

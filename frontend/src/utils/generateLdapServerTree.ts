@@ -69,6 +69,10 @@ const generateLdapServerTree = async (id: string): Promise<Record<string, server
     }
   });
 
+  if (!dseSearch.searchEntries || !dseSearch.searchEntries[0]) {
+    throw new Error('no root DSE found');
+  }
+
   const rootTreeEntry: Extract<serverTreeEntry, { visible: true }> = {
     dn: 'dse',
     visible: true,
