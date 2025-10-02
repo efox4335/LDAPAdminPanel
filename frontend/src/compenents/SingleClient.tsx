@@ -111,7 +111,7 @@ const SingleClient = ({ client }: { client: client }) => {
       <button onClick={handleUnbind}>unbind</button>
       <button onClick={handleDelete}>remove</button>
       <br></br>
-      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <LdapTree id={client.id} lastVisibleDn='' entryDn='dse' />}
+      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <LdapTree id={client.id} />}
     </div>
   );
 };

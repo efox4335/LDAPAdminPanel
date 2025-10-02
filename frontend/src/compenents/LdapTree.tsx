@@ -3,7 +3,7 @@ import { useAppSelector as useSelector } from '../utils/reduxHooks';
 import getDisplayDc from '../utils/getDisplayDc';
 import { selectLdapEntry } from '../slices/client';
 
-const LdapTree = ({ id, lastVisibleDn, entryDn }: { id: string, lastVisibleDn: string, entryDn: string }) => {
+const LdapTreeEntry = ({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
 
   if (!entry) {
@@ -18,25 +18,37 @@ const LdapTree = ({ id, lastVisibleDn, entryDn }: { id: string, lastVisibleDn: s
   const childLastVisibleDn = (entry.visible) ? entry.dn : lastVisibleDn;
   const displayDc = getDisplayDc(lastVisibleDn, entryDn);
 
-  return (
-    <div>
-      dc: {displayDc}
-      <br></br>
-      {(entry.visible) ?
-        <>entry: {JSON.stringify(entry.entry)}</>
-        : <></>}
-      <br></br>
-
-      <ul>
+  if (!entry.visible) {
+    return (
+      <>
         {childDns.map((childDn) => {
           return (
-            <li key={childDn}>
-              <LdapTree id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
-            </li>
+            <LdapTreeEntry key={childDn} id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} offset={offset} />
           );
         })}
-      </ul>
+      </>
+    );
+  }
+
+  return (
+    <div style={{ paddingLeft: `${offset}px` }}>
+      dc: {displayDc}
+      <br></br>
+      entry: {JSON.stringify(entry.entry)}
+      <br></br>
+
+      {childDns.map((childDn) => {
+        return (
+          <LdapTreeEntry key={childDn} id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} offset={offset + 5} />
+        );
+      })}
     </div>
+  );
+};
+
+const LdapTree = ({ id }: { id: string }) => {
+  return (
+    <LdapTreeEntry id={id} lastVisibleDn='' entryDn='dse' offset={5} />
   );
 };
 
