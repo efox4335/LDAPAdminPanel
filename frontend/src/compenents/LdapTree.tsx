@@ -1,9 +1,10 @@
 import { useAppSelector as useSelector } from '../utils/reduxHooks';
+import { memo } from 'react';
 
 import getDisplayDc from '../utils/getDisplayDc';
 import { selectLdapEntry } from '../slices/client';
 
-const LdapTreeEntry = ({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
+const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
 
   if (!entry) {
@@ -44,7 +45,7 @@ const LdapTreeEntry = ({ id, lastVisibleDn, entryDn, offset }: { id: string, las
       })}
     </div>
   );
-};
+});
 
 const LdapTree = ({ id }: { id: string }) => {
   return (
