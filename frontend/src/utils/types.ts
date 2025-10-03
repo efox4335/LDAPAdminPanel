@@ -20,18 +20,6 @@ export type searchReq = {
   }
 };
 
-type zodError = {
-  error: {
-    issues: [
-      {
-        code: string,
-        path: (string | number)[],
-        message: string
-      }
-    ]
-  }
-};
-
 type ldapError = {
   type: 'ldapError',
   code: number,
@@ -40,7 +28,7 @@ type ldapError = {
 
 type validationError = {
   type: 'validationError',
-  error: zodError | string
+  error: string
 };
 
 type customErrorMessage = {

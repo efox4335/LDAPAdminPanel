@@ -35,15 +35,7 @@ const generateErrorMessage = (err: unknown): string => {
     case 'customErrorMessage':
       return rawError.message;
     case 'validationError':
-      if (typeof (rawError.error) === 'string') {
-        return rawError.error;
-      }
-
-      return rawError.error.error.issues.reduce((str, val) => {
-        const path = (val.path.length > 0) ? val.path[0] : '';
-
-        return `${str}field ${path} ${val.message} `;
-      }, '');
+      return rawError.error;
 
     default:
       return 'unrecognized error';
