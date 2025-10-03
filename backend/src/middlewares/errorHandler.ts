@@ -1,5 +1,5 @@
 import express from 'express';
-import { ZodError } from 'zod';
+import { prettifyError, ZodError } from 'zod';
 import { ResultCodeError } from 'ldapts';
 
 import type { responseError } from '../utils/types';
@@ -16,7 +16,7 @@ const errorHandler = (err: unknown, _req: express.Request, res: express.Response
   if (err instanceof ZodError) {
     const error: responseError = {
       type: 'validationError',
-      error: err
+      error: prettifyError(err)
     };
 
     res.status(400).send(error);
