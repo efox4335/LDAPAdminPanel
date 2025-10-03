@@ -9,7 +9,11 @@ const generateErrorMessage = (err: unknown): string => {
   let validError;
 
   if (err instanceof AxiosError) {
-    validError = err.response?.data as rawError;
+    if (err.response && err.response.data) {
+      validError = err.response.data as rawError;
+    } else {
+      return err.message;
+    }
   } else {
     validError = err as rawError;
   }
