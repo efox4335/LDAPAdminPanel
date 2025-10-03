@@ -2,43 +2,50 @@ import { AxiosError } from 'axios';
 import type { rawError } from './types';
 
 const generateErrorMessage = (err: unknown): string => {
-  if (!(typeof (err) === 'object') || err === null || err === undefined) {
+  let validError: unknown;
+
+  if (err instanceof AxiosError && err.response && err.response.data) {
+    validError = err.response.data;
+  } else if (err instanceof Error) {
+    return err.message;
+  } else {
+    validError = err;
+  }
+
+  if (!(typeof (validError) === 'object') || validError === null || validError === undefined) {
     return 'unrecognized error';
   }
 
-  let validError;
-
-  if (err instanceof AxiosError) {
-    if (err.response && err.response.data) {
-      validError = err.response.data as rawError;
-    } else {
-      return err.message;
+  if (!('type' in validError) || typeof (validError.type) !== 'string') {
+    if (!('message' in validError)) {
+      return 'unrecognized error';
     }
-  } else {
-    validError = err as rawError;
+
+    if (typeof (validError.message) !== 'string') {
+      return 'unrecognized error';
+    }
+    return validError.message;
   }
 
-  switch (validError.type) {
+  const rawError = validError as rawError;
+
+  switch (rawError.type) {
     case 'ldapError':
-      return `code: ${validError.code} name: ${validError.name}`;
+      return `code: ${rawError.code} name: ${rawError.name}`;
     case 'customErrorMessage':
-      return validError.message;
+      return rawError.message;
     case 'validationError':
-      if (typeof (validError.error) === 'string') {
-        return validError.error;
+      if (typeof (rawError.error) === 'string') {
+        return rawError.error;
       }
 
-      return validError.error.error.issues.reduce((str, val) => {
+      return rawError.error.error.issues.reduce((str, val) => {
         const path = (val.path.length > 0) ? val.path[0] : '';
 
         return `${str}field ${path} ${val.message} `;
       }, '');
 
     default:
-      if ('message' in err && typeof (err.message) === 'string') {
-        return err.message;
-      }
-
       return 'unrecognized error';
   }
 };
