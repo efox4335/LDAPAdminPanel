@@ -52,6 +52,11 @@ interface ldapEntryReqAttributes {
 export type ldapEntry = ldapEntryReqAttributes &
   Record<string, string | string[]>;
 
+export type addReq = {
+  baseDn: string,
+  entry: Omit<ldapEntry, 'dn'>
+};
+
 export type searchRes = {
   searchEntries: ldapEntry[],
   searchReferences: string[]
