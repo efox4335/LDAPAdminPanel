@@ -3,6 +3,7 @@ import { memo } from 'react';
 
 import getDisplayDc from '../utils/getDisplayDc';
 import { selectLdapEntry } from '../slices/client';
+import LdapEntryDisplay from './LdapEntryDisplay';
 
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
@@ -35,7 +36,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     <div style={{ paddingLeft: `${offset}px` }}>
       dc: {displayDc}
       <br></br>
-      entry: {JSON.stringify(entry.entry)}
+      entry: <LdapEntryDisplay entry={entry.entry} />
       <br></br>
 
       {childDns.map((childDn) => {
