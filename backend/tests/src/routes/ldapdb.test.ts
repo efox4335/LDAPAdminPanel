@@ -338,7 +338,7 @@ describe('ldapdbs endpoint tests', () => {
             .expect(201);
 
           await supertest(app)
-            .delete(`/ldapdbs/${clients.adminClient}/del`)
+            .post(`/ldapdbs/${clients.adminClient}/del`)
             .send(basicDel);
         });
       });
@@ -348,7 +348,7 @@ describe('ldapdbs endpoint tests', () => {
   describe('del tests', () => {
     test('no client', async () => {
       const res = await supertest(app)
-        .delete(`/ldapdbs/${invalidClientId}/del`)
+        .post(`/ldapdbs/${invalidClientId}/del`)
         .send(basicDel)
         .expect(404);
 
@@ -368,7 +368,7 @@ describe('ldapdbs endpoint tests', () => {
 
       test('unbound client', async () => {
         const res = await supertest(app)
-          .delete(`/ldapdbs/${clients.adminClient}/del`)
+          .post(`/ldapdbs/${clients.adminClient}/del`)
           .send(basicDel)
           .expect(409);
 
@@ -386,7 +386,7 @@ describe('ldapdbs endpoint tests', () => {
 
         test('invalid body', async () => {
           const res = await supertest(app)
-            .delete(`/ldapdbs/${clients.adminClient}/del`)
+            .post(`/ldapdbs/${clients.adminClient}/del`)
             .send({ abc: 'def' })
             .expect(400);
 
@@ -399,7 +399,7 @@ describe('ldapdbs endpoint tests', () => {
             .send(basicAdd);
 
           await supertest(app)
-            .delete(`/ldapdbs/${clients.adminClient}/del`)
+            .post(`/ldapdbs/${clients.adminClient}/del`)
             .send(basicDel)
             .expect(204);
         });
@@ -411,14 +411,14 @@ describe('ldapdbs endpoint tests', () => {
               .send(basicAdd);
 
             const res = await supertest(app)
-              .delete(`/ldapdbs/${clients.adminClient}/del`)
+              .post(`/ldapdbs/${clients.adminClient}/del`)
               .send({ ...basicDel, control: testControl })
               .expect(400);
 
             unavailableCriticalValiadator(res.body);
           } finally {
             await supertest(app)
-              .delete(`/ldapdbs/${clients.adminClient}/del`)
+              .post(`/ldapdbs/${clients.adminClient}/del`)
               .send(basicDel)
               .expect(204);
           }

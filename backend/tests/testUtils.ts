@@ -190,8 +190,8 @@ export class testClients {
   }
 
   async delEntries(app: Express) {
-    await supertest(app).delete(`/ldapdbs/${this.adminClient}/del`).send(basicDel);
-    await supertest(app).delete(`/ldapdbs/${this.noAnonBindAdminClient}/del`).send(basicDel);
+    await supertest(app).post(`/ldapdbs/${this.adminClient}/del`).send(basicDel);
+    await supertest(app).post(`/ldapdbs/${this.noAnonBindAdminClient}/del`).send(basicDel);
   }
 };
 

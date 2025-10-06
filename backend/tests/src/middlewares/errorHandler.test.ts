@@ -22,7 +22,7 @@ describe('error handler tests', () => {
 
   test('ldap error', async () => {
     const res = await supertest(app)
-      .delete(`/ldapdbs/${clients.adminClient}/del`)
+      .post(`/ldapdbs/${clients.adminClient}/del`)
       .send({ dn: 'dc=invalidDn' })
       .expect(400);
 
