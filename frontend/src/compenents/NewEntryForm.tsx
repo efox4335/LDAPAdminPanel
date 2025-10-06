@@ -1,12 +1,12 @@
 import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
-import { v4 as uuidv4 } from 'uuid';
 
 import type { addReq } from '../utils/types';
 import { addNewEntry, searchClient } from '../services/ldapdbsService';
 import { addEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import getAttributeValues from '../utils/getAttributeValues';
+import NewAttributeList from './NewAttributeList';
 
 const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
   const [visible, setVisible] = useState<boolean>(false);
@@ -76,15 +76,6 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
     return (<button onClick={() => setVisible(true)}>add entry</button>);
   }
 
-  if (
-    newAttributes.length === 0 ||
-    !(
-      newAttributes[newAttributes.length - 1].attributeName === '' &&
-      newAttributes[newAttributes.length - 1].value === ''
-    )) {
-    setNewAttributes([...newAttributes, { id: uuidv4(), attributeName: '', value: '' }]);
-  }
-
   return (
     <div>
       <form onSubmit={handleAddEntry}>
@@ -96,44 +87,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
         <br></br>
         attributes:
         <br></br>
-        {newAttributes.map((val) => {
-          return (
-            <div key={val.id}>
-              attribute:
-              <input value={val.attributeName} onChange={(event) => {
-                if (event.target.value === '' && val.value === '') {
-                  setNewAttributes(newAttributes.filter((ele) => ele.id !== val.id));
-
-                  return;
-                }
-
-                setNewAttributes(newAttributes.map((ele) => {
-                  if (ele.id === val.id) {
-                    return { ...val, attributeName: event.target.value };
-                  }
-
-                  return ele;
-                }));
-              }} />
-              value(s):
-              <input value={val.value} onChange={(event) => {
-                if (event.target.value === '' && val.attributeName === '') {
-                  setNewAttributes(newAttributes.filter((ele) => ele.id !== val.id));
-
-                  return;
-                }
-
-                setNewAttributes(newAttributes.map((ele) => {
-                  if (ele.id === val.id) {
-                    return { ...val, value: event.target.value };
-                  }
-
-                  return ele;
-                }));
-              }} />
-            </div>
-          );
-        })}
+        <NewAttributeList newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
         <button type='button' onClick={() => handleRestet()}>reset</button>
         <button type='submit'>add</button>
       </form>

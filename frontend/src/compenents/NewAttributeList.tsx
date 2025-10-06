@@ -1,0 +1,65 @@
+import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+
+const NewAttributeList = ({ newAttributes, setNewAttributes }:
+  {
+    newAttributes: { id: string, attributeName: string, value: string }[],
+    setNewAttributes: Dispatch<SetStateAction<{ id: string, attributeName: string, value: string }[]>>
+  }) => {
+
+  useEffect(() => {
+    if (
+      newAttributes.length === 0 ||
+      !(
+        newAttributes[newAttributes.length - 1].attributeName === '' &&
+        newAttributes[newAttributes.length - 1].value === ''
+      )) {
+      setNewAttributes([...newAttributes, { id: uuidv4(), attributeName: '', value: '' }]);
+    }
+  }, [newAttributes]);
+
+  return (
+    <div>
+      {newAttributes.map((val) => {
+        return (
+          <div key={val.id}>
+            attribute:
+            <input value={val.attributeName} onChange={(event) => {
+              if (event.target.value === '' && val.value === '') {
+                setNewAttributes(newAttributes.filter((ele) => ele.id !== val.id));
+
+                return;
+              }
+
+              setNewAttributes(newAttributes.map((ele) => {
+                if (ele.id === val.id) {
+                  return { ...val, attributeName: event.target.value };
+                }
+
+                return ele;
+              }));
+            }} />
+            value(s):
+            <input value={val.value} onChange={(event) => {
+              if (event.target.value === '' && val.attributeName === '') {
+                setNewAttributes(newAttributes.filter((ele) => ele.id !== val.id));
+
+                return;
+              }
+
+              setNewAttributes(newAttributes.map((ele) => {
+                if (ele.id === val.id) {
+                  return { ...val, value: event.target.value };
+                }
+
+                return ele;
+              }));
+            }} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default NewAttributeList;
