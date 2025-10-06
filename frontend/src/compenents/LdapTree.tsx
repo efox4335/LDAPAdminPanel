@@ -54,8 +54,8 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
       dc: {displayDc}
       <br></br>
       entry: <LdapEntryDisplay entry={entry.entry} />
-      <button onClick={handleDelete}>delete</button>
       <NewEntryForm id={id} parentDn={entryDn} />
+      <button onClick={handleDelete}>delete</button>
       <br></br>
       <br></br>
 
