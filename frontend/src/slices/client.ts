@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import type { client, clientStore, ldapEntry } from '../utils/types';
+import type { client, clientStore, ldapEntry, serverTreeEntry } from '../utils/types';
 import getParentDn from '../utils/getParentDn';
 
 const initialState: clientStore = {};
@@ -87,6 +87,27 @@ const clientsSlice = createSlice({
       });
 
       delete map[action.payload.dn];
+    },
+
+    updateEntry: (state, action: PayloadAction<{ clientId: string, entry: ldapEntry }>) => {
+      const map = state[action.payload.clientId].entryMap;
+
+      if (!map) {
+        console.log('tried to update before server fetched');
+
+        return;
+      }
+
+      const updateEntry = map[action.payload.entry.dn] as Extract<serverTreeEntry, { visible: true }> | undefined;
+
+      if (!updateEntry) {
+        console.log('tried to update non-existent entry');
+
+        return;
+      }
+
+      updateEntry.visible = true;
+      updateEntry.entry = action.payload.entry;
     }
   },
   selectors: {
@@ -104,7 +125,7 @@ const clientsSlice = createSlice({
   }
 });
 
-export const { addClient, delClient, addClients, addEntry, delEntry } = clientsSlice.actions;
+export const { addClient, delClient, addClients, addEntry, delEntry, updateEntry } = clientsSlice.actions;
 export const { selectClients, selectLdapEntry } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

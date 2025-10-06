@@ -61,6 +61,17 @@ export type delReq = {
   dn: string
 };
 
+export type modifyReqChange = {
+  operation: 'replace' | 'add' | 'delete',
+  type: string,
+  values: string[]
+};
+
+export type modifyReq = {
+  dn: string,
+  changes: modifyReqChange[]
+};
+
 export type searchRes = {
   searchEntries: ldapEntry[],
   searchReferences: string[]

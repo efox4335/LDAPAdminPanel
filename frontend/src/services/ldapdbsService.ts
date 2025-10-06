@@ -1,6 +1,6 @@
 import axios, { type AxiosResponse } from 'axios';
 
-import type { addReq, bindReq, client, delReq, newClientResponse, searchReq, searchRes } from '../utils/types';
+import type { addReq, bindReq, client, delReq, modifyReq, newClientResponse, searchReq, searchRes } from '../utils/types';
 
 const baseUrl = '/ldapdbs/';
 
@@ -36,6 +36,10 @@ export const searchClient = async (id: string, req: searchReq) => {
 
 export const deleteEntry = async (id: string, req: delReq) => {
   await axios.post(`${baseUrl}${id}/del`, req);
+};
+
+export const modifyEntry = async (id: string, req: modifyReq) => {
+  await axios.put(`${baseUrl}${id}/modify`, req);
 };
 
 export const addNewEntry = async (id: string, req: addReq) => {
