@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import type { client, clientStore, ldapEntry } from '../utils/types';
+import getParentDn from '../utils/getParentDn';
 
 const initialState: clientStore = {};
 
@@ -38,6 +39,54 @@ const clientsSlice = createSlice({
       };
 
       map[action.payload.parentDn].children[action.payload.entry.dn] = action.payload.entry.dn;
+    },
+
+    delEntry: (state, action: PayloadAction<{ clientId: string, dn: string }>) => {
+      const map = state[action.payload.clientId].entryMap;
+
+      if (!map) {
+        console.log('tried to delete entry before server tree is fetched');
+
+        return;
+      }
+
+      const delEntry = map[action.payload.dn];
+
+      if (!delClient) {
+        console.log('tried to delete non-existent entry');
+
+        return;
+      }
+
+      const parentDn = getParentDn(delEntry.dn);
+
+      const parentEntry = map[parentDn];
+
+      if (!parentEntry) {
+        console.log('parent entry does not exist');
+
+        return;
+      }
+
+      delete parentEntry.children[action.payload.dn];
+
+      const delChildren: string[] = Object.values(delEntry.children);
+
+      delChildren.forEach((childDn, _index, arr) => {
+        const childEntry = map[childDn];
+
+        if (!childEntry) {
+          console.log('child of delEntry does not exists');
+
+          return;
+        }
+
+        Object.values(childEntry.children).forEach((val) => arr.push(val));
+
+        delete map[childDn];
+      });
+
+      delete map[action.payload.dn];
     }
   },
   selectors: {
@@ -55,7 +104,7 @@ const clientsSlice = createSlice({
   }
 });
 
-export const { addClient, delClient, addClients, addEntry } = clientsSlice.actions;
+export const { addClient, delClient, addClients, addEntry, delEntry } = clientsSlice.actions;
 export const { selectClients, selectLdapEntry } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

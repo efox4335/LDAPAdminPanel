@@ -57,6 +57,10 @@ export type addReq = {
   entry: Omit<ldapEntry, 'dn'>
 };
 
+export type delReq = {
+  dn: string
+};
+
 export type searchRes = {
   searchEntries: ldapEntry[],
   searchReferences: string[]

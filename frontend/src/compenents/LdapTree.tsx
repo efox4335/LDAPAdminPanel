@@ -1,13 +1,19 @@
 import { useAppSelector as useSelector } from '../utils/reduxHooks';
+import { useAppDispatch as useDispatch } from '../utils/reduxHooks';
 import { memo } from 'react';
 
 import getDisplayDc from '../utils/getDisplayDc';
 import { selectLdapEntry } from '../slices/client';
 import LdapEntryDisplay from './LdapEntryDisplay';
 import NewEntryForm from './NewEntryForm';
+import { deleteEntry } from '../services/ldapdbsService';
+import { delEntry } from '../slices/client';
+import { addError } from '../slices/error';
 
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
+
+  const dispatch = useDispatch();
 
   if (!entry) {
     console.log(`dn ${entryDn} does not exist in store`);
@@ -33,11 +39,22 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     );
   }
 
+  const handleDelete = async () => {
+    try {
+      await deleteEntry(id, { dn: entryDn });
+
+      dispatch(delEntry({ clientId: id, dn: entryDn }));
+    } catch (err) {
+      dispatch(addError(err));
+    }
+  };
+
   return (
     <div style={{ paddingLeft: `${offset}px` }}>
       dc: {displayDc}
       <br></br>
       entry: <LdapEntryDisplay entry={entry.entry} />
+      <button onClick={handleDelete}>delete</button>
       <NewEntryForm id={id} parentDn={entryDn} />
       <br></br>
       <br></br>
