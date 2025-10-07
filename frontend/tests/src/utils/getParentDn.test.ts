@@ -4,9 +4,9 @@ import getParentDn from '../../../src/utils/getParentDn';
 
 describe('getParentDn.ts tests', () => {
   test('no parent', () => {
-    const res = getParentDn('no comma here');
+    const res = getParentDn('parent is dse so no comma here');
 
-    expect(res).toStrictEqual('no comma here');
+    expect(res).toStrictEqual('dse');
   });
 
   test('single comma', () => {
