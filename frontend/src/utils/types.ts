@@ -79,6 +79,11 @@ export type searchRes = {
   searchReferences: string[]
 };
 
+export type ldapAttribute = {
+  name: string,
+  values: string | string[]
+};
+
 interface baseServerTreeEntry {
   dn: string
   children: Record<string, string>

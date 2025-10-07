@@ -9,6 +9,7 @@ import NewEntryForm from './NewEntryForm';
 import { deleteEntry } from '../services/ldapdbsService';
 import { delEntry } from '../slices/client';
 import { addError } from '../slices/error';
+import type { ldapAttribute } from '../utils/types';
 
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
@@ -49,11 +50,21 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     }
   };
 
+  const displayAttributes: ldapAttribute[] = Object
+    .entries(entry.entry)
+    .concat(Object
+      .entries(entry.operationalEntry)
+      .filter(([key]) => key !== 'dn')
+    )
+    .map(([key, value]) => {
+      return { name: key, values: value };
+    });
+
   return (
     <div style={{ paddingLeft: `${offset}px` }}>
       dc: {displayDc}
       <br></br>
-      entry: <LdapEntryDisplay entry={entry.entry} />
+      entry: <LdapEntryDisplay attributes={displayAttributes} />
       <NewEntryForm id={id} parentDn={entryDn} />
       <button onClick={handleDelete}>delete</button>
       <br></br>

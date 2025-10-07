@@ -1,16 +1,16 @@
-import type { ldapEntry } from '../utils/types';
+import type { ldapAttribute } from '../utils/types';
 
-const LdapEntryDisplay = ({ entry }: { entry: ldapEntry }) => {
+const LdapEntryDisplay = ({ attributes }: { attributes: ldapAttribute[] }) => {
   return (
     <ul>
-      {Object.entries(entry).map(([key, value]) => {
+      {attributes.map(({ name, values }) => {
         return (
-          <li key={key}>
-            {key} : {
-              (typeof (value) === 'string') ?
-                value :
-                value.reduce((str, val, index) => {
-                  if (index === value.length - 1) {
+          <li key={name}>
+            {name}: {
+              (typeof (values) === 'string') ?
+                values :
+                values.reduce((str, val, index) => {
+                  if (index === values.length - 1) {
                     return `${str} ${val}]`;
                   }
 
