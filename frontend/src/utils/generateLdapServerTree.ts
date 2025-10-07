@@ -1,5 +1,5 @@
-import type { serverTreeEntry, searchRes } from './types';
-import { searchClient } from '../services/ldapdbsService';
+import type { serverTreeEntry } from './types';
+import { fetchAllLdapEntries } from './query';
 
 const getParentDn = (dn: string) => {
   // see https://stackoverflow.com/questions/4607745/split-string-only-on-first-instance-of-specified-character
@@ -16,6 +16,10 @@ const getParentDn = (dn: string) => {
  * map used otherwise entries with lots of children would slow down the finding of parents
 */
 const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTreeEntry) => {
+  if (newEntry.dn === '') {
+    newEntry.dn = 'dse';
+  }
+
   if (newEntry.dn in entryMap) {
     const preExistingEntry = entryMap[newEntry.dn];
 
@@ -23,6 +27,7 @@ const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTre
 
     if (preExistingEntry.visible === true && newEntry.visible === true) {
       preExistingEntry.entry = newEntry.entry;
+      preExistingEntry.operationalEntry = newEntry.operationalEntry;
     }
 
     return;
@@ -56,67 +61,17 @@ const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTre
 const generateLdapServerTree = async (id: string): Promise<Record<string, serverTreeEntry>> => {
   const entryMap: Record<string, serverTreeEntry> = {};
 
-  const dseSearch: searchRes = await searchClient(id, {
-    baseDn: '',
-    options: {
-      scope: 'base',
-      filter: '(objectClass=*)',
-      derefAliases: 'always',
-      sizeLimit: 0,
-      timeLimit: 0,
-      paged: false,
-      attributes: ['*', '+']
-    }
+  const entryArr = await fetchAllLdapEntries(id);
+
+  entryArr.forEach((entry) => {
+    addEntry(entryMap, {
+      dn: entry.visibleEntry.dn,
+      visible: true,
+      entry: entry.visibleEntry,
+      operationalEntry: entry.operationalEntry,
+      children: {}
+    });
   });
-
-  if (!dseSearch.searchEntries || !dseSearch.searchEntries[0]) {
-    throw new Error('no root DSE found');
-  }
-
-  const rootTreeEntry: Extract<serverTreeEntry, { visible: true }> = {
-    dn: 'dse',
-    visible: true,
-    entry: dseSearch.searchEntries[0],
-    children: {}
-  };
-
-  entryMap[rootTreeEntry.dn] = rootTreeEntry;
-
-  if (!dseSearch.searchEntries[0].namingContexts) {
-    throw new Error('root DSE has no namingContexts');
-  }
-
-  let ditNamingContexts: string[];
-
-  if (Array.isArray(dseSearch.searchEntries[0].namingContexts)) {
-    ditNamingContexts = dseSearch.searchEntries[0].namingContexts;
-  } else {
-    ditNamingContexts = [dseSearch.searchEntries[0].namingContexts];
-  }
-
-  for (const dit of ditNamingContexts) {
-    const ditSearch = await searchClient(id, {
-      baseDn: dit,
-      options: {
-        scope: 'sub',
-        filter: '(objectClass=*)',
-        derefAliases: 'always',
-        sizeLimit: 0,
-        timeLimit: 0,
-        paged: false,
-        attributes: ['*', '+']
-      }
-    });
-
-    ditSearch.searchEntries.forEach((entry) => {
-      addEntry(entryMap, {
-        dn: entry.dn,
-        visible: true,
-        entry: entry,
-        children: {}
-      });
-    });
-  }
 
   return entryMap;
 };

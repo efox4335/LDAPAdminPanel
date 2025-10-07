@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import type { client, clientStore, ldapEntry, serverTreeEntry } from '../utils/types';
+import type { client, clientStore, ldapEntry, operationalLdapEntry, serverTreeEntry } from '../utils/types';
 import getParentDn from '../utils/getParentDn';
 
 const initialState: clientStore = {};
@@ -22,7 +22,7 @@ const clientsSlice = createSlice({
       action.payload.forEach((client) => state[client.id] = client);
     },
 
-    addEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry }>) => {
+    addEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
       const map = state[action.payload.clientId].entryMap;
 
       if (map === undefined) {
@@ -35,7 +35,8 @@ const clientsSlice = createSlice({
         dn: action.payload.entry.dn,
         visible: true,
         children: {},
-        entry: action.payload.entry
+        entry: action.payload.entry,
+        operationalEntry: action.payload.operationalEntry
       };
 
       map[action.payload.parentDn].children[action.payload.entry.dn] = action.payload.entry.dn;

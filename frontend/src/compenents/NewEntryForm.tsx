@@ -2,11 +2,12 @@ import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
 import type { addReq } from '../utils/types';
-import { addNewEntry, searchClient } from '../services/ldapdbsService';
+import { addNewEntry } from '../services/ldapdbsService';
 import { addEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import getAttributeValues from '../utils/getAttributeValues';
 import NewAttributeList from './NewAttributeList';
+import { fetchLdapEntry } from '../utils/query';
 
 const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
   const [visible, setVisible] = useState<boolean>(false);
@@ -37,23 +38,13 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
       };
 
       await addNewEntry(id, newEntry);
-      const res = await searchClient(id, {
-        baseDn: newDn,
-        options: {
-          scope: 'base',
-          filter: '(objectClass=*)',
-          derefAliases: 'always',
-          sizeLimit: 0,
-          timeLimit: 0,
-          paged: false,
-          attributes: ['*', '+']
-        }
-      });
+      const res = await fetchLdapEntry(id, newEntry.baseDn);
 
       dispatch(addEntry({
         clientId: id,
         parentDn: parentDn,
-        entry: res.searchEntries[0]
+        entry: res.visibleEntry,
+        operationalEntry: res.operationalEntry
       }));
 
       //intentionally does not delete user input on error

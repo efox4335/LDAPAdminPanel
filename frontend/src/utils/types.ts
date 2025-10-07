@@ -52,6 +52,8 @@ interface ldapEntryReqAttributes {
 export type ldapEntry = ldapEntryReqAttributes &
   Record<string, string | string[]>;
 
+export type operationalLdapEntry = Record<string, string | string[]>;
+
 export type addReq = {
   baseDn: string,
   entry: Omit<ldapEntry, 'dn'>
@@ -73,7 +75,7 @@ export type modifyReq = {
 };
 
 export type searchRes = {
-  searchEntries: ldapEntry[],
+  searchEntries: Record<string, string | string[]>[],
   searchReferences: string[]
 };
 
@@ -84,7 +86,8 @@ interface baseServerTreeEntry {
 
 interface visibleServerTreeEntry extends baseServerTreeEntry {
   visible: true,
-  entry: ldapEntry
+  entry: ldapEntry,
+  operationalEntry: operationalLdapEntry
 };
 
 interface hiddenServerTreeEntry extends baseServerTreeEntry {
