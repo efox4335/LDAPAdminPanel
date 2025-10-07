@@ -1,16 +1,6 @@
 import type { serverTreeEntry } from './types';
 import { fetchAllLdapEntries } from './query';
-
-const getParentDn = (dn: string) => {
-  // see https://stackoverflow.com/questions/4607745/split-string-only-on-first-instance-of-specified-character
-  const res = dn.split(/,(.*)/s);
-
-  if (res.length === 1) {
-    return 'dse';
-  }
-
-  return res[1];
-};
+import getParentDn from './getParentDn';
 
 /*
  * map used otherwise entries with lots of children would slow down the finding of parents
