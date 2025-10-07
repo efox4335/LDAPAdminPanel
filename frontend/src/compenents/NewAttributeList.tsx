@@ -55,6 +55,9 @@ const NewAttributeList = ({ newAttributes, setNewAttributes }:
                 return ele;
               }));
             }} />
+            <button type='button' onClick={() => setNewAttributes(newAttributes.filter((attr) => attr.id !== val.id))}>
+              delete
+            </button>
           </div>
         );
       })}
