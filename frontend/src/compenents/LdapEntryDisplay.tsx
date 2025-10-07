@@ -3,9 +3,7 @@ import type { ldapEntry } from '../utils/types';
 const LdapEntryDisplay = ({ entry }: { entry: ldapEntry }) => {
   return (
     <ul>
-      {Object.entries(entry).filter(([key]) => {
-        return (key !== '*' && key !== '+');
-      }).map(([key, value]) => {
+      {Object.entries(entry).map(([key, value]) => {
         return (
           <li key={key}>
             {key} : {
