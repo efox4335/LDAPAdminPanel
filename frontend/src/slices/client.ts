@@ -90,7 +90,7 @@ const clientsSlice = createSlice({
       delete map[action.payload.dn];
     },
 
-    updateEntry: (state, action: PayloadAction<{ clientId: string, entry: ldapEntry }>) => {
+    updateEntry: (state, action: PayloadAction<{ clientId: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
       const map = state[action.payload.clientId].entryMap;
 
       if (!map) {
@@ -109,6 +109,7 @@ const clientsSlice = createSlice({
 
       updateEntry.visible = true;
       updateEntry.entry = action.payload.entry;
+      updateEntry.operationalEntry = action.payload.operationalEntry;
     }
   },
   selectors: {
