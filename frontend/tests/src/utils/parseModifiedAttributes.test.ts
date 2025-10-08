@@ -1,7 +1,7 @@
 import { test, expect, describe } from 'vitest';
 
 import parseModifyedAttributes from '../../../src/utils/parseModifiedAttributes';
-import type { ldapEntry } from '../../../src/utils/types';
+import type { ldapEntry, newLdapAttribute } from '../../../src/utils/types';
 
 const testEntry: ldapEntry = {
   dn: 'testDn',
@@ -35,7 +35,7 @@ describe('parseModifiedAttributes.ts tests', () => {
 
   test('empty attributeName passed', () => {
     const res = parseModifyedAttributes(
-      [{ id: '1', attributeName: '', value: '' }],
+      [{ id: '1', attributeName: '', values: [{ id: '1', value: '' }] }],
       testEntry
     );
 
@@ -61,9 +61,14 @@ describe('parseModifiedAttributes.ts tests', () => {
         return {
           id: index.toString(),
           attributeName: key,
-          value: Array.isArray(value) ?
-            value.join('  ,') :
-            value
+          values: Array.isArray(value) ?
+            value.map((val, index) => {
+              return {
+                id: index.toString(),
+                value: val
+              };
+            }) :
+            [{ id: '1', value: value }]
         };
       }),
       testEntry
@@ -75,26 +80,42 @@ describe('parseModifiedAttributes.ts tests', () => {
   });
 
   test('correct add', () => {
-    const newAttributes = [
+    const newAttributes: newLdapAttribute[] = [
       {
         id: 'abc',
         attributeName: 'newAttribute1',
-        value: ''
+        values: [{
+          id: '1',
+          value: ''
+        }]
       },
       {
         id: 'abcdefg',
         attributeName: '',
-        value: 'val'
+        values: [{
+          id: '2',
+          value: 'val'
+        }]
       },
       {
         id: 'abcd',
         attributeName: 'newAttribute2',
-        value: 'val1,  val2'
+        values: [{
+          id: '1',
+          value: 'val1'
+        },
+        {
+          id: '2',
+          value: 'val2'
+        }]
       },
       {
         id: 'abcdef',
         attributeName: 'newAttribute3',
-        value: 'singleval'
+        values: [{
+          id: '1',
+          value: 'singleval'
+        }]
       }
     ];
 
@@ -103,9 +124,14 @@ describe('parseModifiedAttributes.ts tests', () => {
         return {
           id: index.toString(),
           attributeName: key,
-          value: Array.isArray(value) ?
-            value.join('  ,') :
-            value
+          values: Array.isArray(value) ?
+            value.map((val, index) => {
+              return {
+                id: index.toString(),
+                value: val
+              };
+            }) :
+            [{ id: '1', value: value }]
         };
       }).concat(newAttributes),
       testEntry
@@ -126,12 +152,18 @@ describe('parseModifiedAttributes.ts tests', () => {
         {
           id: '1',
           attributeName: 'taken',
-          value: ''
+          values: [{
+            id: '1',
+            value: ''
+          }]
         },
         {
           id: '2',
           attributeName: 'taken',
-          value: ''
+          values: [{
+            id: '1',
+            value: ''
+          }]
         }
       ], testEntry);
 

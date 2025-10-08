@@ -1,19 +1,20 @@
 import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
-import type { addReq, newLdapAttribute } from '../utils/types';
+import type { addReq, newLdapAttribute, newLdapAttributeValue } from '../utils/types';
 import { addNewEntry } from '../services/ldapdbsService';
 import { addEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import getAttributeValues from '../utils/getAttributeValues';
 import NewAttributeList from './NewAttributeList';
 import { fetchLdapEntry } from '../utils/query';
+import NewLdapAttributeValues from './NewLdapAttributeValues';
 
 const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
   const [visible, setVisible] = useState<boolean>(false);
 
   const [newDc, setNewDc] = useState<string>('');
-  const [newObjectClasses, setNewObjectClasses] = useState<string>('');
+  const [newObjectClasses, setNewObjectClasses] = useState<newLdapAttributeValue[]>([]);
   const [newAttributes, setNewAttributes] = useState<newLdapAttribute[]>([]);
 
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
       const newAttributeValues: Record<string, string[]> = {};
       newAttributes
         .filter((_ele, index) => index !== newAttributes.length - 1)
-        .forEach((ele) => newAttributeValues[ele.attributeName] = getAttributeValues(ele.value));
+        .forEach((ele) => newAttributeValues[ele.attributeName] = getAttributeValues(ele.values));
 
       const newDn = `${newDc},${parentDn}`;
 
@@ -49,7 +50,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
 
       //intentionally does not delete user input on error
       setNewDc('');
-      setNewObjectClasses('');
+      setNewObjectClasses([]);
       setNewAttributes([]);
     } catch (err) {
       console.log(err);
@@ -59,7 +60,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
 
   const handleRestet = () => {
     setNewDc('');
-    setNewObjectClasses('');
+    setNewObjectClasses([]);
     setNewAttributes([]);
   };
 
@@ -74,7 +75,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
         <input value={newDc} onChange={(event) => setNewDc(event.target.value)} />
         <br></br>
         ObjectClass(s):
-        <input value={newObjectClasses} onChange={(event) => setNewObjectClasses(event.target.value)} />
+        <NewLdapAttributeValues newValues={newObjectClasses} setNewValues={setNewObjectClasses} />
         <br></br>
         attributes:
         <br></br>

@@ -1,12 +1,13 @@
-const getAttributeValues = (values: string): string[] => {
-  return values
-    .split(/\s*,\s*/)
-    .map((val) => {
-      const startWhiteSpaceRemoved = val.replace(/^\s*/g, '');
+import type { newLdapAttributeValue } from './types';
 
-      return startWhiteSpaceRemoved.replace(/\s*$/g, '');
-    })
-    .filter((val) => val !== '');
+const getAttributeValues = (values: newLdapAttributeValue[]): string[] => {
+  const noEmptyValues: newLdapAttributeValue[] = values.filter((value) => value.value !== '');
+
+  if (noEmptyValues.length === 0) {
+    return [''];
+  }
+
+  return noEmptyValues.map((value) => value.value);
 };
 
 export default (getAttributeValues);

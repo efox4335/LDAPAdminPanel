@@ -20,7 +20,7 @@ const parseModifyedAttributes = (modifiedAttributes: newLdapAttribute[], entry: 
     .forEach((attribute) => {
       let existingAttribute = entry[attribute.attributeName];
 
-      const modifiedValues = getAttributeValues(attribute.value);
+      const modifiedValues = getAttributeValues(attribute.values);
 
       if (!existingAttribute) {
         changeArr.push({

@@ -68,7 +68,11 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
             return {
               id: uuidv4(),
               attributeName: key,
-              value: (Array.isArray(value)) ? value.join(',') : value
+              values: (Array.isArray(value)) ?
+                value.map((val) => {
+                  return { id: uuidv4(), value: val };
+                }) :
+                [{ id: uuidv4(), value: value }]
             };
           })
       );

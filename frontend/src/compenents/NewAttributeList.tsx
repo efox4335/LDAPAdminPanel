@@ -1,65 +1,76 @@
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { newLdapAttribute } from '../utils/types';
+import NewLdapAttributeValues from './NewLdapAttributeValues';
+
+const NewValues = ({ attributeId, attributeIndex, newAttributes, setNewAttributes }:
+  {
+    attributeId: string,
+    attributeIndex: number,
+    newAttributes: newLdapAttribute[],
+    setNewAttributes: Dispatch<SetStateAction<newLdapAttribute[]>>
+  }) => {
+  const [newValues, setNewValues] = useState<{ id: string, value: string }[]>(newAttributes[attributeIndex].values);
+
+  useEffect(() => {
+    setNewAttributes(newAttributes.map((attribute) => {
+      if (attribute.id === attributeId) {
+        return {
+          ...attribute,
+          values: newValues
+        };
+      }
+
+      return attribute;
+    }));
+  }, [newValues]);
+
+  return (
+    <NewLdapAttributeValues newValues={newValues} setNewValues={setNewValues} />
+  );
+};
 
 const NewAttributeList = ({ newAttributes, setNewAttributes }:
   {
-    newAttributes: { id: string, attributeName: string, value: string }[],
+    newAttributes: newLdapAttribute[],
     setNewAttributes: Dispatch<SetStateAction<newLdapAttribute[]>>
   }) => {
-
   useEffect(() => {
-    if (
-      newAttributes.length === 0 ||
-      !(
-        newAttributes[newAttributes.length - 1].attributeName === '' &&
-        newAttributes[newAttributes.length - 1].value === ''
-      )) {
-      setNewAttributes([...newAttributes, { id: uuidv4(), attributeName: '', value: '' }]);
+    if (newAttributes.length === 0 || newAttributes[newAttributes.length - 1].attributeName !== '') {
+      setNewAttributes([
+        ...newAttributes,
+        {
+          id: uuidv4(),
+          attributeName: '',
+          values: []
+        }
+      ]);
     }
   }, [newAttributes]);
 
   return (
     <div>
-      {newAttributes.map((val) => {
+      {newAttributes.map((attribute, index) => {
         return (
-          <div key={val.id}>
+          <div key={attribute.id}>
             attribute:
-            <input value={val.attributeName} onChange={(event) => {
-              if (event.target.value === '' && val.value === '') {
-                setNewAttributes(newAttributes.filter((ele) => ele.id !== val.id));
-
-                return;
+            <input value={attribute.attributeName} onChange={(event) => setNewAttributes(newAttributes.map((attr) => {
+              if (attr.id === attribute.id) {
+                return {
+                  ...attr,
+                  attributeName: event.target.value
+                };
               }
 
-              setNewAttributes(newAttributes.map((ele) => {
-                if (ele.id === val.id) {
-                  return { ...val, attributeName: event.target.value };
-                }
-
-                return ele;
-              }));
-            }} />
-            value(s):
-            <input value={val.value} onChange={(event) => {
-              if (event.target.value === '' && val.attributeName === '') {
-                setNewAttributes(newAttributes.filter((ele) => ele.id !== val.id));
-
-                return;
-              }
-
-              setNewAttributes(newAttributes.map((ele) => {
-                if (ele.id === val.id) {
-                  return { ...val, value: event.target.value };
-                }
-
-                return ele;
-              }));
-            }} />
-            <button type='button' onClick={() => setNewAttributes(newAttributes.filter((attr) => attr.id !== val.id))}>
+              return attr;
+            }))} />
+            <button type='button' onClick={() => setNewAttributes(newAttributes.filter((ele) => ele.id !== attribute.id))}>
               delete
             </button>
+            <br></br>
+            values:
+            <NewValues attributeId={attribute.id} attributeIndex={index} newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
           </div>
         );
       })}
