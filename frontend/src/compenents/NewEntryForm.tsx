@@ -1,7 +1,7 @@
 import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
-import type { addReq } from '../utils/types';
+import type { addReq, newLdapAttribute } from '../utils/types';
 import { addNewEntry } from '../services/ldapdbsService';
 import { addEntry } from '../slices/client';
 import { addError } from '../slices/error';
@@ -14,7 +14,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
 
   const [newDc, setNewDc] = useState<string>('');
   const [newObjectClasses, setNewObjectClasses] = useState<string>('');
-  const [newAttributes, setNewAttributes] = useState<{ id: string, attributeName: string, value: string }[]>([]);
+  const [newAttributes, setNewAttributes] = useState<newLdapAttribute[]>([]);
 
   const dispatch = useDispatch();
 

@@ -1,10 +1,12 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+import type { newLdapAttribute } from '../utils/types';
+
 const NewAttributeList = ({ newAttributes, setNewAttributes }:
   {
     newAttributes: { id: string, attributeName: string, value: string }[],
-    setNewAttributes: Dispatch<SetStateAction<{ id: string, attributeName: string, value: string }[]>>
+    setNewAttributes: Dispatch<SetStateAction<newLdapAttribute[]>>
   }) => {
 
   useEffect(() => {

@@ -110,3 +110,9 @@ export type client = {
 };
 
 export type clientStore = Record<string, client>;
+
+export type newLdapAttribute = {
+  id: string,
+  attributeName: string,
+  value: string
+};
