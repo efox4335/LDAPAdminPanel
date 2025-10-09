@@ -74,6 +74,11 @@ export type modifyReq = {
   changes: modifyReqChange[]
 };
 
+export type modifyDnReq = {
+  dn: string,
+  newDN: string
+};
+
 export type searchRes = {
   searchEntries: Record<string, string | string[]>[],
   searchReferences: string[]

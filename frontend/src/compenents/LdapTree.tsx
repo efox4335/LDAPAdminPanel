@@ -4,22 +4,25 @@ import { memo, useState, type SyntheticEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import getDisplayDc from '../utils/getDisplayDc';
-import { selectLdapEntry, updateEntry } from '../slices/client';
+import { concatEntryMap, selectLdapEntry, updateEntry } from '../slices/client';
 import LdapEntryDisplay from './LdapEntryDisplay';
 import NewEntryForm from './NewEntryForm';
-import { deleteEntry, modifyEntry } from '../services/ldapdbsService';
+import { deleteEntry, modifyEntry, modifyEntryDn } from '../services/ldapdbsService';
 import { delEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import type { ldapAttribute, modifyReq, newLdapAttribute } from '../utils/types';
 import NewAttributeList from './NewAttributeList';
 import parseModifyedAttributes from '../utils/parseModifiedAttributes';
-import { fetchLdapEntry } from '../utils/query';
+import { fetchLdapEntry, fetchLdapSubtree } from '../utils/query';
+import generateLdapServerTree from '../utils/generateLdapServerTree';
+import getParentDn from '../utils/getParentDn';
 
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
 
   const [modifiedAttributes, setmodifiedAttributes] = useState<newLdapAttribute[]>([]);
   const [isModifying, setIsModifying] = useState<boolean>(false);
+  const [newDn, setNewDn] = useState<string>('');
 
   const dispatch = useDispatch();
 
@@ -59,10 +62,11 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
 
   const handleModifyToggle = () => {
     if (!isModifying) {
+      setNewDn(entry.dn);
+
       setmodifiedAttributes(
         Object
           .entries(entry.entry)
-          //todo: support modifyDn to remove filter
           .filter(([key]) => key !== 'dn')
           .map(([key, value]) => {
             return {
@@ -97,14 +101,31 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
 
       const modifyOp: modifyReq = parseModifyedAttributes(modifiedAttributes, entry.entry);
 
-      await modifyEntry(id, modifyOp);
+      if (modifyOp.changes.length > 0) {
+        await modifyEntry(id, modifyOp);
 
-      const res = await fetchLdapEntry(id, entryDn);
+        const res = await fetchLdapEntry(id, entryDn);
 
-      dispatch(updateEntry({ clientId: id, entry: res.visibleEntry, operationalEntry: res.operationalEntry }));
+        dispatch(updateEntry({ clientId: id, entry: res.visibleEntry, operationalEntry: res.operationalEntry }));
+      }
 
       setIsModifying(false);
       setmodifiedAttributes([]);
+
+      //runs after seemingly redundant fetch and dispatch because if modifyEntryDn throws but modifyEntry does not the entry will have outdated info
+      if (newDn !== entry.dn) {
+        await modifyEntryDn(id, {
+          dn: entry.dn,
+          newDN: newDn
+        });
+
+        const rawSubtree = await fetchLdapSubtree(id, newDn);
+
+        const formattedSubtree = generateLdapServerTree(rawSubtree, newDn);
+
+        dispatch(concatEntryMap({ clientId: id, parentDn: getParentDn(newDn), subtreeRootDn: newDn, entryMap: formattedSubtree }));
+        dispatch(delEntry({ clientId: id, dn: entry.dn }));
+      }
     } catch (err) {
       dispatch(addError(err));
     }
@@ -116,6 +137,10 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
       <br></br>
       {isModifying ?
         <form onSubmit={handleUpdate}>
+          dn:
+          <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
+          {newDn === entry.dn ? <></> :
+            <button type='button' onClick={() => setNewDn(entry.dn)}>reset</button>}
           <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setmodifiedAttributes} />
           <button>save</button>
         </form> :
