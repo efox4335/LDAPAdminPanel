@@ -20,7 +20,7 @@ import getParentDn from '../utils/getParentDn';
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
 
-  const [modifiedAttributes, setmodifiedAttributes] = useState<newLdapAttribute[]>([]);
+  const [modifiedAttributes, setModifiedAttributes] = useState<newLdapAttribute[]>([]);
   const [isModifying, setIsModifying] = useState<boolean>(false);
   const [newDn, setNewDn] = useState<string>('');
 
@@ -64,7 +64,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     if (!isModifying) {
       setNewDn(entry.dn);
 
-      setmodifiedAttributes(
+      setModifiedAttributes(
         Object
           .entries(entry.entry)
           .filter(([key]) => key !== 'dn')
@@ -110,7 +110,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
       }
 
       setIsModifying(false);
-      setmodifiedAttributes([]);
+      setModifiedAttributes([]);
 
       //runs after seemingly redundant fetch and dispatch because if modifyEntryDn throws but modifyEntry does not the entry will have outdated info
       if (newDn !== entry.dn) {
@@ -141,7 +141,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
           <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
           {newDn === entry.dn ? <></> :
             <button type='button' onClick={() => setNewDn(entry.dn)}>reset</button>}
-          <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setmodifiedAttributes} />
+          <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setModifiedAttributes} />
           <button>save</button>
         </form> :
         <>entry: <LdapEntryDisplay attributes={displayAttributes} /></>}
