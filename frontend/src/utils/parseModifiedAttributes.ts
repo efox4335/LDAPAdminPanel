@@ -18,11 +18,9 @@ const parseModifyedAttributes = (modifiedAttributes: newLdapAttribute[], entry: 
   modifiedAttributes
     .filter((attribute) => attribute.attributeName !== 'dn' && attribute.attributeName !== '')
     .forEach((attribute) => {
-      let existingAttribute = entry[attribute.attributeName];
-
       const modifiedValues = getAttributeValues(attribute.values);
 
-      if (!existingAttribute) {
+      if (!(attribute.attributeName in entry)) {
         changeArr.push({
           operation: 'add',
           type: attribute.attributeName,
@@ -31,6 +29,8 @@ const parseModifyedAttributes = (modifiedAttributes: newLdapAttribute[], entry: 
 
         return;
       }
+
+      let existingAttribute = entry[attribute.attributeName];
 
       if (Array.isArray(existingAttribute)) {
         existingAttribute = existingAttribute.join(',');

@@ -176,4 +176,22 @@ describe('parseModifiedAttributes.ts tests', () => {
       expect(err.message).toStrictEqual('duplicate attribute name: taken');
     }
   });
+
+  test('empty array does not trigger add instead of replace', () => {
+    const curTestEntry = {
+      ...testEntry,
+      emptyAttribute: ''
+    };
+
+    const res = parseModifyedAttributes([{ id: 'a', attributeName: 'emptyAttribute', values: [{ id: 'a', value: 'not empty' }] }], curTestEntry);
+
+    const emptyChange = res.changes.find((attr) => attr.type === 'emptyAttribute');
+
+    expect(emptyChange).toBeDefined();
+    if (!emptyChange) {
+      return;
+    }
+
+    expect(emptyChange.operation).toStrictEqual('replace');
+  });
 });
