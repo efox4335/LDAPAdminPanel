@@ -1,11 +1,10 @@
-import type { serverTreeEntry } from './types';
-import { fetchAllLdapEntries } from './query';
+import type { queryFetchRes, serverTreeEntry } from './types';
 import getParentDn from './getParentDn';
 
 /*
  * map used otherwise entries with lots of children would slow down the finding of parents
 */
-const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTreeEntry) => {
+const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTreeEntry, treeRoot: string) => {
   if (newEntry.dn === '') {
     newEntry.dn = 'dse';
   }
@@ -23,7 +22,7 @@ const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTre
     return;
   }
 
-  if (newEntry.dn === 'dse') {
+  if (newEntry.dn === 'dse' || newEntry.dn === treeRoot) {
     entryMap[newEntry.dn] = newEntry;
 
     return;
@@ -38,7 +37,7 @@ const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTre
       children: {}
     };
 
-    addEntry(entryMap, parentEntry);
+    addEntry(entryMap, parentEntry, treeRoot);
   }
 
   const parentEntry = entryMap[parentDn];
@@ -48,10 +47,8 @@ const addEntry = (entryMap: Record<string, serverTreeEntry>, newEntry: serverTre
   entryMap[newEntry.dn] = newEntry;
 };
 
-const generateLdapServerTree = async (id: string): Promise<Record<string, serverTreeEntry>> => {
+const generateLdapServerTree = (entryArr: queryFetchRes[], treeRoot: string): Record<string, serverTreeEntry> => {
   const entryMap: Record<string, serverTreeEntry> = {};
-
-  const entryArr = await fetchAllLdapEntries(id);
 
   entryArr.forEach((entry) => {
     addEntry(entryMap, {
@@ -60,7 +57,7 @@ const generateLdapServerTree = async (id: string): Promise<Record<string, server
       entry: entry.visibleEntry,
       operationalEntry: entry.operationalEntry,
       children: {}
-    });
+    }, treeRoot);
   });
 
   return entryMap;

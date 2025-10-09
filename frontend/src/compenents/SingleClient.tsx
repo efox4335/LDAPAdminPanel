@@ -7,6 +7,7 @@ import { delClient, addClient } from '../slices/client';
 import { addError } from '../slices/error';
 import LdapTree from './LdapTree';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
+import { fetchAllLdapEntries } from '../utils/query';
 
 const SingleClient = ({ client }: { client: client }) => {
   const [newDn, setNewDn] = useState<string>('');
@@ -73,7 +74,9 @@ const SingleClient = ({ client }: { client: client }) => {
 
   const fetchServerTree = async () => {
     try {
-      const entryMap = await generateLdapServerTree(client.id);
+      const entryArr = await fetchAllLdapEntries(client.id);
+
+      const entryMap = generateLdapServerTree(entryArr, '');
 
       const newClient: client = {
         ...client,
