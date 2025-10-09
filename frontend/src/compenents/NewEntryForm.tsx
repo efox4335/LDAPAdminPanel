@@ -53,7 +53,6 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
       setNewObjectClasses([]);
       setNewAttributes([]);
     } catch (err) {
-      console.log(err);
       dispatch(addError(err));
     }
   };
