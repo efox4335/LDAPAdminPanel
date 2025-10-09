@@ -121,3 +121,8 @@ export type newLdapAttribute = {
   attributeName: string,
   values: newLdapAttributeValue[]
 };
+
+export type queryFetchRes = {
+  visibleEntry: ldapEntry,
+  operationalEntry: operationalLdapEntry
+};

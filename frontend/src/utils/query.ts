@@ -2,7 +2,7 @@
  * my justifaction for not just using a lib is that ldap structures the data really bad and i don't need a lot of the fancy features of a query lib
 */
 import { searchClient } from '../services/ldapdbsService';
-import type { ldapEntry, operationalLdapEntry, searchReq } from './types';
+import type { ldapEntry, operationalLdapEntry, searchReq, queryFetchRes } from './types';
 
 const baseVisibleTreeSearch: searchReq = {
   baseDn: '',
@@ -56,8 +56,8 @@ const baseOperationalEntrySearch: searchReq = {
   }
 };
 
-export const fetchAllLdapEntries = async (clientId: string): Promise<{ visibleEntry: ldapEntry; operationalEntry: operationalLdapEntry; }[]> => {
-  const entries: { visibleEntry: ldapEntry, operationalEntry: operationalLdapEntry }[] = [];
+export const fetchAllLdapEntries = async (clientId: string): Promise<queryFetchRes[]> => {
+  const entries: queryFetchRes[] = [];
 
   const visibleDseRes = await searchClient(clientId, baseVisibleEntrySearch);
   const operationalDseRes = await searchClient(clientId, baseOperationalEntrySearch);
@@ -98,7 +98,7 @@ export const fetchAllLdapEntries = async (clientId: string): Promise<{ visibleEn
     const visibleTreeRes = await searchClient(clientId, { ...baseVisibleTreeSearch, baseDn: dit });
     const operationalTreeRes = await searchClient(clientId, { ...baseOperationalTreeSearch, baseDn: dit });
 
-    const entryMap: Record<string, { visibleEntry: ldapEntry, operationalEntry: operationalLdapEntry }> = {};
+    const entryMap: Record<string, queryFetchRes> = {};
 
     visibleTreeRes.searchEntries.forEach((ele) => {
       if (!ele.dn || typeof (ele.dn) !== 'string') {
@@ -135,7 +135,7 @@ export const fetchAllLdapEntries = async (clientId: string): Promise<{ visibleEn
   return entries;
 };
 
-export const fetchLdapEntry = async (clientId: string, dn: string): Promise<{ visibleEntry: ldapEntry; operationalEntry: operationalLdapEntry; }> => {
+export const fetchLdapEntry = async (clientId: string, dn: string): Promise<queryFetchRes> => {
   const visibleEntryRes = await searchClient(clientId, {
     ...baseVisibleEntrySearch,
     baseDn: dn
