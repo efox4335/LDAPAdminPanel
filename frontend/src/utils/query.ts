@@ -135,6 +135,59 @@ export const fetchAllLdapEntries = async (clientId: string): Promise<queryFetchR
   return entries;
 };
 
+export const fetchLdapSubtree = async (clientId: string, dn: string): Promise<queryFetchRes[]> => {
+  const visibleTreeRes = await searchClient(clientId, {
+    ...baseVisibleTreeSearch,
+    baseDn: dn
+  });
+
+  const operationalTreeRes = await searchClient(clientId, {
+    ...baseOperationalTreeSearch,
+    baseDn: dn
+  });
+
+  if (visibleTreeRes.searchEntries.length === 0 || operationalTreeRes.searchEntries.length === 0) {
+    throw new Error('failed to find subtree');
+  }
+
+  const entryMap: Record<string, queryFetchRes> = {};
+
+  const entries: queryFetchRes[] = [];
+
+  visibleTreeRes.searchEntries.forEach((entry) => {
+    if (!entry.dn || typeof (entry.dn) !== 'string') {
+      throw new Error('entry does not have dn');
+    }
+
+    if (!entry.objectClass || (!Array.isArray(entry.objectClass) && typeof (entry.objectClass) !== 'string')) {
+      throw new Error('entry does not have objectClass');
+    }
+
+    delete entry['*'];
+
+    entryMap[entry.dn] = {
+      visibleEntry: entry as ldapEntry,
+      operationalEntry: {}
+    };
+  });
+
+  operationalTreeRes.searchEntries.forEach((entry) => {
+    if (!entry.dn || typeof (entry.dn) !== 'string') {
+      throw new Error('entry does not have dn');
+    }
+
+    delete entry['+'];
+
+    entryMap[entry.dn].operationalEntry = entry;
+  });
+
+  Object.values(entryMap).forEach((entry) => {
+    entries.push(entry);
+  });
+
+  return entries;
+};
+
 export const fetchLdapEntry = async (clientId: string, dn: string): Promise<queryFetchRes> => {
   const visibleEntryRes = await searchClient(clientId, {
     ...baseVisibleEntrySearch,

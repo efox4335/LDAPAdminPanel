@@ -1,6 +1,6 @@
 import { test, vi, expect, describe } from 'vitest';
 
-import { fetchAllLdapEntries, fetchLdapEntry } from '../../../src/utils/query';
+import { fetchAllLdapEntries, fetchLdapEntry, fetchLdapSubtree } from '../../../src/utils/query';
 import type { ldapEntry, operationalLdapEntry, searchReq, searchRes } from '../../../src/utils/types';
 
 const visibleDseSearch: searchRes = {
@@ -681,6 +681,194 @@ describe('query.ts tests', () => {
 
       expect(res.visibleEntry).toStrictEqual(starLessVisEntry);
       expect(res.operationalEntry).toStrictEqual(plusLessOprEntry);
+    });
+  });
+
+  describe('fetchLdapSubtree tests', () => {
+    const subTreeRoot = 'ou=users,dc=example,dc=org';
+
+    const visibleSubtreeSearchRes: searchRes = JSON.parse(JSON.stringify(
+      {
+        searchEntries: visibleExampleDitSearchRes.searchEntries.filter((entry) => {
+          if (!entry.dn || typeof (entry.dn) !== 'string') {
+            throw new Error('test data broken entry lacks dn');
+          }
+
+          return entry.dn.match(new RegExp(`${subTreeRoot}$`));
+        }),
+        searchReferences: []
+      }
+    )) as searchRes;
+
+    const operationalSubtreeSearchRes: searchRes = JSON.parse(JSON.stringify(
+      {
+        searchEntries: operationalExampleDitSearchRes.searchEntries.filter((entry) => {
+          if (!entry.dn || typeof (entry.dn) !== 'string') {
+            throw new Error('test data broken entry lacks dn');
+          }
+
+          return entry.dn.match(new RegExp(`${subTreeRoot}$`));
+        }),
+        searchReferences: []
+      }
+    )) as searchRes;
+
+    test('not found', async () => {
+      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+        if (id !== 'id') {
+          throw new Error(`incorrect id: ${id}`);
+        }
+
+        if (req.baseDn !== 'searchDn') {
+          throw new Error(`incorrect baseDn: ${req.baseDn}`);
+        }
+
+        return {
+          searchEntries: [],
+          searchReferences: []
+        };
+      };
+
+      try {
+        await fetchLdapSubtree('id', 'searchDn');
+
+        throw new Error('no error');
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          throw err;
+        }
+
+        expect(err.message).toStrictEqual('failed to find subtree');
+      }
+    });
+
+    test('entry does not have dn', async () => {
+      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+        if (id !== 'id') {
+          throw new Error(`incorrect id: ${id}`);
+        }
+
+        if (req.baseDn !== 'searchDn') {
+          throw new Error(`incorrect baseDn: ${req.baseDn}`);
+        }
+
+        const res: searchRes = {
+          searchEntries: [],
+          searchReferences: []
+        };
+
+        if (req.options.attributes[0] === '*') {
+          res.searchEntries = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+
+          delete res.searchEntries[0].dn;
+        } else {
+          res.searchEntries = operationalSubtreeSearchRes.searchEntries as operationalLdapEntry[];
+        }
+
+        return res;
+      };
+
+      try {
+        await fetchLdapSubtree('id', 'searchDn');
+
+        throw new Error('no error');
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          throw err;
+        }
+
+        expect(err.message).toStrictEqual('entry does not have dn');
+      }
+    });
+
+    test('entry does not have objectClass', async () => {
+      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+        if (id !== 'id') {
+          throw new Error(`incorrect id: ${id}`);
+        }
+
+        if (req.baseDn !== 'searchDn') {
+          throw new Error(`incorrect baseDn: ${req.baseDn}`);
+        }
+
+        const res: searchRes = {
+          searchEntries: [],
+          searchReferences: []
+        };
+
+        if (req.options.attributes[0] === '*') {
+          res.searchEntries = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+
+          delete res.searchEntries[0].objectClass;
+        } else {
+          res.searchEntries = JSON.parse(JSON.stringify(operationalSubtreeSearchRes.searchEntries)) as operationalLdapEntry[];
+        }
+
+        return res;
+      };
+
+      try {
+        await fetchLdapSubtree('id', 'searchDn');
+
+        throw new Error('no error');
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          throw err;
+        }
+
+        expect(err.message).toStrictEqual('entry does not have objectClass');
+      }
+    });
+
+    test('success test', async () => {
+      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+        if (id !== 'id') {
+          throw new Error(`incorrect id: ${id}`);
+        }
+
+        if (req.baseDn !== 'searchDn') {
+          throw new Error(`incorrect baseDn: ${req.baseDn}`);
+        }
+
+        const res: searchRes = {
+          searchEntries: [],
+          searchReferences: []
+        };
+
+        if (req.options.attributes[0] === '*') {
+          res.searchEntries = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+        } else {
+          res.searchEntries = JSON.parse(JSON.stringify(operationalSubtreeSearchRes.searchEntries)) as operationalLdapEntry[];
+        }
+
+        return res;
+      };
+
+      const res = await fetchLdapSubtree('id', 'searchDn');
+
+      expect(res).toBeDefined();
+
+      const starLessVisSubtree = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+
+      starLessVisSubtree.forEach((entry) => delete entry['*']);
+
+      const plusLessOprSubtree = JSON.parse(JSON.stringify(operationalSubtreeSearchRes.searchEntries)) as operationalLdapEntry[];
+
+      plusLessOprSubtree.forEach((entry) => delete entry['+']);
+
+      res.forEach((entry) => {
+        expect(entry.visibleEntry.dn).toStrictEqual(entry.operationalEntry.dn);
+
+        const starLessVisEntry = starLessVisSubtree.find((ent) => ent.dn === entry.visibleEntry.dn);
+        expect(starLessVisEntry).toBeDefined();
+        if (!starLessVisEntry) {
+          return;
+        }
+
+        const plusLessOprEntry = plusLessOprSubtree.find((ent) => ent.dn === entry.visibleEntry.dn);
+        expect(entry.visibleEntry).toStrictEqual(starLessVisEntry);
+        expect(entry.operationalEntry).toStrictEqual(plusLessOprEntry);
+      });
     });
   });
 });
