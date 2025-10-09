@@ -22,6 +22,28 @@ const clientsSlice = createSlice({
       action.payload.forEach((client) => state[client.id] = client);
     },
 
+    concatEntryMap: (state, action: PayloadAction<{ clientId: string, parentDn: string, subtreeRootDn: string, entryMap: Record<string, serverTreeEntry> }>) => {
+      const existingMap = state[action.payload.clientId].entryMap;
+
+      if (existingMap === undefined) {
+        console.log('tried to concat with undefined map');
+
+        return;
+      }
+
+      const parentEntry = existingMap[action.payload.parentDn];
+
+      if (parentEntry === undefined) {
+        console.log('parent entry does not exist');
+
+        return;
+      }
+
+      parentEntry.children[action.payload.subtreeRootDn] = action.payload.subtreeRootDn;
+
+      Object.values(action.payload.entryMap).forEach((entry) => existingMap[entry.dn] = entry);
+    },
+
     addEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
       const map = state[action.payload.clientId].entryMap;
 
@@ -127,7 +149,7 @@ const clientsSlice = createSlice({
   }
 });
 
-export const { addClient, delClient, addClients, addEntry, delEntry, updateEntry } = clientsSlice.actions;
+export const { addClient, delClient, addClients, addEntry, delEntry, updateEntry, concatEntryMap } = clientsSlice.actions;
 export const { selectClients, selectLdapEntry } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;
