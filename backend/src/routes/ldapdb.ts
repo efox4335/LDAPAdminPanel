@@ -65,12 +65,19 @@ router.put('/:id/bind', async (req, res, next) => {
 
     const controlArg = controlParser(bindArgs);
 
-    setBoundDnById(req.params.id, bindArgs.dnOrSaslMechanism);
-
     await client.bind(bindArgs.dnOrSaslMechanism, bindArgs.password, controlArg);
+
+    setBoundDnById(req.params.id, bindArgs.dnOrSaslMechanism);
 
     res.status(200).end();
   } catch (err) {
+    //on some errors the client will be anonymously bound
+    const client = getClientById(req.params.id);
+
+    if (client && client.isConnected) {
+      await client.unbind();
+    }
+
     next(err);
   }
 });

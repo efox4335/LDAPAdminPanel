@@ -92,6 +92,26 @@ describe('ldapdbs endpoint tests', () => {
       }
     });
 
+    test('no anon bind on error', async () => {
+      await supertest(app)
+        .put(`/ldapdbs/${clientId}/bind`)
+        .send({ ...adminBind, control: testControl });
+
+      const res = await supertest(app).get(`/ldapdbs/${clientId}`);
+
+      expect(res.body.isConnected).toStrictEqual(false);
+    });
+
+    test('no boundDn update on error', async () => {
+      await supertest(app)
+        .put(`/ldapdbs/${clientId}/bind`)
+        .send({ ...adminBind, control: testControl });
+
+      const res = await supertest(app).get(`/ldapdbs/${clientId}`);
+
+      expect(res.body.boundDn).toStrictEqual(null);
+    });
+
     test('successful request', async () => {
       try {
         await supertest(app)
