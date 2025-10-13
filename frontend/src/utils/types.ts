@@ -25,6 +25,10 @@ export interface addReq extends controlReq {
   entry: Omit<ldapEntry, 'dn'>
 };
 
+export interface delReq extends controlReq {
+  dn: string
+};
+
 export type searchReq = {
   baseDn: string,
   options: {
@@ -71,10 +75,6 @@ export type ldapEntry = ldapEntryReqAttributes &
   Record<string, string | string[]>;
 
 export type operationalLdapEntry = Record<string, string | string[]>;
-
-export type delReq = {
-  dn: string
-};
 
 export type modifyReqChange = {
   operation: 'replace' | 'add' | 'delete',

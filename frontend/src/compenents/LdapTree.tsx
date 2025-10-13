@@ -7,7 +7,7 @@ import getDisplayDc from '../utils/getDisplayDc';
 import { concatEntryMap, selectLdapEntry, updateEntry } from '../slices/client';
 import LdapEntryDisplay from './LdapEntryDisplay';
 import NewEntryForm from './NewEntryForm';
-import { deleteEntry, modifyEntry, modifyEntryDn } from '../services/ldapdbsService';
+import { modifyEntry, modifyEntryDn } from '../services/ldapdbsService';
 import { delEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import type { ldapAttribute, modifyReq, newLdapAttribute } from '../utils/types';
@@ -16,6 +16,7 @@ import parseModifyedAttributes from '../utils/parseModifiedAttributes';
 import { fetchLdapEntry, fetchLdapSubtree } from '../utils/query';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
 import getParentDn from '../utils/getParentDn';
+import DelEntryForm from './DelEntryForm';
 
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
@@ -49,16 +50,6 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
       </>
     );
   }
-
-  const handleDelete = async () => {
-    try {
-      await deleteEntry(id, { dn: entryDn });
-
-      dispatch(delEntry({ clientId: id, dn: entryDn }));
-    } catch (err) {
-      dispatch(addError(err));
-    }
-  };
 
   const handleModifyToggle = () => {
     if (!isModifying) {
@@ -150,7 +141,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
         {isModifying ? 'cancel' : 'modify'}
       </button>
       <NewEntryForm id={id} parentDn={entryDn} />
-      <button onClick={handleDelete}>delete</button>
+      <DelEntryForm clientId={id} entryDn={entryDn} />
       <br></br>
       <br></br>
 
