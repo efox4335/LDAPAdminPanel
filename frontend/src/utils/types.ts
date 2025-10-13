@@ -2,7 +2,20 @@ export type newClientResponse = {
   id: string
 };
 
-export type bindReq = {
+export interface controlObject {
+  type: string,
+  critical: boolean
+};
+
+export interface newControlObject extends controlObject {
+  id: string
+};
+
+interface controlReq {
+  control?: controlObject[] | undefined
+};
+
+export interface bindReq extends controlReq {
   dnOrSaslMechanism: string,
   password?: string | undefined,
 };
