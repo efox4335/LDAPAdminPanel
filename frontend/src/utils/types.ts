@@ -29,6 +29,16 @@ export interface delReq extends controlReq {
   dn: string
 };
 
+export interface modifyReq extends controlReq {
+  dn: string,
+  changes: modifyReqChange[]
+};
+
+export interface modifyDnReq extends controlReq {
+  dn: string,
+  newDN: string
+};
+
 export type searchReq = {
   baseDn: string,
   options: {
@@ -80,16 +90,6 @@ export type modifyReqChange = {
   operation: 'replace' | 'add' | 'delete',
   type: string,
   values: string[]
-};
-
-export type modifyReq = {
-  dn: string,
-  changes: modifyReqChange[]
-};
-
-export type modifyDnReq = {
-  dn: string,
-  newDN: string
 };
 
 export type searchRes = {
