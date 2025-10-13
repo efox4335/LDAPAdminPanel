@@ -8,6 +8,7 @@ import LdapTree from './LdapTree';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
 import { fetchAllLdapEntries } from '../utils/query';
 import BindForm from './BindForm';
+import Exop from './Exop';
 
 const SingleClient = ({ client }: { client: client }) => {
   const dispatch = useDispatch();
@@ -71,6 +72,8 @@ const SingleClient = ({ client }: { client: client }) => {
       Bound DN: {boundDn}
       <br></br>
       {connectionString}
+      <br></br>
+      <Exop clientId={client.id} />
       <br></br>
       <BindForm client={client} />
       <br></br>

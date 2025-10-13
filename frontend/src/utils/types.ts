@@ -39,6 +39,11 @@ export interface modifyDnReq extends controlReq {
   newDN: string
 };
 
+export interface exopReq extends controlReq {
+  oid: string,
+  value?: string | undefined
+};
+
 export type searchReq = {
   baseDn: string,
   options: {
@@ -50,6 +55,11 @@ export type searchReq = {
     paged: boolean,
     attributes: string[]
   }
+};
+
+export type exopRes = {
+  oid?: string,
+  value?: string
 };
 
 type ldapError = {
