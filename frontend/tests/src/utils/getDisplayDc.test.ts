@@ -12,12 +12,12 @@ describe('getDisplayDc.ts tests', () => {
   test('included multiple times', () => {
     const res = getDisplayDc('multiple', 'multiple,first,multiple');
 
-    expect(res).toStrictEqual('multiple,first,');
+    expect(res).toStrictEqual('multiple,first');
   });
 
-  test('normal', () => {
-    const res = getDisplayDc('second', 'firstsecond');
+  test('dc separator comma remover', () => {
+    const res = getDisplayDc('parent', 'child,parent');
 
-    expect(res).toStrictEqual('first');
+    expect(res).toStrictEqual('child');
   });
 });
