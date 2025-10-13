@@ -20,6 +20,11 @@ export interface bindReq extends controlReq {
   password?: string | undefined,
 };
 
+export interface addReq extends controlReq {
+  baseDn: string,
+  entry: Omit<ldapEntry, 'dn'>
+};
+
 export type searchReq = {
   baseDn: string,
   options: {
@@ -66,11 +71,6 @@ export type ldapEntry = ldapEntryReqAttributes &
   Record<string, string | string[]>;
 
 export type operationalLdapEntry = Record<string, string | string[]>;
-
-export type addReq = {
-  baseDn: string,
-  entry: Omit<ldapEntry, 'dn'>
-};
 
 export type delReq = {
   dn: string

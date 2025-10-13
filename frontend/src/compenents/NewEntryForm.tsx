@@ -1,7 +1,7 @@
 import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
-import type { addReq, newLdapAttribute, newLdapAttributeValue } from '../utils/types';
+import type { addReq, newLdapAttribute, newLdapAttributeValue, newControlObject } from '../utils/types';
 import { addNewEntry } from '../services/ldapdbsService';
 import { addEntry } from '../slices/client';
 import { addError } from '../slices/error';
@@ -9,6 +9,8 @@ import getAttributeValues from '../utils/getAttributeValues';
 import NewAttributeList from './NewAttributeList';
 import { fetchLdapEntry } from '../utils/query';
 import NewLdapAttributeValues from './NewLdapAttributeValues';
+import getControls from '../utils/getControls';
+import NewLdapControls from './NewLdapControls';
 
 const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
   const [visible, setVisible] = useState<boolean>(false);
@@ -16,6 +18,8 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
   const [newDc, setNewDc] = useState<string>('');
   const [newObjectClasses, setNewObjectClasses] = useState<newLdapAttributeValue[]>([]);
   const [newAttributes, setNewAttributes] = useState<newLdapAttribute[]>([]);
+
+  const [newControls, setNewControls] = useState<newControlObject[]>([]);
 
   const dispatch = useDispatch();
 
@@ -35,7 +39,8 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
         entry: {
           ...newAttributeValues,
           objectClass: getAttributeValues(newObjectClasses)
-        }
+        },
+        control: getControls(newControls)
       };
 
       await addNewEntry(id, newEntry);
@@ -52,6 +57,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
       setNewDc('');
       setNewObjectClasses([]);
       setNewAttributes([]);
+      setNewControls([]);
     } catch (err) {
       dispatch(addError(err));
     }
@@ -61,6 +67,7 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
     setNewDc('');
     setNewObjectClasses([]);
     setNewAttributes([]);
+    setNewControls([]);
   };
 
   if (!visible) {
@@ -79,6 +86,10 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
         attributes:
         <br></br>
         <NewAttributeList newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
+        <br></br>
+        controls:
+        <br></br>
+        <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
         <button type='button' onClick={() => handleRestet()}>reset</button>
         <button type='submit'>add</button>
       </form>
