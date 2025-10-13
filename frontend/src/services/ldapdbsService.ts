@@ -4,13 +4,13 @@ import type { addReq, bindReq, client, delReq, exopReq, exopRes, modifyDnReq, mo
 
 const baseUrl = '/ldapdbs/';
 
-export const getAllClients = async () => {
+export const getAllClients = async (): Promise<client[]> => {
   const res: AxiosResponse<client[]> = await axios.get(baseUrl);
 
   return res.data;
 };
 
-export const addNewClient = async (serverUrl: string) => {
+export const addNewClient = async (serverUrl: string): Promise<newClientResponse> => {
   const res: AxiosResponse<newClientResponse> = await axios.post(baseUrl, { url: serverUrl });
 
   return res.data;
@@ -28,7 +28,7 @@ export const unbindClient = async (id: string) => {
   await axios.put(`${baseUrl}${id}/unbind`);
 };
 
-export const searchClient = async (id: string, req: searchReq) => {
+export const searchClient = async (id: string, req: searchReq): Promise<searchRes> => {
   const res: AxiosResponse<searchRes> = await axios.post(`${baseUrl}${id}/search`, req);
 
   return res.data;
@@ -50,7 +50,7 @@ export const modifyEntryDn = async (id: string, req: modifyDnReq) => {
   await axios.put(`${baseUrl}${id}/modifydn`, req);
 };
 
-export const exopClient = async (id: string, req: exopReq) => {
+export const exopClient = async (id: string, req: exopReq): Promise<exopRes> => {
   const res: AxiosResponse<exopRes> = await axios.post(`${baseUrl}${id}/exop`, req);
 
   return res.data;
