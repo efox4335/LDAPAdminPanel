@@ -30,11 +30,18 @@ const ModifyEntryForm = ({ isFormVisible, hideForm, entry, clientId }: {
   const [isModifyDnControlsVisible, setIsModifyDnControlsVisible] = useState<boolean>(false);
   const [newModifyDnControls, setNewModifyDnControls] = useState<newControlObject[]>([]);
 
+  const resetForm = () => {
+    setNewDn(entry.dn);
+
+    setModifiedAttributes(getNewLdapAttributes(entry.entry));
+
+    setNewModifyControls([]);
+    setNewModifyDnControls([]);
+  };
+
   useEffect(() => {
     if (isFormVisible) {
-      setNewDn(entry.dn);
-
-      setModifiedAttributes(getNewLdapAttributes(entry.entry));
+      resetForm();
     }
   }, [isFormVisible]);
 
@@ -92,7 +99,8 @@ const ModifyEntryForm = ({ isFormVisible, hideForm, entry, clientId }: {
       <br></br>
       modify controls:
       <NewLdapControls newControls={newModifyControls} setNewControls={setNewModifyControls} />
-      <button> save</button>
+      <button type='button' onClick={() => resetForm()}>reset</button>
+      <button>save</button>
     </form >
   );
 };
