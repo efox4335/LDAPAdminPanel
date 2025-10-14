@@ -54,6 +54,7 @@ const NewLdapControls = ({ newControls, setNewControls }: {
           </div>
         );
       })}
+      <button type='button' onClick={() => setNewControls([])}>reset</button>
     </div>
   );
 };
