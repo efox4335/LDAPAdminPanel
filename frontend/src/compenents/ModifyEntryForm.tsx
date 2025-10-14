@@ -1,6 +1,5 @@
 import { useDispatch } from 'react-redux';
 import { useEffect, useState, type SyntheticEvent } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 import type { modifyReq, newLdapAttribute, serverTreeEntry, newControlObject } from '../utils/types';
 import parseModifyedAttributes from '../utils/parseModifiedAttributes';
@@ -13,6 +12,7 @@ import getParentDn from '../utils/getParentDn';
 import NewAttributeList from './NewAttributeList';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
+import getNewLdapAttributes from '../utils/getNewLdapAttributes';
 
 const ModifyEntryForm = ({ isFormVisible, hideForm, entry, clientId }: {
   isFormVisible: boolean,
@@ -34,22 +34,7 @@ const ModifyEntryForm = ({ isFormVisible, hideForm, entry, clientId }: {
     if (isFormVisible) {
       setNewDn(entry.dn);
 
-      setModifiedAttributes(
-        Object
-          .entries(entry.entry)
-          .filter(([key]) => key !== 'dn')
-          .map(([key, value]) => {
-            return {
-              id: uuidv4(),
-              attributeName: key,
-              values: (Array.isArray(value)) ?
-                value.map((val) => {
-                  return { id: uuidv4(), value: val };
-                }) :
-                [{ id: uuidv4(), value: value }]
-            };
-          })
-      );
+      setModifiedAttributes(getNewLdapAttributes(entry.entry));
     }
   }, [isFormVisible]);
 
