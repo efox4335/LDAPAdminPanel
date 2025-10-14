@@ -14,6 +14,8 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
 
   const [isModifying, setIsModifying] = useState<boolean>(false);
 
+  const [isHidden, setIsHidden] = useState<boolean>(false);
+
   if (!entry) {
     console.log(`dn ${entryDn} does not exist in store`);
 
@@ -38,6 +40,16 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     );
   }
 
+  if (isHidden) {
+    return (
+      <div style={{ paddingLeft: `${offset}px` }}>
+        <button onClick={() => setIsHidden(false)}>show</button>
+        <br></br>
+        dc: {displayDc}
+      </div>
+    );
+  }
+
   const displayAttributes: ldapAttribute[] = Object
     .entries(entry.entry)
     .concat(Object
@@ -50,6 +62,8 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
 
   return (
     <div style={{ paddingLeft: `${offset}px` }}>
+      <button onClick={() => setIsHidden(true)}>hide</button>
+      <br></br>
       dc: {displayDc}
       <br></br>
       {isModifying ?
