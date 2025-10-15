@@ -34,7 +34,7 @@ const NewClientForm = () => {
   };
 
   return (
-    <div>
+    <div className='newClientForm'>
       <h3>Add new client: </h3>
       <form onSubmit={handleNewClient}>
         Server Url:

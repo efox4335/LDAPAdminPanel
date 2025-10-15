@@ -8,13 +8,14 @@ import NewEntryForm from './NewEntryForm';
 import type { ldapAttribute } from '../utils/types';
 import DelEntryForm from './DelEntryForm';
 import ModifyEntryForm from './ModifyEntryForm';
+import LdapEntryVisibilityToggle from './LdapEntryVisibilityToggle';
 
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
 
   const [isModifying, setIsModifying] = useState<boolean>(false);
 
-  const [isHidden, setIsHidden] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(true);
 
   if (!entry) {
     console.log(`dn ${entryDn} does not exist in store`);
@@ -40,11 +41,10 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     );
   }
 
-  if (isHidden) {
+  if (!isVisible) {
     return (
-      <div style={{ paddingLeft: `${offset}px` }}>
-        <button onClick={() => setIsHidden(false)}>show</button>
-        <br></br>
+      <div className='ldapTreeEntry' style={{ paddingLeft: `${offset}px` }}>
+        <LdapEntryVisibilityToggle isVisible={isVisible} setIsVisible={setIsVisible} />
         dc: {displayDc}
       </div>
     );
@@ -61,9 +61,8 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     });
 
   return (
-    <div style={{ paddingLeft: `${offset}px` }}>
-      <button onClick={() => setIsHidden(true)}>hide</button>
-      <br></br>
+    <div className='ldapTreeEntry' style={{ paddingLeft: `${offset}px` }}>
+      <LdapEntryVisibilityToggle isVisible={isVisible} setIsVisible={setIsVisible} />
       dc: {displayDc}
       <br></br>
       {isModifying ?
@@ -78,18 +77,22 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
       <br></br>
       <br></br>
 
-      {childDns.map((childDn) => {
-        return (
-          <LdapTreeEntry key={childDn} id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} offset={offset + 5} />
-        );
-      })}
+      <div className='ldapTreeEntryChildren'>
+        {childDns.map((childDn) => {
+          return (
+            <LdapTreeEntry key={childDn} id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} offset={offset + 5} />
+          );
+        })}
+      </div>
     </div>
   );
 });
 
 const LdapTree = ({ id }: { id: string }) => {
   return (
-    <LdapTreeEntry id={id} lastVisibleDn='' entryDn='dse' offset={5} />
+    <div className='ldapTreeRoot'>
+      <LdapTreeEntry id={id} lastVisibleDn='' entryDn='dse' offset={5} />
+    </div>
   );
 };
 

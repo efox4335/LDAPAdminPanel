@@ -44,7 +44,7 @@ const BindForm = ({ client }: { client: client }) => {
   };
 
   return (
-    <div>
+    <div className='singleClientBind'>
       <h4>bind: </h4>
       <form onSubmit={handleBind}>
         Dn:

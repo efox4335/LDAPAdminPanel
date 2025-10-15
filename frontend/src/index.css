@@ -1,0 +1,122 @@
+html {
+  background-color: rgb(44, 43, 43);
+}
+
+body {
+  margin: 0%;
+}
+
+.mainDisplay {
+  color: rgb(207, 207, 207);
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  height: 100dvh;
+}
+
+.errorsDisplay {
+  grid-area: 1 / 1 / 2 / 2;
+  height: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.singleError {
+  background-color: rgb(252, 77, 77);
+  margin: 5px;
+  border-radius: 10px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.rawError {
+  overflow: scroll;
+  scrollbar-color: rgb(100, 100, 100) rgb(44, 43, 43);
+  background-color: rgb(44, 43, 43);
+  margin: 10px;
+  border: solid;
+  border-color: rgb(27, 25, 25);
+  height: 30dvh;
+  width: 100dvh;
+}
+
+.clientsDisplay {
+  box-sizing: border-box;
+  height: 100dvh;
+  grid-area: 1 / 1 / 2 / 2;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  border: solid 2px;
+  border-color: rgb(26, 26, 26);
+}
+
+.clientsHeader {
+  padding-left: 10px;
+  padding-bottom: 5px;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  border-bottom: 2px;
+  border-bottom-style: solid;
+  border-color: rgb(26, 26, 26);
+}
+
+.newClientForm {
+  padding-left: 10px;
+  padding-bottom: 10px;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  border-bottom: 2px;
+  border-bottom-style: solid;
+  border-color: rgb(26, 26, 26);
+}
+
+.clientsList {
+  padding-left: 15px;
+  height: 100dvh;
+  overflow: scroll;
+  scrollbar-color: rgb(100, 100, 100) rgb(37, 37, 37);
+}
+
+.singleClient {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.singleClientHeader {
+  display: flex;
+  gap: 10px;
+}
+
+.ldapTreeContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.ldapTreeRoot {
+  grid-area: 1 / 1 / 2 / 2;
+}
+
+.ldapEntryVisibilityToggle {
+  background-color: rgb(44, 43, 43);
+}
+
+input {
+  background-color: rgb(100, 100, 100);
+  color: rgb(207, 207, 207);
+  border-style: hidden;
+  outline-width: 0;
+  margin: 1px;
+}
+
+button {
+  background-color: rgb(100, 100, 100);
+  color: rgb(207, 207, 207);
+  border-style: hidden;
+  margin: 1px;
+}

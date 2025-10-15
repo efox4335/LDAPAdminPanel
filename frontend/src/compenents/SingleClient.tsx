@@ -66,21 +66,24 @@ const SingleClient = ({ client }: { client: client }) => {
   }
 
   return (
-    <div>
-      Server Url: {client.serverUrl}
-      <br></br>
-      Bound DN: {boundDn}
-      <br></br>
-      {connectionString}
-      <br></br>
-      <Exop clientId={client.id} />
-      <br></br>
-      <BindForm client={client} />
-      <br></br>
-      <button onClick={handleUnbind}>unbind</button>
-      <button onClick={handleDelete}>remove</button>
-      <br></br>
-      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <LdapTree id={client.id} />}
+    <div className='singleClient'>
+      <div className='singleClientHeader'>
+        <div className='singleClientMetadata'>
+          <h4>server name</h4>
+          Server Url: {client.serverUrl}
+          <br></br>
+          Bound DN: {boundDn}
+          <br></br>
+          {connectionString}
+          <br></br>
+
+          <button onClick={handleUnbind}>unbind</button>
+          <button onClick={handleDelete}>remove</button>
+        </div>
+        <Exop clientId={client.id} />
+        <BindForm client={client} />
+      </div>
+      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <div className='ldapTreeContainer'><LdapTree id={client.id} /></div>}
     </div>
   );
 };

@@ -10,15 +10,19 @@ const SingleError = ({ err }: { err: displayError }) => {
   const dispatch = useDispatch();
 
   return (
-    <div>
-      message: {err.message}
-      {displayRaw ? <>raw: {err.rawError}</> : <></>}
-      <button onClick={() => displayRaw ? setDisplayRaw(false) : setDisplayRaw(true)}>
-        {displayRaw ? <>hide</> : <>show</>}
-      </button>
-      <button onClick={() => {
-        dispatch(delError(err.id));
-      }}>dismiss</button>
+    <div className='singleError'>
+      <div>
+        message: {err.message}
+        <button onClick={() => displayRaw ? setDisplayRaw(false) : setDisplayRaw(true)}>
+          {displayRaw ? <>hide</> : <>show</>}
+        </button>
+        <button onClick={() => {
+          dispatch(delError(err.id));
+        }}>dismiss</button>
+      </div>
+      <div>
+        {displayRaw ? <pre className='rawError'>raw: {err.rawError}</pre> : <></>}
+      </div>
     </div>
   );
 };

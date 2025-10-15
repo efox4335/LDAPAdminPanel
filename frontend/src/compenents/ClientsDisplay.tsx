@@ -8,18 +8,21 @@ const ClientsDisplay = () => {
   const clients = useSelector(selectClients);
 
   return (
-    <div>
-      <h2>Clients:</h2>
-      {Object.keys(clients).map((clientIndex) => {
-        const client = clients[clientIndex];
-
-        return (
-          <div key={client.id}>
-            <SingleClient client={client} />
-          </div>
-        );
-      })}
+    <div className='clientsDisplay'>
       <NewClientForm />
+      <h2 className='clientsHeader'>Clients:</h2>
+      <div className='clientsList'>
+        {Object.keys(clients).map((clientIndex) => {
+          const client = clients[clientIndex];
+
+          return (
+            <div key={client.id}>
+              <SingleClient client={client} />
+            </div>
+          );
+        })}
+      </div>
+
     </div>
   );
 };

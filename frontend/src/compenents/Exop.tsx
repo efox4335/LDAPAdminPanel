@@ -41,7 +41,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
   };
 
   return (
-    <div>
+    <div className='singleClientExop'>
       <h4>Extended operation:</h4>
       <form onSubmit={handleExop}>
         oid:

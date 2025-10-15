@@ -20,7 +20,7 @@ const App = () => {
   });
 
   return (
-    <div>
+    <div className='mainDisplay'>
       <ErrorsDisplay />
       <ClientsDisplay />
     </div>

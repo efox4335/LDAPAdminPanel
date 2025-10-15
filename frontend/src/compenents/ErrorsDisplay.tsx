@@ -8,15 +8,15 @@ const ErrorsDisplay = () => {
   const errors: displayError[] = useSelector(selectErrors);
 
   return (
-    <>
+    <div className='errorsDisplay' style={{ zIndex: (errors.length > 0) ? 2 : 1 }}>
       {errors.map((err) => {
         return (
-          <div key={err.id}>
+          <div key={err.id} className='singleError'>
             <SingleError err={err} />
           </div>
         );
       })}
-    </>
+    </div>
   );
 };
 
