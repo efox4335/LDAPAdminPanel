@@ -9,6 +9,7 @@ import generateLdapServerTree from '../utils/generateLdapServerTree';
 import { fetchAllLdapEntries } from '../utils/query';
 import BindForm from './BindForm';
 import Exop from './Exop';
+import OpenEntries from './OpenEntries';
 
 const SingleClient = ({ client }: { client: client }) => {
   const dispatch = useDispatch();
@@ -83,7 +84,10 @@ const SingleClient = ({ client }: { client: client }) => {
         <Exop clientId={client.id} />
         <BindForm client={client} />
       </div>
-      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <div className='ldapTreeContainer'><LdapTree id={client.id} /></div>}
+      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <div className='ldapTreeContainer'>
+        <LdapTree id={client.id} />
+        <OpenEntries clientId={client.id} />
+      </div>}
     </div>
   );
 };

@@ -21,6 +21,7 @@ const NewClientForm = () => {
         id: newClientId.id,
         serverUrl: newLdapUrl,
         isConnected: false,
+        openEntries: {},
         boundDn: null,
         entryMap: undefined
       };

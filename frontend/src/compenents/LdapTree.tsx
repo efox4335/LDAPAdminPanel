@@ -1,21 +1,17 @@
 import { useAppSelector as useSelector } from '../utils/reduxHooks';
 import { memo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 import getDisplayDc from '../utils/getDisplayDc';
-import { selectLdapEntry } from '../slices/client';
-import LdapEntryDisplay from './LdapEntryDisplay';
-import NewEntryForm from './NewEntryForm';
-import type { ldapAttribute } from '../utils/types';
-import DelEntryForm from './DelEntryForm';
-import ModifyEntryForm from './ModifyEntryForm';
+import { selectLdapEntry, addOpenEntry } from '../slices/client';
 import LdapEntryVisibilityToggle from './LdapEntryVisibilityToggle';
 
 const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string, lastVisibleDn: string, entryDn: string, offset: number }) => {
   const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
 
-  const [isModifying, setIsModifying] = useState<boolean>(false);
-
   const [isVisible, setIsVisible] = useState<boolean>(true);
+
+  const dispatch = useDispatch();
 
   if (!entry) {
     console.log(`dn ${entryDn} does not exist in store`);
@@ -50,32 +46,16 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     );
   }
 
-  const displayAttributes: ldapAttribute[] = Object
-    .entries(entry.entry)
-    .concat(Object
-      .entries(entry.operationalEntry)
-      .filter(([key]) => key !== 'dn')
-    )
-    .map(([key, value]) => {
-      return { name: key, values: value };
-    });
+  const handleOpenEntry = () => {
+    dispatch(addOpenEntry({ clientId: id, entryDn: entryDn }));
+  };
 
   return (
     <div className='ldapTreeEntry' style={{ paddingLeft: `${offset}px` }}>
       <LdapEntryVisibilityToggle isVisible={isVisible} setIsVisible={setIsVisible} />
-      dc: {displayDc}
-      <br></br>
-      {isModifying ?
-        <ModifyEntryForm isFormVisible={isModifying} hideForm={() => setIsModifying(false)} entry={entry} clientId={id} /> :
-        <>entry: <LdapEntryDisplay attributes={displayAttributes} /></>}
-
-      <button onClick={() => setIsModifying(!isModifying)}>
-        {isModifying ? 'cancel' : 'modify'}
+      <button className='openEntryButton' type='button' onClick={handleOpenEntry}>
+        {displayDc}
       </button>
-      <NewEntryForm id={id} parentDn={entryDn} />
-      <DelEntryForm clientId={id} entryDn={entryDn} />
-      <br></br>
-      <br></br>
 
       <div className='ldapTreeEntryChildren'>
         {childDns.map((childDn) => {

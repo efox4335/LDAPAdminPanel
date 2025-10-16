@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import type { client, clientStore, ldapEntry, operationalLdapEntry, serverTreeEntry } from '../utils/types';
@@ -19,7 +19,7 @@ const clientsSlice = createSlice({
     },
 
     addClients: (state, action: PayloadAction<client[]>) => {
-      action.payload.forEach((client) => state[client.id] = client);
+      action.payload.forEach((client) => state[client.id] = { ...client, openEntries: {} });
     },
 
     concatEntryMap: (state, action: PayloadAction<{ clientId: string, parentDn: string, subtreeRootDn: string, entryMap: Record<string, serverTreeEntry> }>) => {
@@ -132,6 +132,30 @@ const clientsSlice = createSlice({
       updateEntry.visible = true;
       updateEntry.entry = action.payload.entry;
       updateEntry.operationalEntry = action.payload.operationalEntry;
+    },
+
+    addOpenEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
+      const client = state[action.payload.clientId];
+
+      if (!client) {
+        console.log('tried to open entry on invalid client');
+
+        return;
+      }
+
+      client.openEntries[action.payload.entryDn] = action.payload.entryDn;
+    },
+
+    closeOpenEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
+      const client = state[action.payload.clientId];
+
+      if (!client) {
+        console.log('tried to delete open entry on invalid client');
+
+        return;
+      }
+
+      delete client.openEntries[action.payload.entryDn];
     }
   },
   selectors: {
@@ -145,11 +169,47 @@ const clientsSlice = createSlice({
       }
 
       return sliceState[id].entryMap[dn];
-    }
+    },
+
+    selectOpenEntriesByClientId: createSelector(
+      [(sliceState: clientStore, id: string) => {
+        return sliceState[id].entryMap;
+      },
+      (sliceState: clientStore, id: string) => {
+        return sliceState[id].openEntries;
+      }],
+
+      (entryMap, openEntries) => {
+        if (!entryMap) {
+          console.log('no entry map');
+
+          return [];
+        }
+
+        if (!openEntries) {
+          console.log('no open entries');
+
+          return [];
+        }
+
+        const retArr: serverTreeEntry[] = [];
+
+        Object.keys(openEntries).forEach((entry) => {
+          const ldapEntry = entryMap[entry];
+
+          if (!ldapEntry) {
+            console.log(`ldap entry ${entry} does not exist`);
+          }
+
+          retArr.push(ldapEntry);
+        });
+
+        return retArr;
+      })
   }
 });
 
-export const { addClient, delClient, addClients, addEntry, delEntry, updateEntry, concatEntryMap } = clientsSlice.actions;
-export const { selectClients, selectLdapEntry } = clientsSlice.selectors;
+export const { addClient, delClient, addClients, addEntry, delEntry, updateEntry, concatEntryMap, addOpenEntry, closeOpenEntry } = clientsSlice.actions;
+export const { selectClients, selectLdapEntry, selectOpenEntriesByClientId } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

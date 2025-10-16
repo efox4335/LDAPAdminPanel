@@ -98,6 +98,10 @@ body {
   grid-template-rows: 1fr;
 }
 
+.openEntries {
+  grid-area: 1 / 2 / 2 / 3;
+}
+
 .ldapTreeRoot {
   grid-area: 1 / 1 / 2 / 2;
 }

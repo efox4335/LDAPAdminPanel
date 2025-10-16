@@ -134,6 +134,7 @@ export type client = {
   serverUrl: string,
   boundDn: string | null,
   isConnected: boolean,
+  openEntries: Record<string, string>,
   entryMap: Record<string, serverTreeEntry> | undefined
 };
 
