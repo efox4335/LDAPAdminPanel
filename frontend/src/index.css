@@ -76,13 +76,14 @@ body {
 
 .clientsList {
   padding-left: 15px;
-  height: 100dvh;
+  max-height: 100%;
   overflow: scroll;
   scrollbar-color: rgb(100, 100, 100) rgb(37, 37, 37);
 }
 
 .singleClient {
-  height: 100dvh;
+  max-height: inherit;
+  height: inherit;
   display: flex;
   flex-direction: column;
 }
@@ -94,16 +95,25 @@ body {
 
 .ldapTreeContainer {
   display: grid;
+  min-height: inherit;
+  max-height: inherit;
+  height: max-content;
+  overflow: hidden;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr;
 }
 
 .openEntries {
   grid-area: 1 / 2 / 2 / 3;
+  max-height: 100%;
+  overflow: scroll;
 }
 
 .ldapTreeRoot {
   grid-area: 1 / 1 / 2 / 2;
+  min-height: 0;
+  max-height: 100%;
+  overflow: scroll;
 }
 
 .ldapEntryVisibilityToggle {

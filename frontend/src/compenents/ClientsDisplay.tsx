@@ -16,9 +16,7 @@ const ClientsDisplay = () => {
           const client = clients[clientIndex];
 
           return (
-            <div key={client.id}>
-              <SingleClient client={client} />
-            </div>
+            <SingleClient client={client} key={client.id} />
           );
         })}
       </div>
