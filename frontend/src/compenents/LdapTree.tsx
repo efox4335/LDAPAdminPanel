@@ -37,18 +37,20 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn, offset }: { id: string
     );
   }
 
+  const handleOpenEntry = () => {
+    dispatch(addOpenEntry({ clientId: id, entryDn: entryDn }));
+  };
+
   if (!isVisible) {
     return (
       <div className='ldapTreeEntry' style={{ paddingLeft: `${offset}px` }}>
         <LdapEntryVisibilityToggle isVisible={isVisible} setIsVisible={setIsVisible} />
-        dc: {displayDc}
+        <button className='openEntryButton' type='button' onClick={handleOpenEntry}>
+          {displayDc}
+        </button>
       </div>
     );
   }
-
-  const handleOpenEntry = () => {
-    dispatch(addOpenEntry({ clientId: id, entryDn: entryDn }));
-  };
 
   return (
     <div className='ldapTreeEntry' style={{ paddingLeft: `${offset}px` }}>
