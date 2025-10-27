@@ -11,6 +11,10 @@ const NewClientForm = () => {
 
   const dispatch = useDispatch();
 
+  const resetForm = () => {
+    setNewLdapUrl('');
+  };
+
   const handleNewClient = async (event: SyntheticEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
@@ -28,7 +32,7 @@ const NewClientForm = () => {
 
       dispatch(addClient(newClient));
 
-      setNewLdapUrl('');
+      resetForm();
     } catch (err) {
       dispatch(addError(err));
     }
@@ -42,6 +46,7 @@ const NewClientForm = () => {
           Server Url:
           <input value={newLdapUrl} onChange={(event) => setNewLdapUrl(event.target.value)} />
         </div>
+        <button className='negativeButton' type='button' onClick={() => resetForm()}>reset</button>
         <button className='positiveButton'>add</button>
       </form>
     </div>
