@@ -50,7 +50,7 @@ const BindForm = ({ client }: { client: client }) => {
   return (
     <div className='singleClientBind'>
       <h4>bind: </h4>
-      <form onSubmit={handleBind}>
+      <form onSubmit={handleBind} className='singleClientBindForm'>
         <div className='userInteractionContainer'>
           Dn:
           <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
@@ -62,8 +62,10 @@ const BindForm = ({ client }: { client: client }) => {
           <br></br>
           <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
         </div>
-        <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>
-        <button className='positiveButton'>bind</button>
+        <div className='userInteractionButtons'>
+          <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>
+          <button className='positiveButton'>bind</button>
+        </div>
       </form>
     </div>
   );

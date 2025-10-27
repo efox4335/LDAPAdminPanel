@@ -46,8 +46,10 @@ const NewClientForm = () => {
           Server Url:
           <input value={newLdapUrl} onChange={(event) => setNewLdapUrl(event.target.value)} />
         </div>
-        <button className='negativeButton' type='button' onClick={() => resetForm()}>reset</button>
-        <button className='positiveButton'>add</button>
+        <div className='userInteractionButtons'>
+          <button className='negativeButton' type='button' onClick={() => resetForm()}>reset</button>
+          <button className='positiveButton'>add</button>
+        </div>
       </form>
     </div>
   );

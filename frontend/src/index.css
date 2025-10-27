@@ -95,6 +95,36 @@ body {
   gap: 10px;
 }
 
+.singleClientMetadata {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.singleClientBind {
+  display: flex;
+  flex-direction: column;
+}
+
+.singleClientBindForm {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.singleClientExop {
+  display: flex;
+  flex-direction: column;
+}
+
+.singleClientExopForm {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .ldapTreeContainer {
   display: grid;
   min-height: 100px;
@@ -136,6 +166,10 @@ body {
   border-style: solid;
   border-color: rgb(26, 26, 26);
   overflow: auto;
+}
+
+.userInteractionButtons {
+  margin: 2px;
 }
 
 .ldapTreeEntry {
