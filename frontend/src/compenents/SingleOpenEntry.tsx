@@ -45,7 +45,7 @@ const OpenEntryDisplay = ({ clientId, entry }: { clientId: string, entry: Extrac
       );
     case 'newEntry':
       return (
-        <NewEntryForm id={clientId} parentDn={entry.dn} cancelNewEntry={() => setEntryState('display')} />
+        <NewEntryForm clientId={clientId} parentDn={entry.dn} cancelNewEntry={() => setEntryState('display')} />
       );
   }
 };

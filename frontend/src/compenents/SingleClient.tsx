@@ -86,7 +86,7 @@ const SingleClient = ({ client }: { client: client }) => {
         <BindForm client={client} />
       </div>
       {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <div className='ldapTreeContainer'>
-        <LdapTree id={client.id} />
+        <LdapTree clientId={client.id} />
         <OpenEntries clientId={client.id} />
       </div>}
     </div>

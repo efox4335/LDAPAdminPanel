@@ -16,42 +16,42 @@ export const addNewClient = async (serverUrl: string): Promise<newClientResponse
   return res.data;
 };
 
-export const deleteClient = async (id: string) => {
-  await axios.delete(`${baseUrl}${id}`);
+export const deleteClient = async (clientId: string) => {
+  await axios.delete(`${baseUrl}${clientId}`);
 };
 
-export const bindClient = async (id: string, req: bindReq) => {
-  await axios.put(`${baseUrl}${id}/bind`, req);
+export const bindClient = async (clientId: string, req: bindReq) => {
+  await axios.put(`${baseUrl}${clientId}/bind`, req);
 };
 
-export const unbindClient = async (id: string) => {
-  await axios.put(`${baseUrl}${id}/unbind`);
+export const unbindClient = async (clientId: string) => {
+  await axios.put(`${baseUrl}${clientId}/unbind`);
 };
 
-export const searchClient = async (id: string, req: searchReq): Promise<searchRes> => {
-  const res: AxiosResponse<searchRes> = await axios.post(`${baseUrl}${id}/search`, req);
+export const searchClient = async (clientId: string, req: searchReq): Promise<searchRes> => {
+  const res: AxiosResponse<searchRes> = await axios.post(`${baseUrl}${clientId}/search`, req);
 
   return res.data;
 };
 
-export const deleteEntry = async (id: string, req: delReq) => {
-  await axios.post(`${baseUrl}${id}/del`, req);
+export const deleteEntry = async (clientId: string, req: delReq) => {
+  await axios.post(`${baseUrl}${clientId}/del`, req);
 };
 
-export const modifyEntry = async (id: string, req: modifyReq) => {
-  await axios.put(`${baseUrl}${id}/modify`, req);
+export const modifyEntry = async (clientId: string, req: modifyReq) => {
+  await axios.put(`${baseUrl}${clientId}/modify`, req);
 };
 
-export const addNewEntry = async (id: string, req: addReq) => {
-  await axios.post(`${baseUrl}${id}/add`, req);
+export const addNewEntry = async (clientId: string, req: addReq) => {
+  await axios.post(`${baseUrl}${clientId}/add`, req);
 };
 
-export const modifyEntryDn = async (id: string, req: modifyDnReq) => {
-  await axios.put(`${baseUrl}${id}/modifydn`, req);
+export const modifyEntryDn = async (clientId: string, req: modifyDnReq) => {
+  await axios.put(`${baseUrl}${clientId}/modifydn`, req);
 };
 
-export const exopClient = async (id: string, req: exopReq): Promise<exopRes> => {
-  const res: AxiosResponse<exopRes> = await axios.post(`${baseUrl}${id}/exop`, req);
+export const exopClient = async (clientId: string, req: exopReq): Promise<exopRes> => {
+  const res: AxiosResponse<exopRes> = await axios.post(`${baseUrl}${clientId}/exop`, req);
 
   return res.data;
 };

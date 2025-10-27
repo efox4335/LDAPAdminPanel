@@ -6,8 +6,8 @@ import getDisplayDc from '../utils/getDisplayDc';
 import { selectLdapEntry, addOpenEntry } from '../slices/client';
 import LdapEntryVisibilityToggle from './LdapEntryVisibilityToggle';
 
-const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn }: { id: string, lastVisibleDn: string, entryDn: string }) => {
-  const entry = useSelector((state) => selectLdapEntry(state, id, entryDn));
+const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: string, lastVisibleDn: string, entryDn: string }) => {
+  const entry = useSelector((state) => selectLdapEntry(state, clientId, entryDn));
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
 
@@ -30,7 +30,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn }: { id: string, lastVi
       <>
         {childDns.map((childDn) => {
           return (
-            <LdapTreeEntry key={childDn} id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
+            <LdapTreeEntry key={childDn} clientId={clientId} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
           );
         })}
       </>
@@ -38,7 +38,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn }: { id: string, lastVi
   }
 
   const handleOpenEntry = () => {
-    dispatch(addOpenEntry({ clientId: id, entryDn: entryDn }));
+    dispatch(addOpenEntry({ clientId: clientId, entryDn: entryDn }));
   };
 
   if (!isVisible) {
@@ -62,7 +62,7 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn }: { id: string, lastVi
       <div className='ldapTreeEntryChildren'>
         {childDns.map((childDn) => {
           return (
-            <LdapTreeEntry key={childDn} id={id} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
+            <LdapTreeEntry key={childDn} clientId={clientId} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
           );
         })}
       </div>
@@ -70,14 +70,14 @@ const LdapTreeEntry = memo(({ id, lastVisibleDn, entryDn }: { id: string, lastVi
   );
 });
 
-const LdapTree = ({ id }: { id: string }) => {
+const LdapTree = ({ clientId }: { clientId: string }) => {
   return (
     <div className='ldapTreeDisplayContainer'>
       <h4 className='ldapTreeDisplayHeader'>
         ldap tree
       </h4>
       <div className='userInteractionContainer'>
-        <LdapTreeEntry id={id} lastVisibleDn='' entryDn='dse' />
+        <LdapTreeEntry clientId={clientId} lastVisibleDn='' entryDn='dse' />
       </div>
     </div>
   );

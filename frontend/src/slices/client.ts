@@ -163,20 +163,20 @@ const clientsSlice = createSlice({
       return sliceState;
     },
 
-    selectLdapEntry: (sliceState, id: string, dn: string) => {
-      if (!sliceState[id].entryMap) {
+    selectLdapEntry: (sliceState, clientId: string, dn: string) => {
+      if (!sliceState[clientId].entryMap) {
         return undefined;
       }
 
-      return sliceState[id].entryMap[dn];
+      return sliceState[clientId].entryMap[dn];
     },
 
     selectOpenEntriesByClientId: createSelector(
-      [(sliceState: clientStore, id: string) => {
-        return sliceState[id].entryMap;
+      [(sliceState: clientStore, clientId: string) => {
+        return sliceState[clientId].entryMap;
       },
-      (sliceState: clientStore, id: string) => {
-        return sliceState[id].openEntries;
+      (sliceState: clientStore, clientId: string) => {
+        return sliceState[clientId].openEntries;
       }],
 
       (entryMap, openEntries) => {

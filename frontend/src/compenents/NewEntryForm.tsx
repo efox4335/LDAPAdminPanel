@@ -12,7 +12,7 @@ import NewLdapAttributeValues from './NewLdapAttributeValues';
 import getControls from '../utils/getControls';
 import NewLdapControls from './NewLdapControls';
 
-const NewEntryForm = ({ id, parentDn, cancelNewEntry }: { id: string, parentDn: string, cancelNewEntry: () => void }) => {
+const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string, parentDn: string, cancelNewEntry: () => void }) => {
   const [newDc, setNewDc] = useState<string>('');
   const [newObjectClasses, setNewObjectClasses] = useState<newLdapAttributeValue[]>([]);
   const [newAttributes, setNewAttributes] = useState<newLdapAttribute[]>([]);
@@ -41,11 +41,11 @@ const NewEntryForm = ({ id, parentDn, cancelNewEntry }: { id: string, parentDn: 
         control: getControls(newControls)
       };
 
-      await addNewEntry(id, newEntry);
-      const res = await fetchLdapEntry(id, newEntry.baseDn);
+      await addNewEntry(clientId, newEntry);
+      const res = await fetchLdapEntry(clientId, newEntry.baseDn);
 
       dispatch(addEntry({
-        clientId: id,
+        clientId: clientId,
         parentDn: parentDn,
         entry: res.visibleEntry,
         operationalEntry: res.operationalEntry
