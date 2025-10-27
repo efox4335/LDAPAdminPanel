@@ -48,7 +48,7 @@ const SingleOpenEntry = ({ clientId, entry }: { clientId: string, entry: serverT
         <ModifyEntryForm isFormVisible={isModifying} hideForm={() => setIsModifying(false)} entry={entry} clientId={clientId} /> :
         <>entry: <LdapEntryDisplay attributes={displayAttributes} /></>}
 
-      <button onClick={() => setIsModifying(!isModifying)}>
+      <button onClick={() => setIsModifying(!isModifying)} className={isModifying ? 'negativeButton' : 'positiveButton'}>
         {isModifying ? 'cancel' : 'modify'}
       </button>
       <NewEntryForm id={clientId} parentDn={entry.dn} />
