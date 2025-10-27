@@ -19,6 +19,14 @@ const Exop = ({ clientId }: { clientId: string }) => {
 
   const dispatch = useDispatch();
 
+  const resetForm = () => {
+    setNewExopOid('');
+    setDoesNewExopHaveValue(false);
+    setNewExopValue('');
+
+    setNewControls([]);
+  };
+
   const handleExop = async (event: SyntheticEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
@@ -29,9 +37,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
         control: getControls(newControls)
       });
 
-      setNewExopOid('');
-      setNewExopValue('');
-      setNewControls([]);
+      resetForm();
 
       setOldExopOid(res.oid ? res.oid : '');
       setOldExopValue(res.value ? res.value : '');
@@ -58,6 +64,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
           </button>
           <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
         </div>
+        <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>
         <button type='submit' className='positiveButton'>start</button>
       </form>
       {(oldExopOid !== '' || oldExopValue !== '') ?
