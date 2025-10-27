@@ -15,6 +15,12 @@ const BindForm = ({ client }: { client: client }) => {
 
   const dispatch = useDispatch();
 
+  const resetForm = () => {
+    setNewDn('');
+    setNewPassword('');
+    setNewControls([]);
+  };
+
   const handleBind = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -25,9 +31,7 @@ const BindForm = ({ client }: { client: client }) => {
         control: getControls(newControls)
       };
 
-      setNewDn('');
-      setNewPassword('');
-      setNewControls([]);
+      resetForm();
 
       await bindClient(client.id, req);
 
@@ -58,6 +62,7 @@ const BindForm = ({ client }: { client: client }) => {
           <br></br>
           <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
         </div>
+        <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>
         <button className='positiveButton'>bind</button>
       </form>
     </div>
