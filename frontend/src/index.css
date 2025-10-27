@@ -194,14 +194,14 @@ button {
 }
 
 .positiveButton {
-  background: rgb(54, 118, 255);
+  background: rgb(55, 163, 64);
   color: rgb(27, 23, 23);
   border-style: hidden;
   margin: 1px;
 }
 
 .negativeButton {
-  background: rgb(253, 83, 83);
+  background: rgb(184, 68, 93);
   color: rgb(27, 23, 23);
   border-style: hidden;
   margin: 1px;
