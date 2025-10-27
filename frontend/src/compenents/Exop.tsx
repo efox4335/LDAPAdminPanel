@@ -43,30 +43,32 @@ const Exop = ({ clientId }: { clientId: string }) => {
   return (
     <div className='singleClientExop'>
       <h4>Extended operation:</h4>
-      <form onSubmit={handleExop}>
-        oid:
-        <input value={newExopOid} onChange={(event) => setNewExopOid(event.target.value)} />
-        {doesNewExopHaveValue ?
+      <div className='userInteractionContainer'>
+        <form onSubmit={handleExop}>
+          oid:
+          <input value={newExopOid} onChange={(event) => setNewExopOid(event.target.value)} />
+          {doesNewExopHaveValue ?
+            <div>
+              value:
+              <input value={newExopValue} onChange={(event) => setNewExopValue(event.target.value)} />
+            </div> : <></>}
+          <br></br>
+          <button type='button' onClick={() => setDoesNewExopHaveValue(!doesNewExopHaveValue)}>
+            {doesNewExopHaveValue ? <>cancel</> : <>add value</>}
+          </button>
+          <button type='submit'>start</button>
+        </form>
+        <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+        {(oldExopOid !== '' || oldExopValue !== '') ?
           <div>
-            value:
-            <input value={newExopValue} onChange={(event) => setNewExopValue(event.target.value)} />
+            <br></br>
+            result:
+            <br></br>
+            oid: {oldExopOid}
+            <br></br>
+            value: {oldExopValue}
           </div> : <></>}
-        <br></br>
-        <button type='button' onClick={() => setDoesNewExopHaveValue(!doesNewExopHaveValue)}>
-          {doesNewExopHaveValue ? <>cancel</> : <>add value</>}
-        </button>
-        <button type='submit'>start</button>
-      </form>
-      <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
-      {(oldExopOid !== '' || oldExopValue !== '') ?
-        <div>
-          <br></br>
-          result:
-          <br></br>
-          oid: {oldExopOid}
-          <br></br>
-          value: {oldExopValue}
-        </div> : <></>}
+      </div>
     </div>
   );
 };

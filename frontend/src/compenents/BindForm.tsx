@@ -46,7 +46,7 @@ const BindForm = ({ client }: { client: client }) => {
   return (
     <div className='singleClientBind'>
       <h4>bind: </h4>
-      <form onSubmit={handleBind}>
+      <form onSubmit={handleBind} className='userInteractionContainer'>
         Dn:
         <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
         <br></br>

@@ -71,15 +71,17 @@ const SingleClient = ({ client }: { client: client }) => {
       <div className='singleClientHeader'>
         <div className='singleClientMetadata'>
           <h4>server name</h4>
-          Server Url: {client.serverUrl}
-          <br></br>
-          Bound DN: {boundDn}
-          <br></br>
-          {connectionString}
-          <br></br>
+          <div className='userInteractionContainer'>
+            Server Url: {client.serverUrl}
+            <br></br>
+            Bound DN: {boundDn}
+            <br></br>
+            {connectionString}
+            <br></br>
 
-          <button onClick={handleUnbind}>unbind</button>
-          <button onClick={handleDelete}>remove</button>
+            <button onClick={handleUnbind}>unbind</button>
+            <button onClick={handleDelete}>remove</button>
+          </div>
         </div>
         <Exop clientId={client.id} />
         <BindForm client={client} />

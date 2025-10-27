@@ -179,7 +179,7 @@ body {
 }
 
 input {
-  background-color: rgb(100, 100, 100);
+  background-color: rgb(50, 50, 50);
   color: rgb(207, 207, 207);
   border-style: hidden;
   outline-width: 0;
@@ -187,7 +187,7 @@ input {
 }
 
 button {
-  background-color: rgb(100, 100, 100);
+  background-color: rgb(54, 118, 255);
   color: rgb(207, 207, 207);
   border-style: hidden;
   margin: 1px;
