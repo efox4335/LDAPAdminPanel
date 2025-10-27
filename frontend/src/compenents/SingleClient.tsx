@@ -78,10 +78,9 @@ const SingleClient = ({ client }: { client: client }) => {
             <br></br>
             {connectionString}
             <br></br>
-
-            <button onClick={handleUnbind}>unbind</button>
-            <button onClick={handleDelete}>remove</button>
           </div>
+          <button onClick={handleUnbind} className='negativeButton'>unbind</button>
+          <button onClick={handleDelete} className='negativeButton'>remove</button>
         </div>
         <Exop clientId={client.id} />
         <BindForm client={client} />

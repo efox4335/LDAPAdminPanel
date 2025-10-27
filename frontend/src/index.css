@@ -187,8 +187,22 @@ input {
 }
 
 button {
-  background-color: rgb(54, 118, 255);
+  background-color: rgb(66, 66, 66);
   color: rgb(207, 207, 207);
+  border-style: hidden;
+  margin: 1px;
+}
+
+.positiveButton {
+  background: rgb(54, 118, 255);
+  color: rgb(27, 23, 23);
+  border-style: hidden;
+  margin: 1px;
+}
+
+.negativeButton {
+  background: rgb(253, 83, 83);
+  color: rgb(27, 23, 23);
   border-style: hidden;
   margin: 1px;
 }

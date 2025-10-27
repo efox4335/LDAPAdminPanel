@@ -37,10 +37,12 @@ const NewClientForm = () => {
   return (
     <div className='newClientForm'>
       <h3>Add new client: </h3>
-      <form onSubmit={handleNewClient} className='userInteractionContainer'>
-        Server Url:
-        <input value={newLdapUrl} onChange={(event) => setNewLdapUrl(event.target.value)} />
-        <button>add</button>
+      <form onSubmit={handleNewClient}>
+        <div className='userInteractionContainer'>
+          Server Url:
+          <input value={newLdapUrl} onChange={(event) => setNewLdapUrl(event.target.value)} />
+        </div>
+        <button className='positiveButton'>add</button>
       </form>
     </div>
   );

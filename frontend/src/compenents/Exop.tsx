@@ -43,8 +43,8 @@ const Exop = ({ clientId }: { clientId: string }) => {
   return (
     <div className='singleClientExop'>
       <h4>Extended operation:</h4>
-      <div className='userInteractionContainer'>
-        <form onSubmit={handleExop}>
+      <form onSubmit={handleExop}>
+        <div className='userInteractionContainer'>
           oid:
           <input value={newExopOid} onChange={(event) => setNewExopOid(event.target.value)} />
           {doesNewExopHaveValue ?
@@ -56,19 +56,20 @@ const Exop = ({ clientId }: { clientId: string }) => {
           <button type='button' onClick={() => setDoesNewExopHaveValue(!doesNewExopHaveValue)}>
             {doesNewExopHaveValue ? <>cancel</> : <>add value</>}
           </button>
-          <button type='submit'>start</button>
-        </form>
-        <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
-        {(oldExopOid !== '' || oldExopValue !== '') ?
-          <div>
-            <br></br>
-            result:
-            <br></br>
-            oid: {oldExopOid}
-            <br></br>
-            value: {oldExopValue}
-          </div> : <></>}
-      </div>
+          <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+        </div>
+        <button type='submit' className='positiveButton'>start</button>
+      </form>
+      {(oldExopOid !== '' || oldExopValue !== '') ?
+        <div>
+          <br></br>
+          result:
+          <br></br>
+          oid: {oldExopOid}
+          <br></br>
+          value: {oldExopValue}
+        </div> : <></>}
+
     </div>
   );
 };

@@ -46,17 +46,19 @@ const BindForm = ({ client }: { client: client }) => {
   return (
     <div className='singleClientBind'>
       <h4>bind: </h4>
-      <form onSubmit={handleBind} className='userInteractionContainer'>
-        Dn:
-        <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
-        <br></br>
-        password:
-        <input type='password' value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
-        <button>bind</button>
-        <br></br>
-        controls:
-        <br></br>
-        <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+      <form onSubmit={handleBind}>
+        <div className='userInteractionContainer'>
+          Dn:
+          <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
+          <br></br>
+          password:
+          <input type='password' value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
+          <br></br>
+          controls:
+          <br></br>
+          <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+        </div>
+        <button className='positiveButton'>bind</button>
       </form>
     </div>
   );
