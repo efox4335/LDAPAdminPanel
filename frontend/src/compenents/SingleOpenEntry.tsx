@@ -51,8 +51,11 @@ const SingleOpenEntry = ({ clientId, entry }: { clientId: string, entry: serverT
       <button onClick={() => setIsModifying(!isModifying)} className={isModifying ? 'negativeButton' : 'positiveButton'}>
         {isModifying ? 'cancel' : 'modify'}
       </button>
-      <NewEntryForm id={clientId} parentDn={entry.dn} />
-      <DelEntryForm clientId={clientId} entryDn={entry.dn} />
+
+      {isModifying ? <></> : <>
+        <NewEntryForm id={clientId} parentDn={entry.dn} />
+        <DelEntryForm clientId={clientId} entryDn={entry.dn} />
+      </>}
       <br></br>
       <br></br>
     </div>
