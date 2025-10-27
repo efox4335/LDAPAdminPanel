@@ -79,7 +79,7 @@ body {
   padding-bottom: 15px;
   padding-right: 15px;
   max-height: 100%;
-  overflow: scroll;
+  overflow: auto;
   scrollbar-color: rgb(100, 100, 100) rgb(37, 37, 37);
 }
 
