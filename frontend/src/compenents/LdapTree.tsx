@@ -76,7 +76,7 @@ const LdapTree = ({ id }: { id: string }) => {
       <h4 className='ldapTreeDisplayHeader'>
         ldap tree
       </h4>
-      <div className='ldapTreeRoot'>
+      <div className='userInteractionContainer'>
         <LdapTreeEntry id={id} lastVisibleDn='' entryDn='dse' />
       </div>
     </div>

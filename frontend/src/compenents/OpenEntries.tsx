@@ -11,7 +11,7 @@ const OpenEntries = ({ clientId }: { clientId: string }) => {
       <h4 className='openEntriesHeader'>
         open entries
       </h4>
-      <div className='openEntries'>
+      <div className='userInteractionContainer'>
         {openEntries.map((entry) => {
           return (
             <div key={entry.dn} className='openEntryContainer'>
