@@ -40,7 +40,7 @@ const NewClientForm = () => {
       <form onSubmit={handleNewClient}>
         Server Url:
         <input value={newLdapUrl} onChange={(event) => setNewLdapUrl(event.target.value)} />
-        <button>create</button>
+        <button>add</button>
       </form>
     </div>
   );
