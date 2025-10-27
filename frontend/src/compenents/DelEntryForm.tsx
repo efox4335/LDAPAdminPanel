@@ -8,7 +8,7 @@ import type { newControlObject } from '../utils/types';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
 
-const DelEntryForm = ({ entryDn, clientId }: { entryDn: string, clientId: string }) => {
+const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clientId: string, cancelDel: () => void }) => {
   const dispatch = useDispatch();
 
   const [showDelControls, setShowDelControls] = useState<boolean>(false);
@@ -28,7 +28,10 @@ const DelEntryForm = ({ entryDn, clientId }: { entryDn: string, clientId: string
 
   return (
     <form onSubmit={handleDelete}>
-      <button type='submit'>delete</button>
+      delete {entryDn} forever
+      <br></br>
+      <button type='submit' className='negativeButton'>delete</button>
+      <button type='button' className='positiveButton' onClick={() => cancelDel()}>cancel</button>
       <button type='button' onClick={() => setShowDelControls(!showDelControls)}>
         {showDelControls ? <>cancel</> : <>add delete controls</>}
       </button>

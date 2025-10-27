@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { useEffect, useState, type SyntheticEvent } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 
 import type { modifyReq, newLdapAttribute, serverTreeEntry, newControlObject } from '../utils/types';
 import parseModifyedAttributes from '../utils/parseModifiedAttributes';
@@ -14,16 +14,15 @@ import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
 import getNewLdapAttributes from '../utils/getNewLdapAttributes';
 
-const ModifyEntryForm = ({ isFormVisible, hideForm, entry, clientId }: {
-  isFormVisible: boolean,
+const ModifyEntryForm = ({ hideForm, entry, clientId }: {
   hideForm: () => void,
   entry: Extract<serverTreeEntry, { visible: true }>,
   clientId: string
 }) => {
   const dispatch = useDispatch();
 
-  const [newDn, setNewDn] = useState<string>('');
-  const [modifiedAttributes, setModifiedAttributes] = useState<newLdapAttribute[]>([]);
+  const [newDn, setNewDn] = useState<string>(entry.dn);
+  const [modifiedAttributes, setModifiedAttributes] = useState<newLdapAttribute[]>(getNewLdapAttributes(entry.entry));
 
   const [newModifyControls, setNewModifyControls] = useState<newControlObject[]>([]);
 
@@ -38,12 +37,6 @@ const ModifyEntryForm = ({ isFormVisible, hideForm, entry, clientId }: {
     setNewModifyControls([]);
     setNewModifyDnControls([]);
   };
-
-  useEffect(() => {
-    if (isFormVisible) {
-      resetForm();
-    }
-  }, [isFormVisible]);
 
   const handleUpdate = async (event: SyntheticEvent<HTMLFormElement>) => {
     try {

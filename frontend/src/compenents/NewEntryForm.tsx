@@ -12,9 +12,7 @@ import NewLdapAttributeValues from './NewLdapAttributeValues';
 import getControls from '../utils/getControls';
 import NewLdapControls from './NewLdapControls';
 
-const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
-  const [visible, setVisible] = useState<boolean>(false);
-
+const NewEntryForm = ({ id, parentDn, cancelNewEntry }: { id: string, parentDn: string, cancelNewEntry: () => void }) => {
   const [newDc, setNewDc] = useState<string>('');
   const [newObjectClasses, setNewObjectClasses] = useState<newLdapAttributeValue[]>([]);
   const [newAttributes, setNewAttributes] = useState<newLdapAttribute[]>([]);
@@ -70,10 +68,6 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
     setNewControls([]);
   };
 
-  if (!visible) {
-    return (<button onClick={() => setVisible(true)}>add entry</button>);
-  }
-
   return (
     <div>
       <form onSubmit={handleAddEntry}>
@@ -90,10 +84,11 @@ const NewEntryForm = ({ id, parentDn }: { id: string, parentDn: string }) => {
         controls:
         <br></br>
         <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
-        <button type='button' onClick={() => handleRestet()}>reset</button>
-        <button type='submit'>add</button>
+        <button onClick={() => cancelNewEntry()} className='negativeButton'>cancel</button>
+        <button type='button' onClick={() => handleRestet()} className='negativeButton'>reset</button>
+        <button type='submit' className='positiveButton'>add</button>
       </form>
-      <button onClick={() => setVisible(false)}>hide</button>
+
     </div >
   );
 };

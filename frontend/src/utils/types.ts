@@ -155,3 +155,5 @@ export type queryFetchRes = {
   visibleEntry: ldapEntry,
   operationalEntry: operationalLdapEntry
 };
+
+export type openEntryState = 'display' | 'modify' | 'delete' | 'newEntry';
