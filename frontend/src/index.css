@@ -97,7 +97,7 @@ body {
 
 .ldapTreeContainer {
   display: grid;
-  min-height: inherit;
+  min-height: 100px;
   max-height: inherit;
   height: max-content;
   overflow: hidden;
@@ -135,7 +135,7 @@ body {
   border-width: 2px;
   border-style: solid;
   border-color: rgb(26, 26, 26);
-  overflow: scroll;
+  overflow: auto;
 }
 
 .ldapTreeEntry {
