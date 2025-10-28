@@ -31,8 +31,6 @@ const OpenEntryDisplay = ({ clientId, entry }: { clientId: string, entry: Extrac
           <button onClick={() => setEntryState('delete')} className='negativeButton'>delete</button>
           <button onClick={() => setEntryState('newEntry')} className='positiveButton'>new child</button>
           <button onClick={() => setEntryState('modify')} className='positiveButton'>modify</button>
-          <br></br>
-          <br></br>
         </div>
       );
     case 'delete':

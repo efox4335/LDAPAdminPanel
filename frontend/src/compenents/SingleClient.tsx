@@ -109,6 +109,7 @@ const SingleClient = ({ client }: { client: client }) => {
         <BindForm client={client} />
         <Exop clientId={client.id} />
       </div>
+      <br></br>
       {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <div className='ldapTreeContainer'>
         <LdapTree clientId={client.id} />
         <OpenEntries clientId={client.id} />

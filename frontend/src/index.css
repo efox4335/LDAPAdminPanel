@@ -212,6 +212,14 @@ body {
   padding-left: 0px;
 }
 
+.openEntryContainer {
+  padding-bottom: 15px;
+}
+
+.openEntryContainer:last-child {
+  padding-bottom: 0px;
+}
+
 .modifyControlContainer {
   display: flex;
   gap: 5px;
