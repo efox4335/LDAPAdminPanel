@@ -9,7 +9,6 @@ import getControls from '../utils/getControls';
 
 const Exop = ({ clientId }: { clientId: string }) => {
   const [newExopOid, setNewExopOid] = useState<string>('');
-  const [doesNewExopHaveValue, setDoesNewExopHaveValue] = useState<boolean>(false);
   const [newExopValue, setNewExopValue] = useState<string>('');
 
   const [oldExopOid, setOldExopOid] = useState<string>('');
@@ -21,7 +20,6 @@ const Exop = ({ clientId }: { clientId: string }) => {
 
   const resetForm = () => {
     setNewExopOid('');
-    setDoesNewExopHaveValue(false);
     setNewExopValue('');
 
     setNewControls([]);
@@ -33,7 +31,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
 
       const res = await exopClient(clientId, {
         oid: newExopOid,
-        value: doesNewExopHaveValue ? newExopValue : undefined,
+        value: newExopValue !== '' ? newExopValue : undefined,
         control: getControls(newControls)
       });
 
@@ -48,20 +46,30 @@ const Exop = ({ clientId }: { clientId: string }) => {
 
   return (
     <div className='singleClientExop'>
-      <h4>Extended operation:</h4>
+      <h4>extended operation</h4>
       <form onSubmit={handleExop} className='singleClientExopForm'>
         <div className='userInteractionContainer'>
-          oid:
-          <input value={newExopOid} onChange={(event) => setNewExopOid(event.target.value)} />
-          {doesNewExopHaveValue ?
-            <div>
-              value:
-              <input value={newExopValue} onChange={(event) => setNewExopValue(event.target.value)} />
-            </div> : <></>}
+          <table>
+            <tbody>
+              <tr className='headlessFirstTableRow'>
+                <td>
+                  oid
+                </td>
+                <td>
+                  <input value={newExopOid} onChange={(event) => setNewExopOid(event.target.value)} />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  value
+                </td>
+                <td>
+                  <input value={newExopValue} onChange={(event) => setNewExopValue(event.target.value)} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
           <br></br>
-          <button type='button' onClick={() => setDoesNewExopHaveValue(!doesNewExopHaveValue)}>
-            {doesNewExopHaveValue ? <>cancel</> : <>add value</>}
-          </button>
           <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
         </div>
         <div className='userInteractionButtons'>
