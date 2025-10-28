@@ -26,7 +26,6 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
 
   const [newModifyControls, setNewModifyControls] = useState<newControlObject[]>([]);
 
-  const [isModifyDnControlsVisible, setIsModifyDnControlsVisible] = useState<boolean>(false);
   const [newModifyDnControls, setNewModifyDnControls] = useState<newControlObject[]>([]);
 
   const resetForm = () => {
@@ -80,18 +79,52 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
 
   return (
     <form onSubmit={handleUpdate}>
-      dn:
-      <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
-      {newDn === entry.dn ? <></> :
-        <button type='button' onClick={() => setNewDn(entry.dn)}>reset</button>}
-      <button type='button' onClick={() => setIsModifyDnControlsVisible(!isModifyDnControlsVisible)}>
-        {isModifyDnControlsVisible ? <>hide</> : <>add modify dn controls</>}
-      </button>
-      {isModifyDnControlsVisible ? <NewLdapControls newControls={newModifyDnControls} setNewControls={setNewModifyDnControls} /> : <></>}
-      <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setModifiedAttributes} />
+      <table>
+        <thead>
+          <tr>
+            <th scope='row'>attribute</th>
+            <th scope='row'>value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              dn
+            </td>
+            <td>
+              <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
+              {newDn === entry.dn ? <></> :
+                <button type='button' onClick={() => setNewDn(entry.dn)}>reset</button>}
+            </td>
+          </tr>
+          <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setModifiedAttributes} />
+        </tbody>
+      </table>
       <br></br>
-      modify controls:
-      <NewLdapControls newControls={newModifyControls} setNewControls={setNewModifyControls} />
+
+      <div className='modifyControlContainer'>
+        <table>
+          <thead>
+            <tr>
+              <th scope='row'>modify controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <NewLdapControls newControls={newModifyControls} setNewControls={setNewModifyControls} />
+          </tbody>
+        </table>
+
+        <table>
+          <thead>
+            <tr>
+              <th scope='row'>modify dn controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <NewLdapControls newControls={newModifyDnControls} setNewControls={setNewModifyDnControls} />
+          </tbody>
+        </table>
+      </div>
       <button type='button' onClick={() => hideForm()} className='negativeButton'>cancel</button>
       <button type='button' onClick={() => resetForm()} className='negativeButton'>reset</button>
       <button className='positiveButton'>save</button>

@@ -207,6 +207,10 @@ body {
   padding-left: 0px;
 }
 
+.modifyControlContainer {
+  display: flex;
+}
+
 .ldapTreeDisplayHeader {
   margin-top: 0px;
   margin-bottom: 0px;
