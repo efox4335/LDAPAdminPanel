@@ -98,9 +98,8 @@ const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string
             <NewAttributeList newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
           </tbody>
         </table>
-        controls:
         <br></br>
-        <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+        <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
 
         <button type='button' onClick={() => cancelNewEntry()} className='negativeButton'>cancel</button>
         <button type='button' onClick={() => handleRestet()} className='negativeButton'>reset</button>

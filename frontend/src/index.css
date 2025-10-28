@@ -209,6 +209,7 @@ body {
 
 .modifyControlContainer {
   display: flex;
+  gap: 5px;
 }
 
 .ldapTreeDisplayHeader {
@@ -281,4 +282,9 @@ button {
   font-size: 0.7rem;
   padding: 2px;
   margin: 0px;
+}
+
+.criticalCheckbox {
+  background: rgb(60, 60, 60);
+  font-size: 1.05rem;
 }

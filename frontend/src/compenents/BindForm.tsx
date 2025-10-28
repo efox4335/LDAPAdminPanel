@@ -58,9 +58,7 @@ const BindForm = ({ client }: { client: client }) => {
           password:
           <input type='password' value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
           <br></br>
-          controls:
-          <br></br>
-          <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+          <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
         </div>
         <div className='userInteractionButtons'>
           <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>

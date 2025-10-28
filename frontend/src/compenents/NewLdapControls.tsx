@@ -2,10 +2,12 @@ import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { newControlObject } from '../utils/types';
+import DeleteButton from './DeleteButton';
 
-const NewLdapControls = ({ newControls, setNewControls }: {
+const NewLdapControls = ({ newControls, setNewControls, tableName }: {
   newControls: newControlObject[],
-  setNewControls: Dispatch<SetStateAction<newControlObject[]>>
+  setNewControls: Dispatch<SetStateAction<newControlObject[]>>,
+  tableName: string
 }) => {
   useEffect(() => {
     if (newControls.length === 0 || newControls[newControls.length - 1].type !== '' || newControls[newControls.length - 1].critical !== false) {
@@ -21,40 +23,50 @@ const NewLdapControls = ({ newControls, setNewControls }: {
   }, [newControls]);
 
   return (
-    <div>
-      {newControls.map((control) => {
-        return (
-          <div key={control.id}>
-            control:
-            <input value={control.type} onChange={(event) => setNewControls(newControls.map((c) => {
-              if (c.id === control.id) {
-                return {
-                  ...c,
-                  type: event.target.value
-                };
-              }
+    <table>
+      <thead>
+        <tr>
+          <th scope='row'>{tableName}</th>
+          <th scope='row'>critical</th>
+        </tr>
+      </thead>
+      <tbody>
+        {newControls.map((control) => {
+          return (
+            <tr key={control.id}>
+              <td>
+                <input value={control.type} onChange={(event) => setNewControls(newControls.map((c) => {
+                  if (c.id === control.id) {
+                    return {
+                      ...c,
+                      type: event.target.value
+                    };
+                  }
 
-              return c;
-            }))} />
-            <button type='button' onClick={() => setNewControls(newControls.map((c) => {
-              if (c.id === control.id) {
-                return {
-                  ...c,
-                  critical: !c.critical
-                };
-              }
+                  return c;
+                }))} />
 
-              return c;
-            }))}>
-              {control.critical ? <>mark not critical</> : <>mark critical</>}
-            </button>
-            <button type='button' onClick={() => setNewControls(newControls.filter((c) => c.id !== control.id))}>
-              delete
-            </button>
-          </div>
-        );
-      })}
-    </div>
+                <DeleteButton delFunction={() => setNewControls(newControls.filter((c) => c.id !== control.id))} />
+              </td>
+              <td>
+                <button className='criticalCheckbox' type='button' onClick={() => setNewControls(newControls.map((c) => {
+                  if (c.id === control.id) {
+                    return {
+                      ...c,
+                      critical: !c.critical
+                    };
+                  }
+
+                  return c;
+                }))}>
+                  {control.critical ? <>&#9745;</> : <>&#9744;</>}
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 };
 

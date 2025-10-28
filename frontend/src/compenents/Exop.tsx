@@ -62,7 +62,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
           <button type='button' onClick={() => setDoesNewExopHaveValue(!doesNewExopHaveValue)}>
             {doesNewExopHaveValue ? <>cancel</> : <>add value</>}
           </button>
-          <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+          <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
         </div>
         <div className='userInteractionButtons'>
           <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>
