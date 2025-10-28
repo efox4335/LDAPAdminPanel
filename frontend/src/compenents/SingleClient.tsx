@@ -106,8 +106,8 @@ const SingleClient = ({ client }: { client: client }) => {
             <button onClick={handleDelete} className='negativeButton'>remove</button>
           </div>
         </div>
-        <Exop clientId={client.id} />
         <BindForm client={client} />
+        <Exop clientId={client.id} />
       </div>
       {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <div className='ldapTreeContainer'>
         <LdapTree clientId={client.id} />
