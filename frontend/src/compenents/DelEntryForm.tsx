@@ -11,7 +11,6 @@ import getControls from '../utils/getControls';
 const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clientId: string, cancelDel: () => void }) => {
   const dispatch = useDispatch();
 
-  const [showDelControls, setShowDelControls] = useState<boolean>(false);
   const [newControls, setNewControls] = useState<newControlObject[]>([]);
 
   const handleDelete = async (event: SyntheticEvent<HTMLFormElement>) => {
@@ -29,19 +28,12 @@ const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clien
 
   return (
     <form onSubmit={handleDelete}>
-      delete {entryDn} forever
+      <b>delete {entryDn} forever</b>
       <br></br>
+      <br></br>
+      <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
       <button type='submit' className='negativeButton'>delete</button>
       <button type='button' className='positiveButton' onClick={() => cancelDel()}>cancel</button>
-      <button type='button' onClick={() => setShowDelControls(!showDelControls)}>
-        {showDelControls ? <>cancel</> : <>add delete controls</>}
-      </button>
-      {showDelControls ?
-        <>
-          <br></br>
-          <br></br>
-          <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
-        </> : <></>}
     </form>
   );
 };
