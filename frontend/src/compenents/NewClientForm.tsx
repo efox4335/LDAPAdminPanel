@@ -39,12 +39,22 @@ const NewClientForm = () => {
   };
 
   return (
-    <div className='newClientForm'>
-      <h3>Add new client: </h3>
-      <form onSubmit={handleNewClient}>
+    <div className='newClientContainer'>
+      <h3>Add New Client</h3>
+      <form onSubmit={handleNewClient} className='newClientForm'>
         <div className='userInteractionContainer'>
-          Server Url:
-          <input value={newLdapUrl} onChange={(event) => setNewLdapUrl(event.target.value)} />
+          <table>
+            <tbody>
+              <tr className='headlessFirstTableRow'>
+                <td>
+                  server url
+                </td>
+                <td>
+                  <input value={newLdapUrl} onChange={(event) => setNewLdapUrl(event.target.value)} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div className='userInteractionButtons'>
           <button className='negativeButton' type='button' onClick={() => resetForm()}>reset</button>
