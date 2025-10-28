@@ -6,7 +6,7 @@ import parseModifyedAttributes from '../utils/parseModifiedAttributes';
 import { addError } from '../slices/error';
 import { modifyEntry, modifyEntryDn } from '../services/ldapdbsService';
 import { fetchLdapEntry, fetchLdapSubtree } from '../utils/query';
-import { updateEntry, concatEntryMap, delEntry } from '../slices/client';
+import { updateEntry, concatEntryMap, delEntry, closeOpenEntry, addOpenEntry } from '../slices/client';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
 import getParentDn from '../utils/getParentDn';
 import NewAttributeList from './NewAttributeList';
@@ -70,7 +70,9 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
         const formattedSubtree = generateLdapServerTree(rawSubtree, newDn);
 
         dispatch(concatEntryMap({ clientId: clientId, parentDn: getParentDn(newDn), subtreeRootDn: newDn, entryMap: formattedSubtree }));
+        dispatch(closeOpenEntry({ clientId: clientId, entryDn: entry.dn }));
         dispatch(delEntry({ clientId: clientId, dn: entry.dn }));
+        dispatch(addOpenEntry({ clientId: clientId, entryDn: newDn }));
       }
     } catch (err) {
       dispatch(addError(err));
@@ -103,27 +105,8 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
       <br></br>
 
       <div className='modifyControlContainer'>
-        <table>
-          <thead>
-            <tr>
-              <th scope='row'>modify controls</th>
-            </tr>
-          </thead>
-          <tbody>
-            <NewLdapControls newControls={newModifyControls} setNewControls={setNewModifyControls} />
-          </tbody>
-        </table>
-
-        <table>
-          <thead>
-            <tr>
-              <th scope='row'>modify dn controls</th>
-            </tr>
-          </thead>
-          <tbody>
-            <NewLdapControls newControls={newModifyDnControls} setNewControls={setNewModifyDnControls} />
-          </tbody>
-        </table>
+        <NewLdapControls tableName='modify controls' newControls={newModifyControls} setNewControls={setNewModifyControls} />
+        <NewLdapControls tableName='modify dn controls' newControls={newModifyDnControls} setNewControls={setNewModifyDnControls} />
       </div>
       <button type='button' onClick={() => hideForm()} className='negativeButton'>cancel</button>
       <button type='button' onClick={() => resetForm()} className='negativeButton'>reset</button>

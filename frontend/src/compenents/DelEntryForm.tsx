@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux';
 import { useState, type SyntheticEvent } from 'react';
 
 import { deleteEntry } from '../services/ldapdbsService';
-import { delEntry } from '../slices/client';
+import { closeOpenEntry, delEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import type { newControlObject } from '../utils/types';
 import NewLdapControls from './NewLdapControls';
@@ -20,6 +20,7 @@ const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clien
 
       await deleteEntry(clientId, { dn: entryDn, control: getControls(newControls) });
 
+      dispatch(closeOpenEntry({ clientId: clientId, entryDn: entryDn }));
       dispatch(delEntry({ clientId: clientId, dn: entryDn }));
     } catch (err) {
       dispatch(addError(err));
@@ -38,9 +39,8 @@ const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clien
       {showDelControls ?
         <>
           <br></br>
-          controls:
           <br></br>
-          <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+          <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
         </> : <></>}
     </form>
   );
