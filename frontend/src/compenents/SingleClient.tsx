@@ -71,14 +71,34 @@ const SingleClient = ({ client }: { client: client }) => {
       <div className='singleClientHeader'>
         <div className='singleClientMetadata'>
           <div>
-            <h4>server name</h4>
+            <h4>client info</h4>
             <div className='userInteractionContainer'>
-              Server Url: {client.serverUrl}
-              <br></br>
-              Bound DN: {boundDn}
-              <br></br>
-              {connectionString}
-              <br></br>
+              <table>
+                <tbody>
+                  <tr className='headlessFirstTableRow'>
+                    <td>
+                      server url
+                    </td>
+                    <td>
+                      {client.serverUrl}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      bound dn
+                    </td>
+                    <td>
+                      {boundDn}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {connectionString}
+                    </td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
           <div className='userInteractionButtons'>
