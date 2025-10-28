@@ -131,13 +131,13 @@ body {
   max-height: inherit;
   height: max-content;
   overflow: hidden;
-  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  grid-template-columns: 1fr 2fr;
   grid-template-rows: 1fr;
 }
 
 .openEntriesContainer {
   position: relative;
-  left: -2px;
   grid-area: 1 / 2 / 2 / 3;
   max-height: 100%;
   min-height: 0;
@@ -210,6 +210,35 @@ body {
 .ldapTreeDisplayHeader {
   margin-top: 0px;
   margin-bottom: 0px;
+}
+
+.singleOpenEntry {
+  margin: 3px;
+}
+
+.ldapAttributeValues {
+  white-space: pre-Wrap;
+}
+
+th {
+  text-align: left;
+  padding-left: 5px;
+}
+
+td {
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-top-width: 1px;
+  border-style: solid;
+  border-color: rgb(82, 82, 82);
+  vertical-align: text-top;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+table {
+  border-collapse: collapse;
 }
 
 input {

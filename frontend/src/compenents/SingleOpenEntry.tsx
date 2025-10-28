@@ -27,7 +27,7 @@ const OpenEntryDisplay = ({ clientId, entry }: { clientId: string, entry: Extrac
     case 'display':
       return (
         <div>
-          entry: <LdapEntryDisplay attributes={displayAttributes} />
+          <LdapEntryDisplay attributes={displayAttributes} />
           <button onClick={() => setEntryState('delete')} className='negativeButton'>delete</button>
           <button onClick={() => setEntryState('newEntry')} className='positiveButton'>new child</button>
           <button onClick={() => setEntryState('modify')} className='positiveButton'>modify</button>
