@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import type { newLdapAttribute } from '../utils/types';
 import NewLdapAttributeValues from './NewLdapAttributeValues';
+import DeleteButton from './DeleteButton';
 
 const NewValues = ({ attributeId, attributeIndex, newAttributes, setNewAttributes }:
   {
@@ -50,31 +51,31 @@ const NewAttributeList = ({ newAttributes, setNewAttributes }:
   }, [newAttributes]);
 
   return (
-    <div>
+    <>
       {newAttributes.map((attribute, index) => {
         return (
-          <div key={attribute.id}>
-            attribute:
-            <input value={attribute.attributeName} onChange={(event) => setNewAttributes(newAttributes.map((attr) => {
-              if (attr.id === attribute.id) {
-                return {
-                  ...attr,
-                  attributeName: event.target.value
-                };
-              }
+          <tr key={attribute.id}>
+            <td>
+              <input value={attribute.attributeName} onChange={(event) => setNewAttributes(newAttributes.map((attr) => {
+                if (attr.id === attribute.id) {
+                  return {
+                    ...attr,
+                    attributeName: event.target.value
+                  };
+                }
 
-              return attr;
-            }))} />
-            <button type='button' onClick={() => setNewAttributes(newAttributes.filter((ele) => ele.id !== attribute.id))}>
-              delete
-            </button>
-            <br></br>
-            values:
-            <NewValues attributeId={attribute.id} attributeIndex={index} newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
-          </div>
+                return attr;
+              }))} />
+
+              <DeleteButton delFunction={() => setNewAttributes(newAttributes.filter((ele) => ele.id !== attribute.id))} />
+            </td>
+            <td>
+              <NewValues attributeId={attribute.id} attributeIndex={index} newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
+            </td>
+          </tr>
         );
       })}
-    </div>
+    </>
   );
 };
 

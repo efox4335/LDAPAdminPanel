@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 
 import type { newLdapAttributeValue } from '../utils/types';
+import DeleteButton from './DeleteButton';
 
 const NewLdapAttributeValues = ({ newValues, setNewValues }:
   {
@@ -38,9 +39,7 @@ const NewLdapAttributeValues = ({ newValues, setNewValues }:
 
               return val;
             }))} />
-            <button type='button' onClick={() => setNewValues(newValues.filter((val) => val.id !== value.id))}>
-              delete
-            </button>
+            <DeleteButton delFunction={() => setNewValues(newValues.filter((val) => val.id !== value.id))} />
           </div>
         );
       })}

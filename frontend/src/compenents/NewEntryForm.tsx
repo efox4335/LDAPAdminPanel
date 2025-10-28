@@ -71,19 +71,37 @@ const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string
   return (
     <div>
       <form onSubmit={handleAddEntry}>
-        Dc:
-        <input value={newDc} onChange={(event) => setNewDc(event.target.value)} />
-        <br></br>
-        ObjectClass(s):
-        <NewLdapAttributeValues newValues={newObjectClasses} setNewValues={setNewObjectClasses} />
-        <br></br>
-        attributes:
-        <br></br>
-        <NewAttributeList newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
-        <br></br>
+        <table>
+          <thead>
+            <tr>
+              <th scope='row'>attribute</th>
+              <th scope='row'>value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                dc
+              </td>
+              <td>
+                <input value={newDc} onChange={(event) => setNewDc(event.target.value)} />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                objectClass
+              </td>
+              <td>
+                <NewLdapAttributeValues newValues={newObjectClasses} setNewValues={setNewObjectClasses} />
+              </td>
+            </tr>
+            <NewAttributeList newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
+          </tbody>
+        </table>
         controls:
         <br></br>
         <NewLdapControls newControls={newControls} setNewControls={setNewControls} />
+
         <button type='button' onClick={() => cancelNewEntry()} className='negativeButton'>cancel</button>
         <button type='button' onClick={() => handleRestet()} className='negativeButton'>reset</button>
         <button type='submit' className='positiveButton'>add</button>

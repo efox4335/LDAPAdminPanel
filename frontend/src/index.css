@@ -246,7 +246,8 @@ input {
   color: rgb(207, 207, 207);
   border-style: hidden;
   outline-width: 0;
-  margin: 1px;
+  padding: 0px;
+  margin: 0px;
 }
 
 button {
@@ -268,4 +269,12 @@ button {
   color: rgb(27, 23, 23);
   border-style: hidden;
   margin: 1px;
+}
+
+.deleteButton {
+  background: rgb(184, 68, 93);
+  color: rgb(27, 23, 23);
+  font-size: 0.7rem;
+  padding: 2px;
+  margin: 0px;
 }
