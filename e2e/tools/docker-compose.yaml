@@ -1,0 +1,10 @@
+services:
+  openLdap:
+    image: bitnami/openldap:latest
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=password
+      - LDAP_ADMIN_DN=cn=admin
+    ports:
+      - 1389:1389
+      - 1636:1636
