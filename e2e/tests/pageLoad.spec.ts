@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+import { pageUrl } from '../utils/constants';
+
 test('page load', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  await page.goto(pageUrl);
 
   const mainDisplay = page.locator('.mainDisplay');
 
