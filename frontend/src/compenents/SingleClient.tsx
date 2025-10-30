@@ -102,8 +102,11 @@ const SingleClient = ({ client }: { client: client }) => {
             </div>
           </div>
           <div className='userInteractionButtons'>
-            <button onClick={handleUnbind} className='negativeButton'>unbind</button>
-            <button onClick={handleDelete} className='negativeButton'>remove</button>
+            <button onClick={handleDelete} className={client.isConnected ? '' : 'negativeButton'}>remove</button>
+            {client.isConnected ?
+              <button onClick={handleUnbind} className='negativeButton'>unbind</button> :
+              <></>
+            }
           </div>
         </div>
         <BindForm client={client} />
