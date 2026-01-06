@@ -49,7 +49,7 @@ const NewLdapControls = ({ newControls, setNewControls, tableName }: {
                 <DeleteButton delFunction={() => setNewControls(newControls.filter((c) => c.id !== control.id))} />
               </td>
               <td>
-                <input className='criticalCheckbox' type='checkbox' checked={control.critical} onClick={() => setNewControls(newControls.map((c) => {
+                <input className='criticalCheckbox' type='checkbox' checked={control.critical} onChange={() => setNewControls(newControls.map((c) => {
                   if (c.id === control.id) {
                     return {
                       ...c,
