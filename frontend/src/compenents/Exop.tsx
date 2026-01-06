@@ -13,6 +13,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
 
   const [oldExopOid, setOldExopOid] = useState<string>('');
   const [oldExopValue, setOldExopValue] = useState<string>('');
+  const [oldExopStatus, setOldExopStatus] = useState<'success' | 'fail' | 'pending' | null>(null);
 
   const [newControls, setNewControls] = useState<newControlObject[]>([]);
 
@@ -29,6 +30,8 @@ const Exop = ({ clientId }: { clientId: string }) => {
     try {
       event.preventDefault();
 
+      setOldExopStatus('pending');
+
       const res = await exopClient(clientId, {
         oid: newExopOid,
         value: newExopValue !== '' ? newExopValue : undefined,
@@ -39,7 +42,9 @@ const Exop = ({ clientId }: { clientId: string }) => {
 
       setOldExopOid(res.oid ? res.oid : '');
       setOldExopValue(res.value ? res.value : '');
+      setOldExopStatus('success');
     } catch (err) {
+      setOldExopStatus('fail');
       dispatch(addError(err));
     }
   };
@@ -71,23 +76,48 @@ const Exop = ({ clientId }: { clientId: string }) => {
           </table>
           <br></br>
           <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+          <br></br>
+          {(oldExopStatus) ?
+            <table>
+              <tbody>
+                <tr className='headlessFirstTableRow'>
+                  <td>
+                    result
+                  </td>
+                  <td>
+                    {oldExopStatus}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    oid
+                  </td>
+                  <td>
+                    {oldExopOid}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    value
+                  </td>
+                  <td>
+                    {oldExopValue}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            : <></>
+          }
         </div>
         <div className='userInteractionButtons'>
           <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>
           <button type='submit' className='positiveButton'>start</button>
         </div>
-      </form>
-      {(oldExopOid !== '' || oldExopValue !== '') ?
-        <div>
-          <br></br>
-          result:
-          <br></br>
-          oid: {oldExopOid}
-          <br></br>
-          value: {oldExopValue}
-        </div> : <></>}
 
-    </div>
+      </form>
+
+
+    </div >
   );
 };
 
