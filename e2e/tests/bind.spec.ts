@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 
-import { pageUrl, ldapServerUrl, adminDn, adminPassword } from '../utils/constants';
+import { pageUrl, ldapServerUrl, adminDn, adminPassword, invalidOid } from '../utils/constants';
 import assertClientInfo from '../utils/assertClientInfo';
 import assertError from '../utils/assertError';
 
@@ -19,6 +19,22 @@ test.describe('bind tests', () => {
 
   test('no bind server info', async ({ page }) => {
     await assertClientInfo(page, false, 'null', ldapServerUrl);
+  });
+
+  test('controls passed', async ({ page }) => {
+    const controlInput = page
+      .locator('.singleClientBind')
+      .getByText('controls')
+      .locator('..')
+      .locator('..')
+      .locator('..');
+
+    await controlInput.getByRole('textbox').fill(invalidOid);
+    await controlInput.locator('.criticalCheckbox').nth(0).click();
+
+    await page.getByRole('button', { name: 'bind' }).click()
+
+    await assertError(page, 'UnavailableCriticalExtensionError', true);
   });
 
   test.describe('admin bind', () => {
