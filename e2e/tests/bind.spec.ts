@@ -1,20 +1,17 @@
 import { test } from '@playwright/test';
 
-import { pageUrl, ldapServerUrl, adminDn, adminPassword, invalidOid } from '../utils/constants';
+import { ldapServerUrl, adminDn, adminPassword, invalidOid } from '../utils/constants';
+import { addServer, removeServer } from '../utils/preTestUtils';
 import assertClientInfo from '../utils/assertClientInfo';
 import assertError from '../utils/assertError';
 
 test.describe('bind tests', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(pageUrl);
-
-    await page.getByRole('textbox').fill(ldapServerUrl);
-
-    await page.getByRole('button', { name: 'add' }).click();
+    await addServer(page);
   });
 
   test.afterEach(async ({ page }) => {
-    await page.getByRole('button', { name: 'remove' }).click();
+    await removeServer(page);
   });
 
   test('no bind server info', async ({ page }) => {
