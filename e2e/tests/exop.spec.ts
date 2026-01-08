@@ -8,12 +8,12 @@ test.describe('exop tests', () => {
   test.beforeEach(async ({ page }) => {
     await addServer(page);
     await adminBind(page);
-  })
+  });
 
   test.afterEach(async ({ page }) => {
     await unbind(page);
     await removeServer(page);
-  })
+  });
 
   test('success', async ({ page }) => {
     await page

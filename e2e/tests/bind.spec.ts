@@ -29,7 +29,7 @@ test.describe('bind tests', () => {
     await controlInput.getByRole('textbox').fill(invalidOid);
     await controlInput.locator('.criticalCheckbox').nth(0).click();
 
-    await page.getByRole('button', { name: 'bind' }).click()
+    await page.getByRole('button', { name: 'bind' }).click();
 
     await assertError(page, 'UnavailableCriticalExtensionError', true);
   });
