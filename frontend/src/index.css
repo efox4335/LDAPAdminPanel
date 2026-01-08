@@ -194,8 +194,8 @@ body {
 
 .ldapEntryVisibilityToggle {
   position: relative;
-  left: -2px;
-  top: -1px;
+  left: -1.5px;
+  top: -3px;
   background-color: rgb(60, 60, 60);
   border-style: solid;
   border-color: rgb(20, 20, 20);
