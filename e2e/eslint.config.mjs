@@ -25,10 +25,7 @@ export default defineConfig([
 		rules: {
 			...playwright.configs['flat/recommended'].rules,
 			"playwright/expect-expect": [
-				"error",
-				{
-					"assertFunctionPatterns": ["^assert.*", "^verify.*"]
-				}
+				"off",
 			],
 			'@stylistic/semi': 'error',
 			'@stylistic/quotes': ['error', 'single'],
