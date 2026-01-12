@@ -74,12 +74,3 @@ export const expandEntry = async (page: Page, distinguishedName: string) => {
     await displayToggleButton.click();
   }
 };
-
-export const defaultTreeEntries = [
-  'dc=example,dc=org',
-  'ou=users,dc=example,dc=org',
-  'ou=groups,dc=example,dc=org',
-  'cn=user01,ou=users,dc=example,dc=org',
-  'cn=user02,ou=users,dc=example,dc=org',
-  'cn=readers,ou=groups,dc=example,dc=org',
-];
