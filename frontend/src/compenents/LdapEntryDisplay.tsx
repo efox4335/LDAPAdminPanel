@@ -21,9 +21,9 @@ const LdapEntryDisplay = ({ attributes }: { attributes: ldapAttribute[] }) => {
                   {
                     (typeof (values) === 'string') ?
                       <li>{values}</li> :
-                      values.map((value) => {
+                      values.map((value, index) => {
                         return (
-                          <li>{value}</li>
+                          <li key={index}>{value}</li>
                         );
                       })
 
