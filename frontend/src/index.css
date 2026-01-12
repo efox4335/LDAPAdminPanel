@@ -150,11 +150,6 @@ body {
   flex-direction: column;
 }
 
-.openEntriesHeader {
-  margin-top: 0px;
-  margin-bottom: 0px;
-}
-
 .ldapTreeDisplayContainer {
   grid-area: 1 / 1 / 2 / 2;
   display: flex;
@@ -223,11 +218,6 @@ body {
 .modifyControlContainer {
   display: flex;
   gap: 5px;
-}
-
-.ldapTreeDisplayHeader {
-  margin-top: 0px;
-  margin-bottom: 0px;
 }
 
 .singleOpenEntry {
