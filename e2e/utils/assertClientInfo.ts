@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 const assertClientInfo = async (page: Page, isConnected: boolean, boundDn: string, ldapServerUrl: string) => {
@@ -21,6 +21,6 @@ const assertClientInfo = async (page: Page, isConnected: boolean, boundDn: strin
       .getByRole('cell')
       .nth(1)
   ).toHaveText(RegExp(`.*${ldapServerUrl}.*`));
-}
+};
 
 export default assertClientInfo;

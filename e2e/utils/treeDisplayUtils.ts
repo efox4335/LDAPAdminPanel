@@ -37,7 +37,7 @@ export const locateEntry = async (page: Page, distinguishedName: string, expandE
 
     const nextLocation = curLocation
       .locator('.ldapTreeEntryChildren>*')
-      .filter({ has: page.getByText(new RegExp(`^${curCommonName}\$`)) });
+      .filter({ has: page.getByText(new RegExp(`^${curCommonName}$`)) });
 
     try {
       await expect(nextLocation).toBeVisible({ timeout: 100 });
@@ -45,11 +45,11 @@ export const locateEntry = async (page: Page, distinguishedName: string, expandE
       curLocation = nextLocation.locator('..');
 
       curCommonName = '';
-    } catch { }
+    } catch { /* waiting required because entry may not immediately visible */ }
   }
 
   if (curCommonName !== '') {
-    throw `no entry for ${distinguishedName} located`;
+    throw new Error(`no entry for ${distinguishedName} located`);
   }
 
   return curLocation;

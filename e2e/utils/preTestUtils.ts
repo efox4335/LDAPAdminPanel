@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
 
 import { pageUrl, ldapServerUrl, adminDn, adminPassword } from './constants';
 
@@ -8,11 +8,11 @@ export const addServer = async (page: Page) => {
   await page.getByRole('textbox').fill(ldapServerUrl);
 
   await page.getByRole('button', { name: 'add' }).click();
-}
+};
 
 export const removeServer = async (page: Page) => {
   await page.getByRole('button', { name: 'remove' }).click();
-}
+};
 
 export const adminBind = async (page: Page) => {
   await page
@@ -33,8 +33,8 @@ export const adminBind = async (page: Page) => {
     .locator('.singleClientBind')
     .getByRole('button', { name: 'bind' })
     .click();
-}
+};
 
 export const unbind = async (page: Page) => {
   await page.getByRole('button', { name: 'unbind' }).click();
-}
+};
