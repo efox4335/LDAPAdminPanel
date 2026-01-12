@@ -16,15 +16,19 @@ const LdapEntryDisplay = ({ attributes }: { attributes: ldapAttribute[] }) => {
               <td>
                 {name}
               </td>
-              <td className='ldapAttributeValues'>
-                {
-                  (typeof (values) === 'string') ?
-                    values :
-                    values.reduce((str, val) => {
+              <td>
+                <ul className='ldapAttributeValues'>
+                  {
+                    (typeof (values) === 'string') ?
+                      <li>{values}</li> :
+                      values.map((value) => {
+                        return (
+                          <li>{value}</li>
+                        );
+                      })
 
-                      return `${str}\n${val}`;
-                    })
-                }
+                  }
+                </ul>
               </td>
             </tr>
           );

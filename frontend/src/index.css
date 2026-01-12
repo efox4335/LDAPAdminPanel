@@ -225,7 +225,9 @@ body {
 }
 
 .ldapAttributeValues {
-  white-space: pre-Wrap;
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
 }
 
 .headlessFirstTableRow>td {
