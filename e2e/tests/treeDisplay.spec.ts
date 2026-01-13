@@ -18,8 +18,8 @@ test.describe('ldap tree display tests', () => {
   });
 
   test('default tree visibility', async ({ page }) => {
-    for (const entryDn of defaultTreeEntries) {
-      await locateEntry(page, entryDn, true);
+    for (const { dn } of defaultTreeEntries) {
+      await locateEntry(page, dn, true);
     }
   });
 
