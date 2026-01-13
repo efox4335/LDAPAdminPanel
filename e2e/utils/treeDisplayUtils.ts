@@ -36,13 +36,16 @@ export const locateEntry = async (page: Page, distinguishedName: string, expandE
     }
 
     const nextLocation = curLocation
-      .locator('.ldapTreeEntryChildren>*')
-      .filter({ has: page.getByText(new RegExp(`^${curCommonName}$`)) });
+      .locator('>.ldapTreeEntryChildren')
+      .locator('>.ldapTreeEntry')
+      .locator('>button')
+      .filter({ has: page.getByText(new RegExp(`^${curCommonName}$`)) })
+      .locator('..');
 
     try {
       await expect(nextLocation).toBeVisible({ timeout: 100 });
 
-      curLocation = nextLocation.locator('..');
+      curLocation = nextLocation;
 
       curCommonName = '';
     } catch { /* waiting required because entry may not immediately visible */ }
