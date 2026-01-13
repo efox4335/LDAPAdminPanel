@@ -58,6 +58,14 @@ export const locateEntry = async (page: Page, distinguishedName: string, expandE
   return curLocation;
 };
 
+export const openEntry = async (page: Page, distinguishedName: string) => {
+  const entry = await locateEntry(page, distinguishedName, true);
+  await entry
+    .getByRole('button')
+    .nth(1)
+    .click();
+};
+
 export const collapseEntry = async (page: Page, distinguishedName: string) => {
   const curEntry = await locateEntry(page, distinguishedName);
 
