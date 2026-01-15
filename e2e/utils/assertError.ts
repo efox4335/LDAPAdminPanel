@@ -10,8 +10,10 @@ const assertError = async (page: Page, errorText: string, dismiss?: boolean) => 
   if (dismiss) {
     await page
       .locator('.errorsDisplay')
-      .getByText(errorText)
+      .locator('.singleError')
+      .filter({ has: page.getByText(RegExp(`.*${errorText}.*`)) })
       .getByRole('button', { name: 'dismiss' })
+      .first()
       .click();
   }
 };
