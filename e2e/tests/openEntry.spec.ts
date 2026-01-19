@@ -65,4 +65,16 @@ test.describe('open entry tests', () => {
 
     await expect(selectedEntryLocation).toBeHidden();
   });
+
+  test('entry can only be opened once', async ({ page }) => {
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (!defaultTreeEntries[0]) {
+      throw new Error('no default tree entries');
+    }
+
+    await openEntry(page, defaultTreeEntries[0].dn);
+    await openEntry(page, defaultTreeEntries[0].dn);
+
+    await expect(page.locator('.singleOpenEntry')).toHaveCount(1);
+  });
 });

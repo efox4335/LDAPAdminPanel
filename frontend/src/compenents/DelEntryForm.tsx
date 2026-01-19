@@ -19,7 +19,7 @@ const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clien
 
       await deleteEntry(clientId, { dn: entryDn, control: getControls(newControls) });
 
-      dispatch(closeOpenEntry({ clientId: clientId, entryDn: entryDn }));
+      dispatch(closeOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn } }));
       dispatch(delEntry({ clientId: clientId, dn: entryDn }));
     } catch (err) {
       dispatch(addError(err));

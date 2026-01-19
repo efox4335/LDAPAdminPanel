@@ -1,4 +1,4 @@
-import { ldapEntry } from './types';
+import { ldapEntry, ldapControl } from './types';
 
 export const pageUrl: string = 'http://localhost:5173';
 
@@ -11,6 +11,33 @@ export const adminPassword: string = 'password';
 export const invalidOid: string = '1.2';
 
 export const whoAmIOid: string = '1.3.6.1.4.1.4203.1.11.3';
+
+export const invalidCriticalControl: ldapControl = {
+  oid: invalidOid,
+  critical: true
+};
+
+export const defaultNewEntry: ldapEntry = {
+  dn: 'cn=testUser,ou=users,dc=example,dc=org',
+  attributes: [
+    {
+      name: 'dn',
+      values: ['cn=testUser,ou=users,dc=example,dc=org']
+    },
+    {
+      name: 'objectClass',
+      values: ['person']
+    },
+    {
+      name: 'sn',
+      values: ['testUser', 'testValue']
+    },
+    {
+      name: 'description',
+      values: ['test desc']
+    }
+  ]
+};
 
 export const defaultTreeEntries: ldapEntry[] = [
   {

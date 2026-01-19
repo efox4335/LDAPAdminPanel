@@ -70,9 +70,9 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
         const formattedSubtree = generateLdapServerTree(rawSubtree, newDn);
 
         dispatch(concatEntryMap({ clientId: clientId, parentDn: getParentDn(newDn), subtreeRootDn: newDn, entryMap: formattedSubtree }));
-        dispatch(closeOpenEntry({ clientId: clientId, entryDn: entry.dn }));
+        dispatch(closeOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn: entry.dn } }));
         dispatch(delEntry({ clientId: clientId, dn: entry.dn }));
-        dispatch(addOpenEntry({ clientId: clientId, entryDn: newDn }));
+        dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn: newDn } }));
       }
     } catch (err) {
       dispatch(addError(err));

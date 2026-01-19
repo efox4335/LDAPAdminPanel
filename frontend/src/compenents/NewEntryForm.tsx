@@ -1,9 +1,10 @@
 import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
+import { v4 as uuid } from 'uuid';
 
 import type { addReq, newLdapAttribute, newLdapAttributeValue, newControlObject } from '../utils/types';
 import { addNewEntry } from '../services/ldapdbsService';
-import { addEntry } from '../slices/client';
+import { addEntry, addOpenEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import getAttributeValues from '../utils/getAttributeValues';
 import NewAttributeList from './NewAttributeList';
@@ -11,15 +12,67 @@ import { fetchLdapEntry } from '../utils/query';
 import NewLdapAttributeValues from './NewLdapAttributeValues';
 import getControls from '../utils/getControls';
 import NewLdapControls from './NewLdapControls';
+import getParentDn from '../utils/getParentDn';
 
-const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string, parentDn: string, cancelNewEntry: () => void }) => {
-  const [newDc, setNewDc] = useState<string>('');
-  const [newObjectClasses, setNewObjectClasses] = useState<newLdapAttributeValue[]>([]);
-  const [newAttributes, setNewAttributes] = useState<newLdapAttribute[]>([]);
+const NewEntryForm = ({ clientId, defaultEntryAttributes, cancelNewEntry }: { clientId: string, defaultEntryAttributes: Record<string, string[]>, cancelNewEntry: () => void }) => {
+  let defaultDn = '';
+
+  if (defaultEntryAttributes['dn'] && defaultEntryAttributes['dn'][0]) {
+    defaultDn = defaultEntryAttributes['dn'][0];
+  }
+
+  const [newDn, setNewDn] = useState<string>(defaultDn);
+
+  let defaultObjectClass: newLdapAttributeValue[] = [];
+
+  if (defaultEntryAttributes['objectClass'] && defaultEntryAttributes['objectClass'].length > 0) {
+    defaultObjectClass = defaultEntryAttributes['objectClass'].map((objectClass) => {
+      return {
+        id: uuid(),
+        value: objectClass
+      };
+    });
+  }
+
+  const [newObjectClasses, setNewObjectClasses] = useState<newLdapAttributeValue[]>(defaultObjectClass);
+
+  const defaultAttributes: newLdapAttribute[] = Object.entries(defaultEntryAttributes)
+    .filter(([key]) => {
+      if (key === 'dn') {
+        return false;
+      }
+
+      if (key == 'objectClass') {
+        return false;
+      }
+
+      return true;
+    })
+    .map(([name, values]) => {
+      return {
+        id: uuid(),
+        attributeName: name,
+        values: values.map((val) => {
+          return {
+            id: uuid(),
+            value: val
+          };
+        })
+      };
+    });
+
+  const [newAttributes, setNewAttributes] = useState<newLdapAttribute[]>(defaultAttributes);
 
   const [newControls, setNewControls] = useState<newControlObject[]>([]);
 
   const dispatch = useDispatch();
+
+  const handleReset = () => {
+    setNewDn(defaultDn);
+    setNewObjectClasses(defaultObjectClass);
+    setNewAttributes(defaultAttributes);
+    setNewControls([]);
+  };
 
   const handleAddEntry = async (event: SyntheticEvent<HTMLFormElement>) => {
     try {
@@ -29,8 +82,6 @@ const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string
       newAttributes
         .filter((_ele, index) => index !== newAttributes.length - 1)
         .forEach((ele) => newAttributeValues[ele.attributeName] = getAttributeValues(ele.values));
-
-      const newDn = `${newDc},${parentDn}`;
 
       const newEntry: addReq = {
         baseDn: newDn,
@@ -46,26 +97,19 @@ const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string
 
       dispatch(addEntry({
         clientId: clientId,
-        parentDn: parentDn,
+        parentDn: getParentDn(newDn),
         entry: res.visibleEntry,
         operationalEntry: res.operationalEntry
       }));
 
+      dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn: newDn } }));
+
       //intentionally does not delete user input on error
-      setNewDc('');
-      setNewObjectClasses([]);
-      setNewAttributes([]);
-      setNewControls([]);
+      handleReset();
+      cancelNewEntry();
     } catch (err) {
       dispatch(addError(err));
     }
-  };
-
-  const handleRestet = () => {
-    setNewDc('');
-    setNewObjectClasses([]);
-    setNewAttributes([]);
-    setNewControls([]);
   };
 
   return (
@@ -81,10 +125,10 @@ const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string
           <tbody>
             <tr>
               <td>
-                dc
+                dn
               </td>
               <td>
-                <input value={newDc} onChange={(event) => setNewDc(event.target.value)} />
+                <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
               </td>
             </tr>
             <tr>
@@ -102,7 +146,7 @@ const NewEntryForm = ({ clientId, parentDn, cancelNewEntry }: { clientId: string
         <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
 
         <button type='button' onClick={() => cancelNewEntry()} className='negativeButton'>cancel</button>
-        <button type='button' onClick={() => handleRestet()} className='negativeButton'>reset</button>
+        <button type='button' onClick={() => handleReset()} className='negativeButton'>reset</button>
         <button type='submit' className='positiveButton'>add</button>
       </form>
 

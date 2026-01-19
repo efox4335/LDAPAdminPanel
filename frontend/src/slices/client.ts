@@ -1,7 +1,7 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import type { client, clientStore, ldapEntry, operationalLdapEntry, serverTreeEntry } from '../utils/types';
+import type { client, clientStore, ldapEntry, operationalLdapEntry, serverTreeEntry, openLdapEntry } from '../utils/types';
 import getParentDn from '../utils/getParentDn';
 
 const initialState: clientStore = {};
@@ -19,7 +19,7 @@ const clientsSlice = createSlice({
     },
 
     addClients: (state, action: PayloadAction<client[]>) => {
-      action.payload.forEach((client) => state[client.id] = { ...client, openEntries: {} });
+      action.payload.forEach((client) => state[client.id] = { ...client, openEntries: [], openEntryMap: {} });
     },
 
     concatEntryMap: (state, action: PayloadAction<{ clientId: string, parentDn: string, subtreeRootDn: string, entryMap: Record<string, serverTreeEntry> }>) => {
@@ -134,7 +134,7 @@ const clientsSlice = createSlice({
       updateEntry.operationalEntry = action.payload.operationalEntry;
     },
 
-    addOpenEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
+    addOpenEntry: (state, action: PayloadAction<{ clientId: string, entry: openLdapEntry }>) => {
       const client = state[action.payload.clientId];
 
       if (!client) {
@@ -143,10 +143,18 @@ const clientsSlice = createSlice({
         return;
       }
 
-      client.openEntries[action.payload.entryDn] = action.payload.entryDn;
+      if (action.payload.entry.entryType === 'existingEntry') {
+        if (client.openEntryMap[action.payload.entry.entryDn] !== undefined) {
+          return;
+        }
+
+        client.openEntryMap[action.payload.entry.entryDn] = action.payload.entry.entryDn;
+      }
+
+      client.openEntries.push(action.payload.entry);
     },
 
-    closeOpenEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
+    closeOpenEntry: (state, action: PayloadAction<{ clientId: string, entry: openLdapEntry }>) => {
       const client = state[action.payload.clientId];
 
       if (!client) {
@@ -155,7 +163,49 @@ const clientsSlice = createSlice({
         return;
       }
 
-      delete client.openEntries[action.payload.entryDn];
+      const curEntry = action.payload.entry;
+
+      if (curEntry.entryType === 'existingEntry') {
+        delete client.openEntryMap[curEntry.entryDn];
+
+        const entryIndex = client.openEntries.findIndex((val) => {
+          if (val.entryType === 'newEntry') {
+            return false;
+          }
+
+          if (val.entryDn === curEntry.entryDn) {
+            return true;
+          }
+
+          return false;
+        });
+
+        if (entryIndex === -1) {
+          console.log(`tried to close non open entry ${curEntry.entryDn}`);
+
+          return;
+        }
+
+        client.openEntries.splice(entryIndex, 1);
+      } else {
+        const entryIndex = client.openEntries.findIndex((val) => {
+          if (val.entryType === 'existingEntry') {
+            return false;
+          }
+
+          if (val.id === curEntry.id) {
+            return true;
+          }
+
+          return false;
+        });
+
+        if (entryIndex === -1) {
+          return;
+        }
+
+        client.openEntries.splice(entryIndex, 1);
+      }
     }
   },
   selectors: {
@@ -177,9 +227,12 @@ const clientsSlice = createSlice({
       },
       (sliceState: clientStore, clientId: string) => {
         return sliceState[clientId].openEntries;
+      },
+      (sliceState: clientStore, clientId: string) => {
+        return sliceState[clientId].openEntryMap;
       }],
 
-      (entryMap, openEntries) => {
+      (entryMap, openEntries, openEntryMap) => {
         if (!entryMap) {
           console.log('no entry map');
 
@@ -192,19 +245,13 @@ const clientsSlice = createSlice({
           return [];
         }
 
-        const retArr: serverTreeEntry[] = [];
+        if (!openEntryMap) {
+          console.log('no open entry map');
 
-        Object.keys(openEntries).forEach((entry) => {
-          const ldapEntry = entryMap[entry];
+          return [];
+        }
 
-          if (!ldapEntry) {
-            console.log(`ldap entry ${entry} does not exist`);
-          }
-
-          retArr.push(ldapEntry);
-        });
-
-        return retArr;
+        return openEntries;
       })
   }
 });

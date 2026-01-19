@@ -127,6 +127,17 @@ interface hiddenServerTreeEntry extends baseServerTreeEntry {
   visible: false
 };
 
+export type openLdapEntry =
+  {
+    entryType: 'newEntry',
+    id: string,
+    initialAttributes: Record<string, string[]>
+  } |
+  {
+    entryType: 'existingEntry'
+    entryDn: string
+  };
+
 export type serverTreeEntry = visibleServerTreeEntry | hiddenServerTreeEntry;
 
 export type client = {
@@ -134,7 +145,8 @@ export type client = {
   serverUrl: string,
   boundDn: string | null,
   isConnected: boolean,
-  openEntries: Record<string, string>,
+  openEntries: openLdapEntry[],
+  openEntryMap: Record<string, string>,
   entryMap: Record<string, serverTreeEntry> | undefined
 };
 
@@ -155,5 +167,3 @@ export type queryFetchRes = {
   visibleEntry: ldapEntry,
   operationalEntry: operationalLdapEntry
 };
-
-export type openEntryState = 'display' | 'modify' | 'delete' | 'newEntry';

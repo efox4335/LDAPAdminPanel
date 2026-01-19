@@ -38,7 +38,7 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
   }
 
   const handleOpenEntry = () => {
-    dispatch(addOpenEntry({ clientId: clientId, entryDn: entryDn }));
+    dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn } }));
   };
 
   if (!isVisible) {
