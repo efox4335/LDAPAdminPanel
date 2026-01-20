@@ -95,8 +95,6 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
             </td>
             <td>
               <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
-              {newDn === entry.dn ? <></> :
-                <button type='button' onClick={() => setNewDn(entry.dn)}>reset</button>}
             </td>
           </tr>
           <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setModifiedAttributes} />
