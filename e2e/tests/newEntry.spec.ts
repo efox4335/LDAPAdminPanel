@@ -34,7 +34,7 @@ test.describe('new entry tests', () => {
 
     await expect(newEntryTreeLocation).toBeVisible();
 
-    await deleteOpenEntry(page, defaultNewEntry.dn);
+    await deleteOpenEntry(page, defaultNewEntry.dn, []);
   });
 
   test('controls passed', async ({ page }) => {

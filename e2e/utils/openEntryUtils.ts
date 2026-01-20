@@ -190,10 +190,42 @@ export const deleteNewEntryControl = async (page: Page, newEntryForm: Locator, c
   await controlRow.getByRole('button').click();
 };
 
-export const deleteOpenEntry = async (page: Page, distinguishedName: string) => {
-  const curEntry = locateOpenEntry(page, distinguishedName);
+export const openDeleteForm = async (page: Page, dn: string) => {
+  const openEntry = locateOpenEntry(page, dn);
 
-  await curEntry.getByRole('button', { name: 'delete' }).click();
+  await openEntry.getByRole('button', { name: 'delete' }).click();
+};
+
+export const cancelDelete = async (page: Page, dn: string) => {
+  const curDelConfirm = locateOpenEntryDisplay(page)
+    .locator('form')
+    .filter({ has: page.getByText(`delete ${dn} forever`) });
+
+  await curDelConfirm.getByRole('button', { name: 'cancel' }).click();
+};
+
+export const deleteOpenEntry = async (page: Page, distinguishedName: string, controls: ldapControl[]) => {
+  await openDeleteForm(page, distinguishedName);
+
+  const delEntryForm = locateOpenEntryDisplay(page).locator('form');
+
+  const controlTable = delEntryForm.getByRole('table');
+
+  for (const control of controls) {
+    await expect(controlTable.getByRole('row')).toHaveCount(2);
+
+    const curControlRowNum = await controlTable.getByRole('row').count() - 1;
+
+    console.log(curControlRowNum);
+
+    const curControlRow = controlTable.getByRole('row').nth(curControlRowNum);
+
+    await curControlRow.getByRole('textbox').fill(control.oid);
+
+    if (control.critical) {
+      await curControlRow.getByRole('checkbox').check();
+    }
+  }
 
   const curDelConfirm = locateOpenEntryDisplay(page)
     .locator('form')
@@ -298,4 +330,16 @@ export const assertEntryContents = async (page: Page, entry: ldapEntry) => {
       await expect(attributeRow.locator(':last-child').getByText(new RegExp(`^${value}$`))).toBeVisible();
     }
   }
+};
+
+export const addNewEntry = async (page: Page, entry: entryAttribute[], controls: ldapControl[]) => {
+  await clickNewEntryButton(page);
+
+  const openEntryDisplay = locateOpenEntryDisplay(page);
+
+  const newEntryForm = openEntryDisplay.locator('form');
+
+  await fillNewEntry(page, newEntryForm, entry, controls);
+
+  await submitNewEntry(page, newEntryForm);
 };
