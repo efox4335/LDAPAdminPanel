@@ -53,10 +53,6 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
         dispatch(updateEntry({ clientId: clientId, entry: res.visibleEntry, operationalEntry: res.operationalEntry }));
       }
 
-      hideForm();
-      setModifiedAttributes([]);
-      setNewModifyControls([]);
-
       //runs after seemingly redundant fetch and dispatch because if modifyEntryDn throws but modifyEntry does not the entry will have outdated info
       if (newDn !== entry.dn) {
         await modifyEntryDn(clientId, {
@@ -74,6 +70,10 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
         dispatch(delEntry({ clientId: clientId, dn: entry.dn }));
         dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn: newDn } }));
       }
+
+      hideForm();
+      setModifiedAttributes([]);
+      setNewModifyControls([]);
     } catch (err) {
       dispatch(addError(err));
     }
