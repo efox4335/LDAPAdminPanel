@@ -1,4 +1,4 @@
-import { ldapEntry, ldapControl } from './types';
+import { ldapEntry, ldapControl, modifyEntry, entryAttribute } from './types';
 
 export const pageUrl: string = 'http://localhost:5173';
 
@@ -17,8 +17,10 @@ export const invalidCriticalControl: ldapControl = {
   critical: true
 };
 
+const defaultNewEntryDn: string = 'cn=testUser,ou=users,dc=example,dc=org';
+
 export const defaultNewEntry: ldapEntry = {
-  dn: 'cn=testUser,ou=users,dc=example,dc=org',
+  dn: defaultNewEntryDn,
   attributes: [
     {
       name: 'dn',
@@ -35,9 +37,121 @@ export const defaultNewEntry: ldapEntry = {
     {
       name: 'description',
       values: ['test desc']
+    },
+    {
+      name: 'telephoneNumber',
+      values: ['12345']
     }
   ]
 };
+
+export const defaultNewEntryModifiedDn: string = 'cn=testModify,ou=users,dc=example,dc=org';
+
+export const defaultNewEntryModifyBody: modifyEntry = {
+  dn: defaultNewEntryDn,
+  modifications: [
+    {
+      type: 'deleteAttribute',
+      name: 'description'
+    },
+    {
+      type: 'add',
+      attribute: {
+        name: 'userPassword',
+        values: ['testPassword']
+      }
+    },
+    {
+      type: 'truncate',
+      attribute: {
+        name: 'telephoneNumber',
+        values: ['67890']
+      }
+    },
+    {
+      type: 'deleteValues',
+      attribute: {
+        name: 'sn',
+        values: ['testValue']
+      }
+    },
+    {
+      type: 'append',
+      attribute: {
+        name: 'sn',
+        values: ['modTestUser']
+      }
+    }
+  ]
+};
+
+export const defaultNewEntryModifyDn: modifyEntry = {
+  dn: defaultNewEntryDn,
+  modifications: [
+    {
+      type: 'truncate',
+      attribute: {
+        name: 'dn',
+        values: [defaultNewEntryModifiedDn]
+      }
+    }
+  ]
+};
+
+export const defaultNewEntryRestoreDn: modifyEntry = {
+  dn: defaultNewEntryModifiedDn,
+  modifications: [
+    {
+      type: 'truncate',
+      attribute: {
+        name: 'dn',
+        values: [defaultNewEntryDn]
+      }
+    }
+  ]
+};
+
+export const defaultNewEntryInvalidModifyBody: modifyEntry = {
+  dn: defaultNewEntryDn,
+  modifications: [
+    {
+      type: 'deleteAttribute',
+      name: 'cn'
+    }
+  ]
+};
+
+export const defaultNewEntryInvalidModifyDn: modifyEntry = {
+  dn: defaultNewEntryDn,
+  modifications: [
+    {
+      type: 'truncate',
+      attribute: {
+        name: 'dn',
+        values: ['']
+      }
+    }
+  ]
+};
+
+export const defaultNewEntryModifiedBody: entryAttribute[] = [
+  {
+    name: 'objectClass',
+    values: ['person']
+  },
+  {
+    name: 'sn',
+    values: ['testUser', 'modTestUser']
+  },
+  {
+    name: 'telephoneNumber',
+    values: ['67890']
+  },
+  {
+    name: 'userPassword',
+    values: ['testPassword']
+  }
+];
 
 export const defaultTreeEntries: ldapEntry[] = [
   {

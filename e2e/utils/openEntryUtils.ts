@@ -1,6 +1,7 @@
 import { type Page, type Locator, expect } from '@playwright/test';
 
-import type { entryAttribute, ldapControl, ldapEntry } from './types';
+import type { entryAttribute, ldapControl, ldapEntry, modification } from './types';
+import locateTableByHeaderText from './locateTableByHeader';
 
 export const locateOpenEntryDisplay = (page: Page): Locator => {
   return page.locator('.openEntriesContainer');
@@ -36,52 +37,49 @@ export const clickNewChildButton = async (page: Page, distinguishedName: string)
     .click();
 };
 
-export const clickResetButton = async (newEntryForm: Locator) => {
-  await newEntryForm
+export const clickResetButton = async (form: Locator) => {
+  await form
     .getByRole('button', { name: 'reset' })
     .click();
 };
 
-export const clickCancelButton = async (newEntryForm: Locator) => {
-  await newEntryForm
+export const clickCancelButton = async (form: Locator) => {
+  await form
     .getByRole('button', { name: 'cancel' })
     .click();
 };
 
-const locateNewAttributeRow = async (page: Page, newEntryForm: Locator, attributeName: string) => {
-  const attributeTable = newEntryForm
-    .getByRole('table')
-    .filter({ has: page.locator('th').filter({ has: page.getByText('attribute') }) });
+const locateFormAttributeRow = async (page: Page, entryForm: Locator, attributeName: string) => {
+  const attributeTable = locateTableByHeaderText(page, entryForm, 'attribute');
 
-  if (attributeName === 'dn' || attributeName === 'objectClass') {
-    return attributeTable
-      .getByRole('row')
-      .locator('>:first-child')
-      .filter({ has: page.getByText(RegExp(`^${attributeName}$`)) })
-      .locator('..');
-  } else {
-    const attributeRows = attributeTable
-      .getByRole('row');
+  const nonInputAttributeRow = attributeTable
+    .getByRole('row')
+    .locator('>:first-child')
+    .filter({ has: page.getByText(RegExp(`^${attributeName}$`)) })
+    .locator('..');
 
-    let curChild = 0;
 
-    for (const singleAttributeRow of await attributeRows.all()) {
-      try {
-        await expect(singleAttributeRow.locator('>:first-child').getByRole('textbox')).toHaveValue(RegExp(`^${attributeName}$`), { timeout: 100 });
-
-        return attributeRows.nth(curChild);
-      } catch { /* only one expect has to not error */ } finally { curChild += 1; }
-    }
+  if (await nonInputAttributeRow.count() != 0) {
+    return nonInputAttributeRow;
   }
 
-  return undefined;
+  const attributeRows = attributeTable
+    .getByRole('row');
+
+  let curChild = 0;
+
+  for (const singleAttributeRow of await attributeRows.all()) {
+    try {
+      await expect(singleAttributeRow.locator('>:first-child').getByRole('textbox')).toHaveValue(RegExp(`^${attributeName}$`), { timeout: 100 });
+
+      return attributeRows.nth(curChild);
+    } catch { /* only one expect has to not error */ } finally { curChild += 1; }
+  }
+
+  throw new Error(`no row for ${attributeName} found`);
 };
 
-const locateNewControl = async (page: Page, newEntryForm: Locator, controlOid: string) => {
-  const controlTable = newEntryForm
-    .getByRole('table')
-    .filter({ has: page.locator('th').filter({ has: page.getByText('controls') }) });
-
+const locateNewControl = async (page: Page, controlTable: Locator, controlOid: string) => {
   let curChild = 0;
 
   const controlRows = controlTable.getByRole('row');
@@ -93,9 +91,11 @@ const locateNewControl = async (page: Page, newEntryForm: Locator, controlOid: s
       return controlRows.nth(curChild);
     } catch { /* only one expect has to not error */ } finally { curChild += 1; }
   }
+
+  throw new Error(`no control for oid ${controlOid} found`);
 };
 
-const locateNewAttributeValue = async (newAttributeRow: Locator, value: string) => {
+const locateFormAttributeValue = async (newAttributeRow: Locator, value: string) => {
   const curValueCells = newAttributeRow
     .locator('>:last-child')
     .locator('input');
@@ -108,11 +108,11 @@ const locateNewAttributeValue = async (newAttributeRow: Locator, value: string) 
     } catch { /* only one expect has to not error */ }
   }
 
-  return undefined;
+  throw new Error(`no value ${value} found`);
 };
 
 export const deleteNewEntryAttribute = async (page: Page, newEntryForm: Locator, attributeName: string) => {
-  const attributeRow = await locateNewAttributeRow(page, newEntryForm, attributeName);
+  const attributeRow = await locateFormAttributeRow(page, newEntryForm, attributeName);
 
   if (!attributeRow) {
     throw new Error(`no row for attribute ${attributeName}`);
@@ -125,13 +125,13 @@ export const deleteNewEntryAttribute = async (page: Page, newEntryForm: Locator,
 };
 
 export const deleteNewEntryValue = async (page: Page, newEntryForm: Locator, attributeName: string, value: string) => {
-  const attributeRow = await locateNewAttributeRow(page, newEntryForm, attributeName);
+  const attributeRow = await locateFormAttributeRow(page, newEntryForm, attributeName);
 
   if (!attributeRow) {
     throw new Error(`no row for attribute ${attributeName}`);
   }
 
-  const valueLocation = await locateNewAttributeValue(attributeRow, value);
+  const valueLocation = await locateFormAttributeValue(attributeRow, value);
 
   if (!valueLocation) {
     throw new Error(`no value ${value} found for ${attributeName}`);
@@ -142,23 +142,21 @@ export const deleteNewEntryValue = async (page: Page, newEntryForm: Locator, att
 
 export const assertNewEntryFormContents = async (page: Page, newEntryForm: Locator, entryAttributes: entryAttribute[], controls: ldapControl[]) => {
   for (const attribute of entryAttributes) {
-    const curAttributeRow = await locateNewAttributeRow(page, newEntryForm, attribute.name);
-
-    if (!curAttributeRow) {
-      throw new Error(`no attribute row for attribute ${attribute.name}`);
-    }
+    const curAttributeRow = await locateFormAttributeRow(page, newEntryForm, attribute.name);
 
     for (const value of attribute.values) {
-      const curValueElement = await locateNewAttributeValue(curAttributeRow, value);
-
-      if (!curValueElement) {
+      try {
+        await locateFormAttributeValue(curAttributeRow, value);
+      } catch {
         throw new Error(`attribute with name ${attribute.name} did not contain value ${value}`);
       }
     }
   }
 
+  const controlTable = locateTableByHeaderText(page, newEntryForm, 'controls');
+
   for (const control of controls) {
-    const curControlRow = await locateNewControl(page, newEntryForm, control.oid);
+    const curControlRow = await locateNewControl(page, controlTable, control.oid);
 
     if (!curControlRow) {
       throw new Error(`no control for oid ${control.oid}`);
@@ -235,9 +233,7 @@ export const deleteOpenEntry = async (page: Page, distinguishedName: string, con
 };
 
 export const fillNewEntry = async (page: Page, newEntryForm: Locator, entryAttributes: entryAttribute[], controls: ldapControl[]) => {
-  const attributeTable = newEntryForm
-    .getByRole('table')
-    .filter({ has: page.locator('th').filter({ has: page.getByText('attribute') }) });
+  const attributeTable = locateTableByHeaderText(page, newEntryForm, 'attribute');
 
   for (const ldapAttribute of entryAttributes) {
     if (ldapAttribute.name === 'dn') {
@@ -288,9 +284,7 @@ export const fillNewEntry = async (page: Page, newEntryForm: Locator, entryAttri
     }
   }
 
-  const controlTable = newEntryForm
-    .getByRole('table')
-    .filter({ has: page.locator('th').filter({ has: page.getByText('controls') }) });
+  const controlTable = locateTableByHeaderText(page, newEntryForm, 'controls');
 
   for (const control of controls) {
     const curControlRowNum = await controlTable.getByRole('row').count() - 1;
@@ -342,4 +336,228 @@ export const addNewEntry = async (page: Page, entry: entryAttribute[], controls:
   await fillNewEntry(page, newEntryForm, entry, controls);
 
   await submitNewEntry(page, newEntryForm);
+};
+
+export const clickModifyButton = async (entryLocation: Locator) => {
+  await entryLocation
+    .getByRole('button', { name: 'modify' })
+    .click();
+};
+
+export const fillModifyForm = async (
+  page: Page,
+  modifyForm: Locator,
+  modifyEntry: modification[],
+  modifyBodyControls: ldapControl[],
+  modifyDnControls: ldapControl[]
+) => {
+  const attributeTable = locateTableByHeaderText(page, modifyForm, 'attribute');
+
+  for (const attribute of modifyEntry) {
+    switch (attribute.type) {
+      case 'add': {
+        const rowNum = await attributeTable
+          .getByRole('row')
+          .count() - 1;
+
+        const curRow = attributeTable
+          .getByRole('row')
+          .nth(rowNum);
+
+        await curRow
+          .locator('>:first-child')
+          .getByRole('textbox')
+          .fill(attribute.attribute.name);
+
+        for (const curValue of attribute.attribute.values) {
+          await curRow
+            .locator('>:last-child')
+            .getByRole('textbox')
+            .last()
+            .fill(curValue);
+        }
+        break;
+      }
+      case 'append': {
+        const curRow = await locateFormAttributeRow(page, attributeTable, attribute.attribute.name);
+
+        for (const curValue of attribute.attribute.values) {
+          await curRow
+            .locator('>:last-child')
+            .getByRole('textbox')
+            .last()
+            .fill(curValue);
+        }
+        break;
+      }
+      case 'deleteAttribute': {
+        const curRow = await locateFormAttributeRow(page, attributeTable, attribute.name);
+
+        await curRow
+          .locator('>:first-child')
+          .getByRole('button')
+          .click();
+        break;
+      }
+      case 'deleteValues': {
+        const curRow = await locateFormAttributeRow(page, attributeTable, attribute.attribute.name);
+
+        for (const curValue of attribute.attribute.values) {
+          const valueLocation = await locateFormAttributeValue(curRow, curValue);
+
+          await valueLocation
+            .getByRole('button')
+            .click();
+        }
+        break;
+      }
+      case 'truncate': {
+        if (attribute.attribute.name === 'dn') {
+          const newDn = attribute.attribute.values[0];
+
+          if (typeof (newDn) !== 'string') {
+            throw new Error('no new dn');
+          }
+
+          await attributeTable
+            .getByRole('row')
+            .filter({
+              has: page
+                .getByText(/^dn$/)
+            })
+            .first()
+            .getByRole('textbox')
+            .fill(newDn);
+        } else {
+          const curRow = await locateFormAttributeRow(page, attributeTable, attribute.attribute.name);
+
+          const valueDelButtons = curRow
+            .locator('>:last-child')
+            .getByRole('button');
+
+          let delButtonCount = await valueDelButtons.count();
+
+          while (delButtonCount > 1) {
+            await valueDelButtons
+              .first()
+              .click();
+
+            delButtonCount = await valueDelButtons.count();
+          }
+
+          for (const curValue of attribute.attribute.values) {
+            await curRow
+              .locator('>:last-child')
+              .getByRole('textbox')
+              .last()
+              .fill(curValue);
+          }
+        }
+
+        break;
+      }
+    }
+  }
+
+  const modifyBodyControlTable = locateTableByHeaderText(page, modifyForm, 'modify controls');
+
+  for (const control of modifyBodyControls) {
+    const rowNum = await modifyBodyControlTable
+      .getByRole('row')
+      .count() - 1;
+
+    await modifyBodyControlTable
+      .getByRole('row')
+      .nth(rowNum)
+      .getByRole('textbox')
+      .fill(control.oid);
+
+    if (control.critical) {
+      await modifyBodyControlTable
+        .getByRole('row')
+        .nth(rowNum)
+        .getByRole('checkbox')
+        .check();
+    }
+  }
+
+  const modifyDnControlTable = locateTableByHeaderText(page, modifyForm, 'modify dn controls');
+
+  for (const control of modifyDnControls) {
+    const rowNum = await modifyDnControlTable
+      .getByRole('row')
+      .count() - 1;
+
+    await modifyDnControlTable
+      .getByRole('row')
+      .nth(rowNum)
+      .getByRole('textbox')
+      .fill(control.oid);
+
+    if (control.critical) {
+      await modifyDnControlTable
+        .getByRole('row')
+        .nth(rowNum)
+        .getByRole('checkbox')
+        .check();
+    }
+  }
+};
+
+export const assertModifyFormContents = async (
+  page: Page,
+  modifyForm: Locator,
+  entryAttributes: entryAttribute[],
+  modifyBodyControls: ldapControl[],
+  modifyDnControls: ldapControl[]
+) => {
+  for (const attribute of entryAttributes) {
+    const curAttributeRow = await locateFormAttributeRow(page, modifyForm, attribute.name);
+
+    for (const value of attribute.values) {
+      try {
+        await locateFormAttributeValue(curAttributeRow, value);
+      } catch {
+        throw new Error(`attribute with name ${attribute.name} did not contain value ${value}`);
+      }
+    }
+  }
+
+  const modifyBodyControlTable = locateTableByHeaderText(page, modifyForm, 'modify controls');
+
+  for (const control of modifyBodyControls) {
+    const curControlRow = await locateNewControl(page, modifyBodyControlTable, control.oid);
+
+    if (!curControlRow) {
+      throw new Error(`no control for oid ${control.oid}`);
+    }
+
+    if (control.critical) {
+      await expect(curControlRow.getByRole('checkbox')).toBeChecked();
+    } else {
+      await expect(curControlRow.getByRole('checkbox')).not.toBeChecked();
+    }
+  }
+
+  const modifyDnControlTable = locateTableByHeaderText(page, modifyForm, 'modify dn controls');
+
+  for (const control of modifyDnControls) {
+    const curControlRow = await locateNewControl(page, modifyDnControlTable, control.oid);
+
+    if (!curControlRow) {
+      throw new Error(`no control for oid ${control.oid}`);
+    }
+
+    if (control.critical) {
+      await expect(curControlRow.getByRole('checkbox')).toBeChecked();
+    } else {
+      await expect(curControlRow.getByRole('checkbox')).not.toBeChecked();
+    }
+  }
+};
+
+export const clickSaveButton = async (form: Locator) => {
+  await form
+    .getByRole('button', { name: 'save' })
+    .click();
 };
