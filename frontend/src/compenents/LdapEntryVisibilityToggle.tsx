@@ -1,11 +1,9 @@
-import { type Dispatch, type SetStateAction } from 'react';
-
-const LdapEntryVisibilityToggle = ({ isVisible, setIsVisible }: {
+const LdapEntryVisibilityToggle = ({ isVisible, toggleIsVisible }: {
   isVisible: boolean,
-  setIsVisible: Dispatch<SetStateAction<boolean>>
+  toggleIsVisible: () => void
 }) => {
   return (
-    <button className='ldapEntryVisibilityToggle' type='button' onClick={() => setIsVisible(!isVisible)}>
+    <button className='ldapEntryVisibilityToggle' type='button' onClick={toggleIsVisible}>
       {isVisible ? <>-</> : <>+</>}
     </button>
   );

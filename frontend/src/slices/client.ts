@@ -33,15 +33,39 @@ const clientsSlice = createSlice({
 
       const parentEntry = existingMap[action.payload.parentDn];
 
-      if (parentEntry === undefined) {
-        console.log('parent entry does not exist');
-
-        return;
+      if (parentEntry && action.payload.parentDn !== action.payload.subtreeRootDn) {
+        parentEntry.children[action.payload.subtreeRootDn] = action.payload.subtreeRootDn;
       }
 
-      parentEntry.children[action.payload.subtreeRootDn] = action.payload.subtreeRootDn;
+      Object.values(action.payload.entryMap).forEach((entry) => {
+        const existingEntry = existingMap[entry.dn];
 
-      Object.values(action.payload.entryMap).forEach((entry) => existingMap[entry.dn] = entry);
+        if (existingEntry) {
+          if (entry.visible) {
+            if (existingEntry.visible) {
+              existingEntry.entry = entry.entry;
+              existingEntry.operationalEntry = entry.operationalEntry;
+            } else {
+              const newEntry: Extract<serverTreeEntry, { visible: true }> = {
+                visible: true,
+                entry: entry.entry,
+                operationalEntry: entry.operationalEntry,
+                isExpanded: false,
+                children: existingEntry.children,
+                dn: entry.dn
+              };
+
+              existingMap[entry.dn] = newEntry;
+            }
+          }
+
+          const curEntry = existingMap[entry.dn];
+
+          Object.values(entry.children).forEach((childDn) => curEntry.children[childDn] = childDn);
+        } else {
+          existingMap[entry.dn] = entry;
+        }
+      });
     },
 
     addEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
@@ -54,6 +78,7 @@ const clientsSlice = createSlice({
       }
 
       map[action.payload.entry.dn] = {
+        isExpanded: false,
         dn: action.payload.entry.dn,
         visible: true,
         children: {},
@@ -61,7 +86,11 @@ const clientsSlice = createSlice({
         operationalEntry: action.payload.operationalEntry
       };
 
-      map[action.payload.parentDn].children[action.payload.entry.dn] = action.payload.entry.dn;
+      const parentEntry = map[action.payload.parentDn];
+
+      if (parentEntry) {
+        parentEntry.children[action.payload.entry.dn] = action.payload.entry.dn;
+      }
     },
 
     delEntry: (state, action: PayloadAction<{ clientId: string, dn: string }>) => {
@@ -85,13 +114,9 @@ const clientsSlice = createSlice({
 
       const parentEntry = map[parentDn];
 
-      if (!parentEntry) {
-        console.log('parent entry does not exist');
-
-        return;
+      if (parentEntry) {
+        delete parentEntry.children[action.payload.dn];
       }
-
-      delete parentEntry.children[action.payload.dn];
 
       const delChildren: string[] = Object.values(delEntry.children);
 
@@ -112,6 +137,58 @@ const clientsSlice = createSlice({
       delete map[action.payload.dn];
     },
 
+    collapseEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
+      const map = state[action.payload.clientId].entryMap;
+
+      if (!map) {
+        console.log('tried to collapse before server fetched');
+
+        return;
+      }
+
+      const collapseEntry = map[action.payload.entryDn];
+
+      if (!collapseEntry) {
+        console.log('tried to collapse non-existent entry');
+
+        return;
+      }
+
+      if (!collapseEntry.visible) {
+        console.log('tried to collapse hidden entry');
+
+        return;
+      }
+
+      collapseEntry.isExpanded = false;
+    },
+
+    expandEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
+      const map = state[action.payload.clientId].entryMap;
+
+      if (!map) {
+        console.log('tried to expand before server fetched');
+
+        return;
+      }
+
+      const expandEntry = map[action.payload.entryDn];
+
+      if (!expandEntry) {
+        console.log('tried to update non-existent entry');
+
+        return;
+      }
+
+      if (!expandEntry.visible) {
+        console.log('tried to expand hidden entry');
+
+        return;
+      }
+
+      expandEntry.isExpanded = true;
+    },
+
     updateEntry: (state, action: PayloadAction<{ clientId: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
       const map = state[action.payload.clientId].entryMap;
 
@@ -130,6 +207,7 @@ const clientsSlice = createSlice({
       }
 
       updateEntry.visible = true;
+      updateEntry.isExpanded = false;
       updateEntry.entry = action.payload.entry;
       updateEntry.operationalEntry = action.payload.operationalEntry;
     },
@@ -256,7 +334,7 @@ const clientsSlice = createSlice({
   }
 });
 
-export const { addClient, delClient, addClients, addEntry, delEntry, updateEntry, concatEntryMap, addOpenEntry, closeOpenEntry } = clientsSlice.actions;
+export const { addClient, delClient, addClients, addEntry, delEntry, expandEntry, collapseEntry, updateEntry, concatEntryMap, addOpenEntry, closeOpenEntry } = clientsSlice.actions;
 export const { selectClients, selectLdapEntry, selectOpenEntriesByClientId } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

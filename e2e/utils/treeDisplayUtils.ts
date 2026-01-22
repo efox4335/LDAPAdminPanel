@@ -9,6 +9,10 @@ export const locateEntry = async (page: Page, distinguishedName: string, expandE
 
   const treeDisplay = locateTreeDisplay(page);
 
+  if (distinguishedName === 'dse') {
+    distinguishedName = '';
+  }
+
   const commonNames = distinguishedName.split(',').reverse();
 
   let curLocation = treeDisplay
@@ -43,7 +47,7 @@ export const locateEntry = async (page: Page, distinguishedName: string, expandE
       .locator('..');
 
     try {
-      await expect(nextLocation).toBeVisible({ timeout: 100 });
+      await expect(nextLocation).toBeVisible({ timeout: 500 });
 
       curLocation = nextLocation;
 
@@ -66,9 +70,7 @@ export const openEntry = async (page: Page, distinguishedName: string) => {
     .click();
 };
 
-export const collapseEntry = async (page: Page, distinguishedName: string) => {
-  const curEntry = await locateEntry(page, distinguishedName);
-
+export const collapseEntry = async (page: Page, curEntry: Locator) => {
   const displayToggleButton = curEntry.locator('.ldapEntryVisibilityToggle').first().getByText('-');
 
   if (await displayToggleButton.isVisible()) {
@@ -76,9 +78,7 @@ export const collapseEntry = async (page: Page, distinguishedName: string) => {
   }
 };
 
-export const expandEntry = async (page: Page, distinguishedName: string) => {
-  const curEntry = await locateEntry(page, distinguishedName);
-
+export const expandEntry = async (page: Page, curEntry: Locator) => {
   const displayToggleButton = curEntry.locator('.ldapEntryVisibilityToggle').first().getByText('+');
 
   if (await displayToggleButton.isVisible()) {

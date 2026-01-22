@@ -5,7 +5,7 @@ import type { modifyReq, newLdapAttribute, serverTreeEntry, newControlObject } f
 import parseModifyedAttributes from '../utils/parseModifiedAttributes';
 import { addError } from '../slices/error';
 import { modifyEntry, modifyEntryDn } from '../services/ldapdbsService';
-import { fetchLdapEntry, fetchLdapSubtree } from '../utils/query';
+import { fetchLdapEntry, fetchLdapChildren } from '../utils/query';
 import { updateEntry, concatEntryMap, delEntry, closeOpenEntry, addOpenEntry } from '../slices/client';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
 import getParentDn from '../utils/getParentDn';
@@ -61,9 +61,15 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
           control: getControls(newModifyDnControls)
         });
 
-        const rawSubtree = await fetchLdapSubtree(clientId, newDn);
+        let rawNewEntries = [await fetchLdapEntry(clientId, newDn)];
 
-        const formattedSubtree = generateLdapServerTree(rawSubtree, newDn);
+        if (entry.isExpanded) {
+          const rawChildren = await fetchLdapChildren(clientId, newDn);
+
+          rawNewEntries = rawNewEntries.concat(rawChildren);
+        }
+
+        const formattedSubtree = generateLdapServerTree(rawNewEntries, newDn);
 
         dispatch(concatEntryMap({ clientId: clientId, parentDn: getParentDn(newDn), subtreeRootDn: newDn, entryMap: formattedSubtree }));
         dispatch(closeOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn: entry.dn } }));

@@ -6,7 +6,7 @@ import { delClient, addClient } from '../slices/client';
 import { addError } from '../slices/error';
 import LdapTree from './LdapTree';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
-import { fetchAllLdapEntries } from '../utils/query';
+import { fetchLdapEntry } from '../utils/query';
 import BindForm from './BindForm';
 import Exop from './Exop';
 import OpenEntries from './OpenEntries';
@@ -47,9 +47,9 @@ const SingleClient = ({ client }: { client: client }) => {
 
   const fetchServerTree = async () => {
     try {
-      const entryArr = await fetchAllLdapEntries(client.id);
+      const dse = await fetchLdapEntry(client.id, '');
 
-      const entryMap = generateLdapServerTree(entryArr, '');
+      const entryMap = generateLdapServerTree([dse], '');
 
       const newClient: client = {
         ...client,

@@ -120,7 +120,8 @@ interface baseServerTreeEntry {
 interface visibleServerTreeEntry extends baseServerTreeEntry {
   visible: true,
   entry: ldapEntry,
-  operationalEntry: operationalLdapEntry
+  operationalEntry: operationalLdapEntry,
+  isExpanded: boolean
 };
 
 interface hiddenServerTreeEntry extends baseServerTreeEntry {

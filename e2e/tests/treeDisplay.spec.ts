@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { addServer, removeServer, adminBind, unbind } from '../utils/preTestUtils';
 import { locateEntry, collapseEntry, expandEntry } from '../utils/treeDisplayUtils';
@@ -23,21 +23,51 @@ test.describe('ldap tree display tests', () => {
     }
   });
 
-  test('entry can collapse', async ({ page }) => {
-    await collapseEntry(page, 'dc=example,dc=org');
+  test('all entries can collapse', async ({ page }) => {
+    for (const entry of defaultTreeEntries) {
+      const entryLoc = await locateEntry(page, entry.dn, true);
 
-    try {
-      await locateEntry(page, 'cn=user01,ou=users,dc=example,dc=org');
+      await collapseEntry(page, entryLoc);
 
-      throw new Error('entry was visible');
-    } catch { /* if there was an error then the child entry was hidden */ };
+      await expect(entryLoc.locator('.ldapTreeEntryChildren')).toBeHidden();
+    }
+  });
+
+  test('dse starts closed', async ({ page }) => {
+    const entryLoc = await locateEntry(page, '', true);
+
+    await collapseEntry(page, entryLoc);
+
+    await expect(entryLoc.locator('.ldapTreeEntryChildren')).toBeHidden();
+  });
+
+  test('toggle vis of parent does not affect vis of child', async ({ page }) => {
+    for (const entry of defaultTreeEntries) {
+      const entryLoc = await locateEntry(page, entry.dn, true);
+
+      await expandEntry(page, entryLoc);
+    }
+
+    const dseLoc = await locateEntry(page, '', false);
+
+    await collapseEntry(page, dseLoc);
+
+    await expandEntry(page, dseLoc);
+
+    for (const entry of defaultTreeEntries) {
+      const entryLoc = await locateEntry(page, entry.dn, true);
+
+      await expect(entryLoc.getByRole('button', { name: '-' }).first()).toBeVisible();
+    }
   });
 
   test('entry can expand', async ({ page }) => {
-    await collapseEntry(page, 'dc=example,dc=org');
+    for (const entry of defaultTreeEntries) {
+      const entryLoc = await locateEntry(page, entry.dn, true);
 
-    await expandEntry(page, 'dc=example,dc=org');
+      await expandEntry(page, entryLoc);
 
-    await locateEntry(page, 'cn=user01,ou=users,dc=example,dc=org');
+      await expect(entryLoc.getByRole('button', { name: '-' }).first()).toBeVisible();
+    }
   });
 });

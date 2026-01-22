@@ -53,6 +53,7 @@ const generateLdapServerTree = (entryArr: queryFetchRes[], treeRoot: string): Re
   entryArr.forEach((entry) => {
     addEntry(entryMap, {
       dn: entry.visibleEntry.dn,
+      isExpanded: false,
       visible: true,
       entry: entry.visibleEntry,
       operationalEntry: entry.operationalEntry,

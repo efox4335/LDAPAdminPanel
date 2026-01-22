@@ -31,6 +31,20 @@ test.describe('delete tests', () => {
     } catch { /* error is expected */ }
   });
 
+  test('deleted entry is removed from tree display', async ({ page }) => {
+    await addNewEntry(page, defaultNewEntry.attributes, []);
+
+    await locateEntry(page, defaultNewEntry.dn, true);
+
+    await deleteOpenEntry(page, defaultNewEntry.dn, []);
+
+    try {
+      await locateEntry(page, defaultNewEntry.dn, true);
+
+      throw new Error(`entry ${defaultNewEntry.dn} was not deleted from tree display`);
+    } catch { /* error is expected */ }
+  });
+
   test('controls passed', async ({ page }) => {
     await addNewEntry(page, defaultNewEntry.attributes, []);
 

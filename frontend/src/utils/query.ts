@@ -2,12 +2,12 @@
  * my justifaction for not just using a lib is that ldap structures the data really bad and i don't need a lot of the fancy features of a query lib
 */
 import { searchClient } from '../services/ldapdbsService';
-import type { ldapEntry, operationalLdapEntry, searchReq, queryFetchRes } from './types';
+import type { ldapEntry, searchReq, queryFetchRes } from './types';
 
-const baseVisibleTreeSearch: searchReq = {
+const baseVisibleChildSearch: searchReq = {
   baseDn: '',
   options: {
-    scope: 'sub',
+    scope: 'one',
     filter: '(objectClass=*)',
     derefAliases: 'always',
     sizeLimit: 0,
@@ -17,10 +17,10 @@ const baseVisibleTreeSearch: searchReq = {
   }
 };
 
-const baseOperationalTreeSearch: searchReq = {
+const baseOperationalChildSearch: searchReq = {
   baseDn: '',
   options: {
-    scope: 'sub',
+    scope: 'one',
     filter: '(objectClass=*)',
     derefAliases: 'always',
     sizeLimit: 0,
@@ -56,106 +56,27 @@ const baseOperationalEntrySearch: searchReq = {
   }
 };
 
-export const fetchAllLdapEntries = async (clientId: string): Promise<queryFetchRes[]> => {
-  const entries: queryFetchRes[] = [];
-
-  const visibleDseRes = await searchClient(clientId, baseVisibleEntrySearch);
-  const operationalDseRes = await searchClient(clientId, baseOperationalEntrySearch);
-
-  if (visibleDseRes.searchEntries.length !== 1 || operationalDseRes.searchEntries.length !== 1) {
-    throw new Error('failed to locate root dse');
-  }
-
-  if (!('dn' in visibleDseRes.searchEntries[0]) || !('dn' in operationalDseRes.searchEntries[0])) {
-    throw new Error('root dse does not have dn');
-  }
-
-  if (!('objectClass' in visibleDseRes.searchEntries[0])) {
-    throw new Error('root dse does not have objectClass');
-  }
-
-  const visibleDse = visibleDseRes.searchEntries[0] as ldapEntry;
-  const operationalDse = operationalDseRes.searchEntries[0] as operationalLdapEntry;
-
-  delete visibleDse['*'];
-  delete operationalDse['+'];
-
-  entries.push({ visibleEntry: visibleDse, operationalEntry: operationalDse });
-
-  if (!operationalDse.namingContexts) {
-    throw new Error('root dse does not have namingContexts');
-  }
-
-  let ditNamingContexts: string[];
-
-  if (Array.isArray(operationalDse.namingContexts)) {
-    ditNamingContexts = operationalDse.namingContexts;
-  } else {
-    ditNamingContexts = [operationalDse.namingContexts];
-  }
-
-  for (const dit of ditNamingContexts) {
-    const visibleTreeRes = await searchClient(clientId, { ...baseVisibleTreeSearch, baseDn: dit });
-    const operationalTreeRes = await searchClient(clientId, { ...baseOperationalTreeSearch, baseDn: dit });
-
-    const entryMap: Record<string, queryFetchRes> = {};
-
-    visibleTreeRes.searchEntries.forEach((ele) => {
-      if (!ele.dn || typeof (ele.dn) !== 'string') {
-        throw new Error('entry does not have dn');
-      }
-
-      if (!ele.objectClass) {
-        throw new Error('entry does not have objectClass');
-      }
-
-      delete ele['*'];
-
-      entryMap[ele.dn] = {
-        visibleEntry: ele as ldapEntry,
-        operationalEntry: {}
-      };
-    });
-
-    operationalTreeRes.searchEntries.forEach((ele) => {
-      if (!ele.dn || typeof (ele.dn) !== 'string') {
-        throw new Error('entry does not have dn');
-      }
-
-      delete ele['+'];
-
-      entryMap[ele.dn].operationalEntry = ele;
-    });
-
-    Object.values(entryMap).forEach((entry) => {
-      entries.push(entry);
-    });
-  }
-
-  return entries;
-};
-
-export const fetchLdapSubtree = async (clientId: string, dn: string): Promise<queryFetchRes[]> => {
-  const visibleTreeRes = await searchClient(clientId, {
-    ...baseVisibleTreeSearch,
+export const fetchLdapChildren = async (clientId: string, dn: string): Promise<queryFetchRes[]> => {
+  const visibleChildrenRes = await searchClient(clientId, {
+    ...baseVisibleChildSearch,
     baseDn: dn
   });
 
-  const operationalTreeRes = await searchClient(clientId, {
-    ...baseOperationalTreeSearch,
+  const operationalChildrenRes = await searchClient(clientId, {
+    ...baseOperationalChildSearch,
     baseDn: dn
   });
 
-  if (visibleTreeRes.searchEntries.length === 0 || operationalTreeRes.searchEntries.length === 0) {
-    throw new Error('failed to find subtree');
+  if (visibleChildrenRes.searchEntries.length === 0 || operationalChildrenRes.searchEntries.length === 0) {
+    return [];
   }
 
   const entryMap: Record<string, queryFetchRes> = {};
 
   const entries: queryFetchRes[] = [];
 
-  visibleTreeRes.searchEntries.forEach((entry) => {
-    if (!entry.dn || typeof (entry.dn) !== 'string') {
+  visibleChildrenRes.searchEntries.forEach((entry) => {
+    if (typeof (entry.dn) !== 'string') {
       throw new Error('entry does not have dn');
     }
 
@@ -171,8 +92,8 @@ export const fetchLdapSubtree = async (clientId: string, dn: string): Promise<qu
     };
   });
 
-  operationalTreeRes.searchEntries.forEach((entry) => {
-    if (!entry.dn || typeof (entry.dn) !== 'string') {
+  operationalChildrenRes.searchEntries.forEach((entry) => {
+    if (typeof (entry.dn) !== 'string') {
       throw new Error('entry does not have dn');
     }
 
@@ -205,7 +126,7 @@ export const fetchLdapEntry = async (clientId: string, dn: string): Promise<quer
 
   const visibleEntry = visibleEntryRes.searchEntries[0];
 
-  if (!visibleEntry.dn || typeof (visibleEntry.dn) !== 'string') {
+  if (typeof (visibleEntry.dn) !== 'string') {
     throw new Error('entry does not have dn');
   }
 

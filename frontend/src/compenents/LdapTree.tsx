@@ -1,15 +1,18 @@
 import { useAppSelector as useSelector } from '../utils/reduxHooks';
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import getDisplayDc from '../utils/getDisplayDc';
-import { selectLdapEntry, addOpenEntry } from '../slices/client';
+import { selectLdapEntry, addOpenEntry, concatEntryMap, collapseEntry, expandEntry } from '../slices/client';
 import LdapEntryVisibilityToggle from './LdapEntryVisibilityToggle';
+import { fetchLdapChildren, fetchLdapEntry } from '../utils/query';
+import { addError } from '../slices/error';
+import generateLdapServerTree from '../utils/generateLdapServerTree';
+import getParentDn from '../utils/getParentDn';
+import type { queryFetchRes } from '../utils/types';
 
 const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: string, lastVisibleDn: string, entryDn: string }) => {
   const entry = useSelector((state) => selectLdapEntry(state, clientId, entryDn));
-
-  const [isVisible, setIsVisible] = useState<boolean>(true);
 
   const dispatch = useDispatch();
 
@@ -37,14 +40,66 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
     );
   }
 
+  const isExpanded = entry.isExpanded;
+
   const handleOpenEntry = () => {
     dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn } }));
   };
 
-  if (!isVisible) {
+  const handleExpandEntry = async () => {
+    try {
+      let baseEntry;
+
+      let childEntries: queryFetchRes[] = [];
+
+      if (entryDn === 'dse') {
+        baseEntry = await fetchLdapEntry(clientId, '');
+
+        const namingContexts = entry.operationalEntry.namingContexts;
+
+        if (typeof (namingContexts) === 'string') {
+          childEntries = [await fetchLdapEntry(clientId, namingContexts)];
+        } else {
+          for (const rootDitDn of namingContexts) {
+            const rootDit = await fetchLdapEntry(clientId, rootDitDn);
+
+            childEntries.push(rootDit);
+          }
+        }
+      } else {
+        baseEntry = await fetchLdapEntry(clientId, entryDn);
+
+        childEntries = await fetchLdapChildren(clientId, entryDn);
+      }
+
+      const formattedEntries = generateLdapServerTree([...childEntries, baseEntry], entryDn);
+
+      const curEntry = formattedEntries[entryDn];
+
+      if (!curEntry || curEntry.visible === false) {
+        return;
+      }
+
+      curEntry.isExpanded = true;
+
+      const parentDn = getParentDn(curEntry.dn);
+
+      dispatch(concatEntryMap({ clientId: clientId, parentDn: parentDn, subtreeRootDn: curEntry.dn, entryMap: formattedEntries }));
+
+      dispatch(expandEntry({ clientId, entryDn }));
+    } catch (err) {
+      dispatch(addError(err));
+    }
+  };
+
+  const handleCollapseEntry = () => {
+    dispatch(collapseEntry({ clientId: clientId, entryDn: entryDn }));
+  };
+
+  if (!isExpanded) {
     return (
       <div className='ldapTreeEntry'>
-        <LdapEntryVisibilityToggle isVisible={isVisible} setIsVisible={setIsVisible} />
+        <LdapEntryVisibilityToggle isVisible={isExpanded} toggleIsVisible={handleExpandEntry} />
         <button className='openEntryButton' type='button' onClick={handleOpenEntry}>
           {displayDc}
         </button>
@@ -54,7 +109,7 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
 
   return (
     <div className='ldapTreeEntry'>
-      <LdapEntryVisibilityToggle isVisible={isVisible} setIsVisible={setIsVisible} />
+      <LdapEntryVisibilityToggle isVisible={isExpanded} toggleIsVisible={handleCollapseEntry} />
       <button className='openEntryButton' type='button' onClick={handleOpenEntry}>
         {displayDc}
       </button>

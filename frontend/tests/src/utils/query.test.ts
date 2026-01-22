@@ -1,64 +1,7 @@
 import { test, vi, expect, describe } from 'vitest';
 
-import { fetchAllLdapEntries, fetchLdapEntry, fetchLdapSubtree } from '../../../src/utils/query';
+import { fetchLdapEntry, fetchLdapChildren } from '../../../src/utils/query';
 import type { ldapEntry, operationalLdapEntry, searchReq, searchRes } from '../../../src/utils/types';
-
-const visibleDseSearch: searchRes = {
-  'searchEntries': [
-    {
-      'dn': '',
-      'objectClass': [
-        'top',
-        'OpenLDAProotDSE'
-      ],
-      '*': []
-    }
-  ],
-  'searchReferences': []
-};
-
-const operationalDseSearch: searchRes = {
-  'searchEntries': [
-    {
-      'dn': '',
-      'structuralObjectClass': 'OpenLDAProotDSE',
-      'configContext': 'cn=config',
-      'monitorContext': 'cn=Monitor',
-      'namingContexts': 'dc=example,dc=org',
-      'supportedControl': [
-        '2.16.840.1.113730.3.4.18',
-        '2.16.840.1.113730.3.4.2',
-        '1.3.6.1.4.1.4203.1.10.1',
-        '1.3.6.1.1.22',
-        '1.2.840.113556.1.4.319',
-        '1.2.826.0.1.3344810.2.3',
-        '1.3.6.1.1.13.2',
-        '1.3.6.1.1.13.1',
-        '1.3.6.1.1.12'
-      ],
-      'supportedExtension': [
-        '1.3.6.1.4.1.4203.1.11.1',
-        '1.3.6.1.4.1.4203.1.11.3',
-        '1.3.6.1.1.8',
-        '1.3.6.1.1.21.3',
-        '1.3.6.1.1.21.1'
-      ],
-      'supportedFeatures': [
-        '1.3.6.1.1.14',
-        '1.3.6.1.4.1.4203.1.5.1',
-        '1.3.6.1.4.1.4203.1.5.2',
-        '1.3.6.1.4.1.4203.1.5.3',
-        '1.3.6.1.4.1.4203.1.5.4',
-        '1.3.6.1.4.1.4203.1.5.5'
-      ],
-      'supportedLDAPVersion': '3',
-      'entryDN': '',
-      'subschemaSubentry': 'cn=Subschema',
-      '+': []
-    }
-  ],
-  'searchReferences': []
-};
 
 const visibleExampleDitSearchRes: searchRes = {
   'searchEntries': [
@@ -242,299 +185,6 @@ vi.mock('../../../src/services/ldapdbsService', (original) => {
 });
 
 describe('query.ts tests', () => {
-  describe('fetchAllLdapEntries tests', () => {
-    test('no root DSE', async () => {
-      mockedSearchClient = (_id: string, _req: searchReq): searchRes => {
-        return {
-          searchEntries: [],
-          searchReferences: []
-        };
-      };
-
-      try {
-        await fetchAllLdapEntries('id');
-
-        throw new Error('no error');
-      } catch (err) {
-        expect(err).instanceOf(Error);
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('failed to locate root dse');
-      }
-    });
-
-    test('no root dse objectClass', async () => {
-      mockedSearchClient = (_id: string, req: searchReq): searchRes => {
-        if (req.baseDn !== '') {
-          throw new Error(`wrong baseDn: ${req.baseDn}`);
-        }
-
-        let res;
-
-        if (req.options.attributes[0] === '*') {
-          res = JSON.parse(JSON.stringify(visibleDseSearch)) as searchRes;
-
-          delete res.searchEntries[0].objectClass;
-        } else {
-          res = operationalDseSearch;
-        }
-
-        return res;
-      };
-
-      try {
-        await fetchAllLdapEntries('id');
-
-        throw new Error('no error');
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('root dse does not have objectClass');
-      }
-    });
-
-    test('no root dse namingContexts', async () => {
-      mockedSearchClient = (_id: string, req: searchReq): searchRes => {
-        if (req.baseDn !== '') {
-          throw new Error(`wrong baseDn: ${req.baseDn}`);
-        }
-
-        let res;
-
-        if (req.options.attributes[0] === '+') {
-          res = JSON.parse(JSON.stringify(operationalDseSearch)) as searchRes;
-
-          delete res.searchEntries[0].namingContexts;
-        } else {
-          res = visibleDseSearch;
-        }
-
-        return res;
-      };
-
-      try {
-        await fetchAllLdapEntries('id');
-
-        throw new Error('no error');
-      } catch (err) {
-        expect(err).instanceOf(Error);
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('root dse does not have namingContexts');
-      }
-    });
-
-    test('no root dse dn', async () => {
-      mockedSearchClient = (_id: string, req: searchReq): searchRes => {
-        let res;
-
-        if (req.options.attributes[0] === '*') {
-          res = JSON.parse(JSON.stringify(visibleDseSearch)) as searchRes;
-
-          delete res.searchEntries[0].dn;
-        } else {
-          res = JSON.parse(JSON.stringify(operationalDseSearch)) as searchRes;
-
-          delete res.searchEntries[0].dn;
-        }
-
-        return res;
-      };
-
-      try {
-        await fetchAllLdapEntries('id');
-
-        throw new Error('no error');
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('root dse does not have dn');
-      }
-    });
-
-    test('visible entry does not have dn', async () => {
-      mockedSearchClient = (_id: string, req: searchReq): searchRes => {
-        let res;
-
-        if (req.baseDn === '') {
-          if (req.options.attributes[0] === '*') {
-            res = visibleDseSearch;
-          } else {
-            res = operationalDseSearch;
-          }
-        } else {
-          if (req.options.attributes[0] === '*') {
-            res = JSON.parse(JSON.stringify(visibleExampleDitSearchRes)) as searchRes;
-
-            delete res.searchEntries[0].dn;
-          } else {
-            res = JSON.parse(JSON.stringify(operationalExampleDitSearchRes)) as searchRes;
-          }
-        }
-
-        return res;
-      };
-
-      try {
-        await fetchAllLdapEntries('id');
-
-        throw new Error('no error');
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('entry does not have dn');
-      }
-    });
-
-    test('operational entry does not have dn', async () => {
-      mockedSearchClient = (_id: string, req: searchReq): searchRes => {
-        let res;
-
-        if (req.baseDn === '') {
-          if (req.options.attributes[0] === '*') {
-            res = visibleDseSearch;
-          } else {
-            res = operationalDseSearch;
-          }
-        } else {
-          if (req.options.attributes[0] === '*') {
-            res = JSON.parse(JSON.stringify(visibleExampleDitSearchRes)) as searchRes;
-          } else {
-            res = JSON.parse(JSON.stringify(operationalExampleDitSearchRes)) as searchRes;
-
-            delete res.searchEntries[0].dn;
-          }
-        }
-
-        return res;
-      };
-
-      try {
-        await fetchAllLdapEntries('id');
-
-        throw new Error('no error');
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('entry does not have dn');
-      }
-    });
-
-    test('entry does not have objectClass', async () => {
-      mockedSearchClient = (_id: string, req: searchReq): searchRes => {
-        let res;
-
-        if (req.baseDn === '') {
-          if (req.options.attributes[0] === '*') {
-            res = visibleDseSearch;
-          } else {
-            res = operationalDseSearch;
-          }
-        } else {
-          if (req.options.attributes[0] === '*') {
-            res = JSON.parse(JSON.stringify(visibleExampleDitSearchRes)) as searchRes;
-
-            delete res.searchEntries[0].objectClass;
-          } else {
-            res = JSON.parse(JSON.stringify(operationalExampleDitSearchRes)) as searchRes;
-          }
-        }
-
-        return res;
-      };
-
-      try {
-        await fetchAllLdapEntries('id');
-
-        throw new Error('no error');
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('entry does not have objectClass');
-      }
-    });
-
-    test('successful test', async () => {
-      mockedSearchClient = (_id: string, req: searchReq): searchRes => {
-        let res;
-
-        if (req.baseDn === '') {
-          if (req.options.attributes[0] === '*') {
-            res = visibleDseSearch;
-          } else {
-            res = operationalDseSearch;
-          }
-        } else {
-          if (req.options.attributes[0] === '*') {
-            res = JSON.parse(JSON.stringify(visibleExampleDitSearchRes)) as searchRes;
-          } else {
-            res = JSON.parse(JSON.stringify(operationalExampleDitSearchRes)) as searchRes;
-          }
-        }
-
-        return res;
-      };
-
-      const res = await fetchAllLdapEntries('id');
-
-      res.forEach((entry) => {
-        expect(entry.visibleEntry.dn).toStrictEqual(entry.operationalEntry.dn);
-
-        expect(entry.visibleEntry['*']).not.toBeDefined();
-        expect(entry.visibleEntry['+']).not.toBeDefined();
-
-        expect(entry.operationalEntry['*']).not.toBeDefined();
-        expect(entry.operationalEntry['+']).not.toBeDefined();
-
-        if (entry.visibleEntry.dn === '') {
-          const starLessVisRootDse = JSON.parse(JSON.stringify(visibleDseSearch.searchEntries[0])) as ldapEntry;
-
-          delete starLessVisRootDse['*'];
-
-          expect(entry.visibleEntry).toStrictEqual(starLessVisRootDse);
-
-          const plusLessOprRootDse = JSON.parse(JSON.stringify(operationalDseSearch.searchEntries[0])) as operationalLdapEntry;
-
-          delete plusLessOprRootDse['+'];
-
-          expect(entry.operationalEntry).toStrictEqual(plusLessOprRootDse);
-        } else {
-          const starLessVisEntry = JSON.parse(JSON.stringify(
-            visibleExampleDitSearchRes
-              .searchEntries
-              .find((visEntry) => visEntry.dn === entry.visibleEntry.dn)
-          )) as ldapEntry;
-
-          delete starLessVisEntry['*'];
-
-          const plusLessOprEntry = JSON.parse(JSON.stringify(
-            operationalExampleDitSearchRes
-              .searchEntries
-              .find((oprEntry) => oprEntry.dn === entry.visibleEntry.dn)
-          )) as operationalLdapEntry;
-
-          delete plusLessOprEntry['+'];
-
-          expect(entry.operationalEntry).toStrictEqual(plusLessOprEntry);
-        }
-      });
-    });
-  });
-
   describe('fetchLdapEntry tests', () => {
     test('not found', async () => {
       mockedSearchClient = (id: string, req: searchReq): searchRes => {
@@ -684,63 +334,34 @@ describe('query.ts tests', () => {
     });
   });
 
-  describe('fetchLdapSubtree tests', () => {
-    const subTreeRoot = 'ou=users,dc=example,dc=org';
+  describe('fetchLdapChildren tests', () => {
+    const parentDn = 'ou=users,dc=example,dc=org';
 
-    const visibleSubtreeSearchRes: searchRes = JSON.parse(JSON.stringify(
+    const visibleChildSearchRes: searchRes = JSON.parse(JSON.stringify(
       {
         searchEntries: visibleExampleDitSearchRes.searchEntries.filter((entry) => {
           if (!entry.dn || typeof (entry.dn) !== 'string') {
             throw new Error('test data broken entry lacks dn');
           }
 
-          return entry.dn.match(new RegExp(`${subTreeRoot}$`));
+          return entry.dn.match(new RegExp(`${parentDn}$`));
         }),
         searchReferences: []
       }
     )) as searchRes;
 
-    const operationalSubtreeSearchRes: searchRes = JSON.parse(JSON.stringify(
+    const operationalChildSearchRes: searchRes = JSON.parse(JSON.stringify(
       {
         searchEntries: operationalExampleDitSearchRes.searchEntries.filter((entry) => {
           if (!entry.dn || typeof (entry.dn) !== 'string') {
             throw new Error('test data broken entry lacks dn');
           }
 
-          return entry.dn.match(new RegExp(`${subTreeRoot}$`));
+          return entry.dn.match(new RegExp(`${parentDn}$`));
         }),
         searchReferences: []
       }
     )) as searchRes;
-
-    test('not found', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
-        if (id !== 'id') {
-          throw new Error(`incorrect id: ${id}`);
-        }
-
-        if (req.baseDn !== 'searchDn') {
-          throw new Error(`incorrect baseDn: ${req.baseDn}`);
-        }
-
-        return {
-          searchEntries: [],
-          searchReferences: []
-        };
-      };
-
-      try {
-        await fetchLdapSubtree('id', 'searchDn');
-
-        throw new Error('no error');
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          throw err;
-        }
-
-        expect(err.message).toStrictEqual('failed to find subtree');
-      }
-    });
 
     test('entry does not have dn', async () => {
       mockedSearchClient = (id: string, req: searchReq): searchRes => {
@@ -758,18 +379,18 @@ describe('query.ts tests', () => {
         };
 
         if (req.options.attributes[0] === '*') {
-          res.searchEntries = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+          res.searchEntries = JSON.parse(JSON.stringify(visibleChildSearchRes.searchEntries)) as ldapEntry[];
 
           delete res.searchEntries[0].dn;
         } else {
-          res.searchEntries = operationalSubtreeSearchRes.searchEntries as operationalLdapEntry[];
+          res.searchEntries = operationalChildSearchRes.searchEntries as operationalLdapEntry[];
         }
 
         return res;
       };
 
       try {
-        await fetchLdapSubtree('id', 'searchDn');
+        await fetchLdapChildren('id', 'searchDn');
 
         throw new Error('no error');
       } catch (err) {
@@ -797,18 +418,18 @@ describe('query.ts tests', () => {
         };
 
         if (req.options.attributes[0] === '*') {
-          res.searchEntries = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+          res.searchEntries = JSON.parse(JSON.stringify(visibleChildSearchRes.searchEntries)) as ldapEntry[];
 
           delete res.searchEntries[0].objectClass;
         } else {
-          res.searchEntries = JSON.parse(JSON.stringify(operationalSubtreeSearchRes.searchEntries)) as operationalLdapEntry[];
+          res.searchEntries = JSON.parse(JSON.stringify(operationalChildSearchRes.searchEntries)) as operationalLdapEntry[];
         }
 
         return res;
       };
 
       try {
-        await fetchLdapSubtree('id', 'searchDn');
+        await fetchLdapChildren('id', 'searchDn');
 
         throw new Error('no error');
       } catch (err) {
@@ -836,36 +457,36 @@ describe('query.ts tests', () => {
         };
 
         if (req.options.attributes[0] === '*') {
-          res.searchEntries = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+          res.searchEntries = JSON.parse(JSON.stringify(visibleChildSearchRes.searchEntries)) as ldapEntry[];
         } else {
-          res.searchEntries = JSON.parse(JSON.stringify(operationalSubtreeSearchRes.searchEntries)) as operationalLdapEntry[];
+          res.searchEntries = JSON.parse(JSON.stringify(operationalChildSearchRes.searchEntries)) as operationalLdapEntry[];
         }
 
         return res;
       };
 
-      const res = await fetchLdapSubtree('id', 'searchDn');
+      const res = await fetchLdapChildren('id', 'searchDn');
 
       expect(res).toBeDefined();
 
-      const starLessVisSubtree = JSON.parse(JSON.stringify(visibleSubtreeSearchRes.searchEntries)) as ldapEntry[];
+      const starLessVisChildren = JSON.parse(JSON.stringify(visibleChildSearchRes.searchEntries)) as ldapEntry[];
 
-      starLessVisSubtree.forEach((entry) => delete entry['*']);
+      starLessVisChildren.forEach((entry) => delete entry['*']);
 
-      const plusLessOprSubtree = JSON.parse(JSON.stringify(operationalSubtreeSearchRes.searchEntries)) as operationalLdapEntry[];
+      const plusLessOprChildren = JSON.parse(JSON.stringify(operationalChildSearchRes.searchEntries)) as operationalLdapEntry[];
 
-      plusLessOprSubtree.forEach((entry) => delete entry['+']);
+      plusLessOprChildren.forEach((entry) => delete entry['+']);
 
       res.forEach((entry) => {
         expect(entry.visibleEntry.dn).toStrictEqual(entry.operationalEntry.dn);
 
-        const starLessVisEntry = starLessVisSubtree.find((ent) => ent.dn === entry.visibleEntry.dn);
+        const starLessVisEntry = starLessVisChildren.find((ent) => ent.dn === entry.visibleEntry.dn);
         expect(starLessVisEntry).toBeDefined();
         if (!starLessVisEntry) {
           return;
         }
 
-        const plusLessOprEntry = plusLessOprSubtree.find((ent) => ent.dn === entry.visibleEntry.dn);
+        const plusLessOprEntry = plusLessOprChildren.find((ent) => ent.dn === entry.visibleEntry.dn);
         expect(entry.visibleEntry).toStrictEqual(starLessVisEntry);
         expect(entry.operationalEntry).toStrictEqual(plusLessOprEntry);
       });
