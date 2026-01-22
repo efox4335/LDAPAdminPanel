@@ -436,11 +436,17 @@ router.get('/:id', (req, res) => {
     return;
   }
 
+  const isConnected = client.ldapClient.isConnected;
+
+  if (!isConnected) {
+    setBoundDnById(client.id, null);
+  }
+
   const clientMetaData: clientMetaData = {
     id: req.params.id,
     serverUrl: client.serverUrl,
     boundDn: client.boundDn,
-    isConnected: client.ldapClient.isConnected
+    isConnected: isConnected
   };
 
   res.status(200).send(clientMetaData);
@@ -450,11 +456,17 @@ router.get('/', (_req, res) => {
   const clients = getAllStoredClientMetaData();
 
   const clientsMetaData: clientMetaData[] = clients.map((val) => {
+    const isConnected = val.ldapClient.isConnected;
+
+    if (!isConnected) {
+      setBoundDnById(val.id, null);
+    }
+
     return {
       id: val.id,
       serverUrl: val.serverUrl,
       boundDn: val.boundDn,
-      isConnected: val.ldapClient.isConnected
+      isConnected: isConnected
     };
   });
 
