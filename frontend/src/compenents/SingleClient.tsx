@@ -10,6 +10,7 @@ import { fetchLdapEntry } from '../utils/query';
 import BindForm from './BindForm';
 import Exop from './Exop';
 import OpenEntries from './OpenEntries';
+import SearchForm from './SearchForm';
 
 const SingleClient = ({ client }: { client: client }) => {
   const dispatch = useDispatch();
@@ -110,6 +111,10 @@ const SingleClient = ({ client }: { client: client }) => {
           </div>
         </div>
         <BindForm client={client} />
+        {client.boundDn !== null ?
+          <SearchForm clientId={client.id} /> :
+          <></>
+        }
         <Exop clientId={client.id} />
       </div>
       <br></br>

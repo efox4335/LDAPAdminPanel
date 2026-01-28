@@ -68,6 +68,39 @@ const clientsSlice = createSlice({
       });
     },
 
+    updateOrAddEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
+      const map = state[action.payload.clientId].entryMap;
+
+      if (map === undefined) {
+        console.log('tried to add entry before server tree is fetched');
+
+        return;
+      }
+
+      const existingEntry = map[action.payload.entry.dn];
+
+      if (existingEntry && existingEntry.visible) {
+        existingEntry.entry = action.payload.entry;
+
+        existingEntry.operationalEntry = action.payload.operationalEntry;
+      } else {
+        map[action.payload.entry.dn] = {
+          isExpanded: false,
+          dn: action.payload.entry.dn,
+          visible: true,
+          children: {},
+          entry: action.payload.entry,
+          operationalEntry: action.payload.operationalEntry
+        };
+      }
+
+      const parentEntry = map[action.payload.parentDn];
+
+      if (parentEntry) {
+        parentEntry.children[action.payload.entry.dn] = action.payload.entry.dn;
+      }
+    },
+
     addEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
       const map = state[action.payload.clientId].entryMap;
 
@@ -330,11 +363,47 @@ const clientsSlice = createSlice({
         }
 
         return openEntries;
-      })
+      }
+    ),
+
+    selectNamingContextsByClientId: createSelector(
+      [(sliceState: clientStore, clientId: string) => {
+        if (!sliceState[clientId]) {
+          return undefined;
+        }
+
+        if (!sliceState[clientId].entryMap) {
+          return undefined;
+        }
+
+        return sliceState[clientId].entryMap['dse'];
+      }],
+      (rootEntry) => {
+        if (!rootEntry) {
+          return [];
+        }
+
+        if (!rootEntry.visible) {
+          return [];
+        }
+
+        const namingContext = rootEntry.operationalEntry['namingContexts'];
+
+        if (!namingContext) {
+          return [];
+        }
+
+        if (Array.isArray(namingContext)) {
+          return namingContext;
+        }
+
+        return [namingContext];
+      }
+    )
   }
 });
 
-export const { addClient, delClient, addClients, addEntry, delEntry, expandEntry, collapseEntry, updateEntry, concatEntryMap, addOpenEntry, closeOpenEntry } = clientsSlice.actions;
-export const { selectClients, selectLdapEntry, selectOpenEntriesByClientId } = clientsSlice.selectors;
+export const { addClient, delClient, addClients, addEntry, delEntry, expandEntry, collapseEntry, updateEntry, concatEntryMap, addOpenEntry, closeOpenEntry, updateOrAddEntry } = clientsSlice.actions;
+export const { selectClients, selectLdapEntry, selectOpenEntriesByClientId, selectNamingContextsByClientId } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

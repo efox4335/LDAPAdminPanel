@@ -17,7 +17,7 @@ test.describe('exop tests', () => {
 
   test('success', async ({ page }) => {
     await page
-      .locator('.singleClientExopForm')
+      .locator('.singleClientExop')
       .locator('.userInteractionContainer')
       .getByRole('textbox')
       .first()
@@ -41,7 +41,7 @@ test.describe('exop tests', () => {
 
   test('error on fail', async ({ page }) => {
     await page
-      .locator('.singleClientExopForm')
+      .locator('.singleClientExop')
       .locator('.userInteractionContainer')
       .getByRole('textbox')
       .first()
@@ -67,14 +67,14 @@ test.describe('exop tests', () => {
 
   test('control passed', async ({ page }) => {
     await page
-      .locator('.singleClientExopForm')
+      .locator('.singleClientExop')
       .locator('.userInteractionContainer')
       .getByRole('textbox')
       .first()
       .fill(whoAmIOid);
 
     const controlForm = page
-      .locator('.singleClientExopForm')
+      .locator('.singleClientExop')
       .getByText('controls')
       .locator('..')
       .locator('..')

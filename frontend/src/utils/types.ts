@@ -44,12 +44,16 @@ export interface exopReq extends controlReq {
   value?: string | undefined
 };
 
-export type searchReq = {
+export type searchScope = 'base' | 'one' | 'sub' | 'children';
+
+export type searchDerefAliases = 'never' | 'always' | 'search' | 'find';
+
+export interface searchReq extends controlReq {
   baseDn: string,
   options: {
-    scope: 'base' | 'one' | 'sub' | 'children',
+    scope: searchScope,
     filter: string,
-    derefAliases: 'never' | 'always' | 'search' | 'find',
+    derefAliases: searchDerefAliases,
     sizeLimit: number,
     timeLimit: number,
     paged: boolean,

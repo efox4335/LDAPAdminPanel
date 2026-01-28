@@ -2,9 +2,16 @@ import { type Page, type Locator, expect } from '@playwright/test';
 
 import type { entryAttribute, ldapControl, ldapEntry, modification } from './types';
 import locateTableByHeaderText from './locateTableByHeader';
+import locateNewControl from './locateNewControl';
 
 export const locateOpenEntryDisplay = (page: Page): Locator => {
   return page.locator('.openEntriesContainer');
+};
+
+export const assertOpenEntryCount = async (page: Page, count: number) => {
+  const openEntryDisplay = locateOpenEntryDisplay(page);
+
+  await expect(openEntryDisplay.locator('.openEntryContainer')).toHaveCount(count);
 };
 
 export const locateOpenEntry = (page: Page, distinguishedName: string): Locator => {
@@ -77,22 +84,6 @@ const locateFormAttributeRow = async (page: Page, entryForm: Locator, attributeN
   }
 
   throw new Error(`no row for ${attributeName} found`);
-};
-
-const locateNewControl = async (page: Page, controlTable: Locator, controlOid: string) => {
-  let curChild = 0;
-
-  const controlRows = controlTable.getByRole('row');
-
-  for (const singleControlRow of await controlRows.all()) {
-    try {
-      await expect(singleControlRow.getByRole('textbox')).toHaveValue(RegExp(`^${controlOid}$`), { timeout: 100 });
-
-      return controlRows.nth(curChild);
-    } catch { /* only one expect has to not error */ } finally { curChild += 1; }
-  }
-
-  throw new Error(`no control for oid ${controlOid} found`);
 };
 
 const locateFormAttributeValue = async (newAttributeRow: Locator, value: string) => {

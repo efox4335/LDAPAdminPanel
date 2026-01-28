@@ -49,3 +49,17 @@ export type ldapControl = {
   oid: string,
   critical: boolean
 };
+
+export type searchScope = 'base' | 'one' | 'sub' | 'children';
+
+export type searchDerefAliases = 'never' | 'always' | 'search' | 'find';
+
+export type ldapSearch = {
+  name?: string,
+  filter?: string,
+  baseDns?: string[],
+  timeLimit?: string,
+  maxEntries?: string,
+  scope?: searchScope,
+  aliasDeref?: searchDerefAliases,
+};

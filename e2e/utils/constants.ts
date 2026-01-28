@@ -1,4 +1,4 @@
-import { ldapEntry, ldapControl, modifyEntry, entryAttribute } from './types';
+import { ldapEntry, ldapControl, modifyEntry, entryAttribute, searchScope, searchDerefAliases, ldapSearch } from './types';
 
 export const pageUrl: string = 'http://localhost:5173';
 
@@ -295,3 +295,25 @@ export const defaultTreeEntries: ldapEntry[] = [
     ]
   }
 ];
+
+export const defaultSearchTimeLimit = '5';
+
+export const defaultSearchMaxEntries = '10';
+
+export const defaultSearchBaseDns: string[] = [
+  'dc=example,dc=org'
+];
+
+export const defaultSearchScope: searchScope = 'sub';
+
+export const defaultSearchDerefAliases: searchDerefAliases = 'never';
+
+export const defaultSearchFormContents: ldapSearch = {
+  name: '',
+  filter: '',
+  timeLimit: defaultSearchTimeLimit,
+  maxEntries: defaultSearchMaxEntries,
+  baseDns: defaultSearchBaseDns,
+  scope: defaultSearchScope,
+  aliasDeref: defaultSearchDerefAliases
+};

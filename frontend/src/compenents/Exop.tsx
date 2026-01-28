@@ -52,7 +52,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
   return (
     <div className='singleClientExop'>
       <h4>extended operation</h4>
-      <form onSubmit={handleExop} className='singleClientExopForm'>
+      <form onSubmit={handleExop} className='singleClientOperationForm'>
         <div className='userInteractionContainer'>
           <table>
             <tbody>
