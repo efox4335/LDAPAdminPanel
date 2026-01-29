@@ -4,6 +4,8 @@ import { ldapServerUrl, adminDn, adminPassword, invalidOid } from '../utils/cons
 import { addServer, removeServer } from '../utils/preTestUtils';
 import assertClientInfo from '../utils/assertClientInfo';
 import assertError from '../utils/assertError';
+import expandAdvancedOptions from '../utils/expandAdvancedOptions';
+import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('bind tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -18,9 +20,18 @@ test.describe('bind tests', () => {
     await assertClientInfo(page, false, 'null', ldapServerUrl);
   });
 
+  test('advanced options start closed', async ({ page }) => {
+    const bindForm = page.locator('.singleClientBind');
+
+    await assertAdvancedOptionsClosed(bindForm);
+  });
+
   test('controls passed', async ({ page }) => {
-    const controlInput = page
-      .locator('.singleClientBind')
+    const bindForm = page.locator('.singleClientBind');
+
+    await expandAdvancedOptions(bindForm);
+
+    const controlInput = bindForm
       .getByText('controls')
       .locator('..')
       .locator('..')

@@ -7,6 +7,7 @@ import { addClient } from '../slices/client';
 import { addError } from '../slices/error';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
+import AdvancedDropdown from './AdvancedDropdown';
 
 const BindForm = ({ client }: { client: client }) => {
   const [newDn, setNewDn] = useState<string>('');
@@ -72,8 +73,9 @@ const BindForm = ({ client }: { client: client }) => {
               </tr>
             </tbody>
           </table>
-          <br></br>
-          <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+          <AdvancedDropdown displayText='advanced options'>
+            <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+          </AdvancedDropdown>
         </div>
         <div className='userInteractionButtons'>
           <button type='button' className='negativeButton' onClick={() => resetForm()}>reset</button>
