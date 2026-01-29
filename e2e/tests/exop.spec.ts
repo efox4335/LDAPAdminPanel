@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test';
 import { addServer, removeServer, adminBind, unbind } from '../utils/preTestUtils';
 import { whoAmIOid, invalidOid } from '../utils/constants';
 import assertError from '../utils/assertError';
+import expandAdvancedOptions from '../utils/expandAdvancedOptions';
+import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('exop tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -65,16 +67,24 @@ test.describe('exop tests', () => {
     await assertError(page, 'ProtocolError', true);
   });
 
+  test('advanced options start closed', async ({ page }) => {
+    const exopForm = page.locator('.singleClientExop');
+
+    await assertAdvancedOptionsClosed(exopForm);
+  });
+
   test('control passed', async ({ page }) => {
-    await page
-      .locator('.singleClientExop')
+    const exopForm = page.locator('.singleClientExop');
+
+    await exopForm
       .locator('.userInteractionContainer')
       .getByRole('textbox')
       .first()
       .fill(whoAmIOid);
 
-    const controlForm = page
-      .locator('.singleClientExop')
+    await expandAdvancedOptions(exopForm);
+
+    const controlForm = exopForm
       .getByText('controls')
       .locator('..')
       .locator('..')

@@ -6,6 +6,7 @@ import { exopClient } from '../services/ldapdbsService';
 import type { newControlObject } from '../utils/types';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
+import AdvancedDropdown from './AdvancedDropdown';
 
 const Exop = ({ clientId }: { clientId: string }) => {
   const [newExopOid, setNewExopOid] = useState<string>('');
@@ -74,9 +75,9 @@ const Exop = ({ clientId }: { clientId: string }) => {
               </tr>
             </tbody>
           </table>
-          <br></br>
-          <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
-          <br></br>
+          <AdvancedDropdown displayText='advanced options'>
+            <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+          </AdvancedDropdown>
           {(oldExopStatus) ?
             <table>
               <tbody>
