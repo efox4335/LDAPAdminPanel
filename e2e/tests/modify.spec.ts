@@ -5,6 +5,7 @@ import { addNewEntry, assertEntryContents, assertModifyFormContents, clickCancel
 import { defaultNewEntry, defaultNewEntryInvalidModifyBody, defaultNewEntryInvalidModifyDn, defaultNewEntryModifiedBody, defaultNewEntryModifiedDn, defaultNewEntryModifyBody, defaultNewEntryModifyDn, defaultNewEntryRestoreDn, invalidCriticalControl } from '../utils/constants';
 import { openEntry } from '../utils/treeDisplayUtils';
 import assertError from '../utils/assertError';
+import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('modify tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -171,6 +172,18 @@ test.describe('modify tests', () => {
     await clickResetButton(modifyForm);
 
     await assertModifyFormContents(page, modifyForm, defaultNewEntry.attributes, [], []);
+
+    await clickCancelButton(modifyForm);
+  });
+
+  test('advanced options start closed', async ({ page }) => {
+    const newEntry = locateOpenEntry(page, defaultNewEntry.dn);
+
+    await clickModifyButton(newEntry);
+
+    const modifyForm = locateOpenEntryDisplay(page).locator('form');
+
+    await assertAdvancedOptionsClosed(modifyForm);
 
     await clickCancelButton(modifyForm);
   });

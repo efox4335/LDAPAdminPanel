@@ -13,6 +13,7 @@ import NewAttributeList from './NewAttributeList';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
 import getNewLdapAttributes from '../utils/getNewLdapAttributes';
+import AdvancedDropdown from './AdvancedDropdown';
 
 const ModifyEntryForm = ({ hideForm, entry, clientId }: {
   hideForm: () => void,
@@ -106,12 +107,14 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
           <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setModifiedAttributes} />
         </tbody>
       </table>
-      <br></br>
 
-      <div className='modifyControlContainer'>
-        <NewLdapControls tableName='modify controls' newControls={newModifyControls} setNewControls={setNewModifyControls} />
-        <NewLdapControls tableName='modify dn controls' newControls={newModifyDnControls} setNewControls={setNewModifyDnControls} />
-      </div>
+      <AdvancedDropdown displayText='advanced options'>
+        <div className='modifyControlContainer'>
+          <NewLdapControls tableName='modify controls' newControls={newModifyControls} setNewControls={setNewModifyControls} />
+          <NewLdapControls tableName='modify dn controls' newControls={newModifyDnControls} setNewControls={setNewModifyDnControls} />
+        </div>
+      </AdvancedDropdown>
+
       <button type='button' onClick={() => hideForm()} className='negativeButton'>cancel</button>
       <button type='button' onClick={() => resetForm()} className='negativeButton'>reset</button>
       <button className='positiveButton'>save</button>

@@ -461,48 +461,52 @@ export const fillModifyForm = async (
     }
   }
 
+  try {
+    await expandAdvancedOptions(modifyForm);
+  } catch { /* error is ok */ }
+
   const modifyBodyControlTable = locateTableByHeaderText(page, modifyForm, 'modify controls');
 
-  for (const control of modifyBodyControls) {
-    const rowNum = await modifyBodyControlTable
-      .getByRole('row')
-      .count() - 1;
+  await expect(modifyBodyControlTable).toBeVisible();
 
+  let curBodyControlRowNum = 0;
+
+  for (const control of modifyBodyControls) {
     await modifyBodyControlTable
-      .getByRole('row')
-      .nth(rowNum)
       .getByRole('textbox')
+      .nth(curBodyControlRowNum)
       .fill(control.oid);
 
     if (control.critical) {
       await modifyBodyControlTable
-        .getByRole('row')
-        .nth(rowNum)
         .getByRole('checkbox')
+        .nth(curBodyControlRowNum)
         .check();
     }
+
+    curBodyControlRowNum += 1;
   }
 
   const modifyDnControlTable = locateTableByHeaderText(page, modifyForm, 'modify dn controls');
 
-  for (const control of modifyDnControls) {
-    const rowNum = await modifyDnControlTable
-      .getByRole('row')
-      .count() - 1;
+  await expect(modifyDnControlTable).toBeVisible();
 
+  let curDnControlRowNum = 0;
+
+  for (const control of modifyDnControls) {
     await modifyDnControlTable
-      .getByRole('row')
-      .nth(rowNum)
       .getByRole('textbox')
+      .nth(curDnControlRowNum)
       .fill(control.oid);
 
     if (control.critical) {
       await modifyDnControlTable
-        .getByRole('row')
-        .nth(rowNum)
         .getByRole('checkbox')
+        .nth(curDnControlRowNum)
         .check();
     }
+
+    curDnControlRowNum += 1;
   }
 };
 
@@ -525,7 +529,13 @@ export const assertModifyFormContents = async (
     }
   }
 
+  try {
+    await expandAdvancedOptions(modifyForm);
+  } catch { /* error is ok */ }
+
   const modifyBodyControlTable = locateTableByHeaderText(page, modifyForm, 'modify controls');
+
+  await expect(modifyBodyControlTable).toBeVisible();
 
   for (const control of modifyBodyControls) {
     const curControlRow = await locateNewControl(page, modifyBodyControlTable, control.oid);
