@@ -147,6 +147,10 @@ export const assertNewEntryFormContents = async (page: Page, newEntryForm: Locat
 
   const controlTable = locateTableByHeaderText(page, newEntryForm, 'controls');
 
+  try {
+    await expandAdvancedOptions(newEntryForm);
+  } catch { /* error is ok */ }
+
   for (const control of controls) {
     const curControlRow = await locateNewControl(page, controlTable, control.oid);
 
@@ -228,6 +232,10 @@ export const deleteOpenEntry = async (page: Page, distinguishedName: string, con
 
 export const fillNewEntry = async (page: Page, newEntryForm: Locator, entryAttributes: entryAttribute[], controls: ldapControl[]) => {
   const attributeTable = locateTableByHeaderText(page, newEntryForm, 'attribute');
+
+  try {
+    await expandAdvancedOptions(newEntryForm);
+  } catch { /* error is ok */ }
 
   for (const ldapAttribute of entryAttributes) {
     if (ldapAttribute.name === 'dn') {

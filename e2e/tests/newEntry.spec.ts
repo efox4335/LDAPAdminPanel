@@ -5,6 +5,8 @@ import { defaultNewEntry, invalidCriticalControl, defaultTreeEntries } from '../
 import { locateOpenEntryDisplay, fillNewEntry, deleteOpenEntry, assertEntryContents, clickNewEntryButton, submitNewEntry, clickNewChildButton, assertNewEntryFormContents, clickResetButton, clickCancelButton, deleteNewEntryAttribute, deleteNewEntryValue } from '../utils/openEntryUtils';
 import { locateEntry, openEntry } from '../utils/treeDisplayUtils';
 import assertError from '../utils/assertError';
+import expandAdvancedOptions from '../utils/expandAdvancedOptions';
+import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('new entry tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -153,12 +155,24 @@ test.describe('new entry tests', () => {
     } catch { /* error expected */ }
   });
 
+  test('advanced options start closed', async ({ page }) => {
+    await clickNewEntryButton(page);
+
+    const newEntryForm = locateOpenEntryDisplay(page).locator('form');
+
+    await assertAdvancedOptionsClosed(newEntryForm);
+  });
+
   test('control can be deleted', async ({ page }) => {
     await clickNewEntryButton(page);
 
     const newEntryForm = locateOpenEntryDisplay(page).locator('form');
 
     await fillNewEntry(page, newEntryForm, defaultNewEntry.attributes, [invalidCriticalControl]);
+
+    try {
+      await expandAdvancedOptions(newEntryForm);
+    } catch { /* error is ok */ }
 
     try {
       await assertNewEntryFormContents(page, newEntryForm, defaultNewEntry.attributes, [invalidCriticalControl]);
@@ -173,6 +187,10 @@ test.describe('new entry tests', () => {
     const newEntryForm = locateOpenEntryDisplay(page).locator('form');
 
     await fillNewEntry(page, newEntryForm, defaultNewEntry.attributes, [invalidCriticalControl]);
+
+    try {
+      await expandAdvancedOptions(newEntryForm);
+    } catch { /* error is ok */ }
 
     await assertNewEntryFormContents(page, newEntryForm, defaultNewEntry.attributes, [{ oid: '', critical: false }]);
   });

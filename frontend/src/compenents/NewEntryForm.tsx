@@ -13,6 +13,7 @@ import NewLdapAttributeValues from './NewLdapAttributeValues';
 import getControls from '../utils/getControls';
 import NewLdapControls from './NewLdapControls';
 import getParentDn from '../utils/getParentDn';
+import AdvancedDropdown from './AdvancedDropdown';
 
 const NewEntryForm = ({ clientId, defaultEntryAttributes, cancelNewEntry }: { clientId: string, defaultEntryAttributes: Record<string, string[]>, cancelNewEntry: () => void }) => {
   let defaultDn = '';
@@ -142,8 +143,10 @@ const NewEntryForm = ({ clientId, defaultEntryAttributes, cancelNewEntry }: { cl
             <NewAttributeList newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
           </tbody>
         </table>
-        <br></br>
-        <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+
+        <AdvancedDropdown displayText='advanced options'>
+          <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+        </AdvancedDropdown>
 
         <button type='button' onClick={() => cancelNewEntry()} className='negativeButton'>cancel</button>
         <button type='button' onClick={() => handleReset()} className='negativeButton'>reset</button>
