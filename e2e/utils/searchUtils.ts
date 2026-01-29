@@ -3,6 +3,7 @@ import { type Page, type Locator, expect } from '@playwright/test';
 import type { ldapControl, ldapSearch } from './types';
 import locateTableByHeaderText from './locateTableByHeader';
 import locateNewControl from './locateNewControl';
+import expandAdvancedOptions from './expandAdvancedOptions';
 
 export const locateSearchForm = (page: Page): Locator => {
   return page
@@ -22,20 +23,12 @@ export const assertAdvancedOptionsClosed = async (page: Page) => {
   await expect(locateTableByHeaderText(page, searchForm, 'controls')).toBeHidden();
 };
 
-export const expandAdvancedOptions = async (searchForm: Locator) => {
-  await searchForm
-    .getByRole('button', { name: /.*advanced options$/ })
-    .click();
-};
-
 export const fillSearchForm = async (page: Page, search: ldapSearch, controls: ldapControl[]) => {
   const searchForm = locateSearchForm(page);
 
   try {
-    await assertAdvancedOptionsOpen(page);
-  } catch {
     await expandAdvancedOptions(searchForm);
-  }
+  } catch { /* error is fine */ }
 
   if (search.name) {
     await searchForm
@@ -149,10 +142,8 @@ export const assertSearchFormContents = async (page: Page, search: ldapSearch, c
   const searchForm = locateSearchForm(page);
 
   try {
-    await assertAdvancedOptionsOpen(page);
-  } catch {
     await expandAdvancedOptions(searchForm);
-  }
+  } catch { /* error is fine */ }
 
   if (typeof (search.name) === 'string') {
     await expect(searchForm
