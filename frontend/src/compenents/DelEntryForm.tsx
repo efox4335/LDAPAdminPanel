@@ -7,6 +7,7 @@ import { addError } from '../slices/error';
 import type { newControlObject } from '../utils/types';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
+import AdvancedDropdown from './AdvancedDropdown';
 
 const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clientId: string, cancelDel: () => void }) => {
   const dispatch = useDispatch();
@@ -30,8 +31,9 @@ const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clien
     <form onSubmit={handleDelete}>
       <b>delete {entryDn} forever</b>
       <br></br>
-      <br></br>
-      <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+      <AdvancedDropdown displayText='advanced options'>
+        <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />
+      </AdvancedDropdown>
       <button type='submit' className='negativeButton'>delete</button>
       <button type='button' className='positiveButton' onClick={() => cancelDel()}>cancel</button>
     </form>

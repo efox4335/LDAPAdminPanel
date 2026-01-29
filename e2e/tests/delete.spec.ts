@@ -1,10 +1,11 @@
 import { test } from '@playwright/test';
 
-import { addNewEntry, cancelDelete, deleteOpenEntry, openDeleteForm } from '../utils/openEntryUtils';
+import { addNewEntry, cancelDelete, deleteOpenEntry, openDeleteForm, locateOpenEntryDisplay } from '../utils/openEntryUtils';
 import { defaultNewEntry, invalidCriticalControl } from '../utils/constants';
 import { addServer, removeServer, adminBind, unbind } from '../utils/preTestUtils';
 import { locateEntry } from '../utils/treeDisplayUtils';
 import assertError from '../utils/assertError';
+import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('delete tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -51,6 +52,20 @@ test.describe('delete tests', () => {
     await deleteOpenEntry(page, defaultNewEntry.dn, [invalidCriticalControl]);
 
     await assertError(page, 'UnavailableCriticalExtensionError', true);
+
+    await cancelDelete(page, defaultNewEntry.dn);
+
+    await deleteOpenEntry(page, defaultNewEntry.dn, []);
+  });
+
+  test('delete advanced options start closed', async ({ page }) => {
+    await addNewEntry(page, defaultNewEntry.attributes, []);
+
+    await openDeleteForm(page, defaultNewEntry.dn);
+
+    const delForm = locateOpenEntryDisplay(page).locator('form');
+
+    await assertAdvancedOptionsClosed(delForm);
 
     await cancelDelete(page, defaultNewEntry.dn);
 

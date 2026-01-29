@@ -3,6 +3,7 @@ import { type Page, type Locator, expect } from '@playwright/test';
 import type { entryAttribute, ldapControl, ldapEntry, modification } from './types';
 import locateTableByHeaderText from './locateTableByHeader';
 import locateNewControl from './locateNewControl';
+import expandAdvancedOptions from './expandAdvancedOptions';
 
 export const locateOpenEntryDisplay = (page: Page): Locator => {
   return page.locator('.openEntriesContainer');
@@ -197,6 +198,8 @@ export const deleteOpenEntry = async (page: Page, distinguishedName: string, con
   await openDeleteForm(page, distinguishedName);
 
   const delEntryForm = locateOpenEntryDisplay(page).locator('form');
+
+  await expandAdvancedOptions(delEntryForm);
 
   const controlTable = delEntryForm.getByRole('table');
 
