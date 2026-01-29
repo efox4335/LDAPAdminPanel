@@ -11,18 +11,6 @@ export const locateSearchForm = (page: Page): Locator => {
     .locator('form');
 };
 
-export const assertAdvancedOptionsOpen = async (page: Page) => {
-  const searchForm = locateSearchForm(page);
-
-  await expect(locateTableByHeaderText(page, searchForm, 'controls')).toBeVisible();
-};
-
-export const assertAdvancedOptionsClosed = async (page: Page) => {
-  const searchForm = locateSearchForm(page);
-
-  await expect(locateTableByHeaderText(page, searchForm, 'controls')).toBeHidden();
-};
-
 export const fillSearchForm = async (page: Page, search: ldapSearch, controls: ldapControl[]) => {
   const searchForm = locateSearchForm(page);
 
@@ -258,34 +246,26 @@ export const clickResetBaseFormButton = async (page: Page) => {
   const searchForm = locateSearchForm(page);
 
   try {
-    await assertAdvancedOptionsOpen(page);
+    await expandAdvancedOptions(searchForm);
+  } catch { /* error is fine */ }
 
-    await searchForm
-      .getByRole('button', { name: /^reset$/ })
-      .last()
-      .click();
-  } catch {
-    await searchForm
-      .getByRole('button', { name: /^reset$/ })
-      .click();
-  }
+  await searchForm
+    .getByRole('button', { name: /^reset$/ })
+    .last()
+    .click();
 };
 
 export const clickResetAdvancedFormButton = async (page: Page) => {
   const searchForm = locateSearchForm(page);
 
   try {
-    await assertAdvancedOptionsOpen(page);
+    await expandAdvancedOptions(searchForm);
+  } catch { /* error is fine */ }
 
-    await searchForm
-      .getByRole('button', { name: /^reset$/ })
-      .first()
-      .click();
-  } catch {
-    await searchForm
-      .getByRole('button', { name: /^reset$/ })
-      .click();
-  }
+  await searchForm
+    .getByRole('button', { name: /^reset$/ })
+    .first()
+    .click();
 };
 
 export const clickSearchButton = async (page: Page) => {

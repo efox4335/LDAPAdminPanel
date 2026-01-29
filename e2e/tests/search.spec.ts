@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 import { addServer, adminBind, removeServer, unbind } from '../utils/preTestUtils';
-import { assertAdvancedOptionsClosed, assertSearchFormContents, clickResetAdvancedFormButton, clickResetBaseFormButton, clickSearchButton, fillSearchForm, locateSearchForm } from '../utils/searchUtils';
+import { assertSearchFormContents, clickResetAdvancedFormButton, clickResetBaseFormButton, clickSearchButton, fillSearchForm, locateSearchForm } from '../utils/searchUtils';
 import { assertOpenEntryCount, locateOpenEntry } from '../utils/openEntryUtils';
 import { defaultSearchFormContents, invalidCriticalControl } from '../utils/constants';
 import assertError from '../utils/assertError';
 import { locateEntry } from '../utils/treeDisplayUtils';
+import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('search tests', () => {
   test.describe('server added', () => {
@@ -33,7 +34,9 @@ test.describe('search tests', () => {
       });
 
       test('advanced options start closed', async ({ page }) => {
-        await assertAdvancedOptionsClosed(page);
+        const searchForm = locateSearchForm(page);
+
+        await assertAdvancedOptionsClosed(searchForm);
       });
 
       test('default form contents', async ({ page }) => {
