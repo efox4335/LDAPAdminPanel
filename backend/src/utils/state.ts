@@ -54,6 +54,20 @@ export const getAllStoredClientMetaData = (): storedClientMetaData[] => {
   return [...clients.entries()].map(([_key, value]) => value);
 };
 
+export let settingsFile: string;
+
+if (process.env.SETTINGS_FILE) {
+  settingsFile = process.env.SETTINGS_FILE;
+} else {
+  settingsFile = './config/ldapAdminPanelSettings.json';
+}
+
+export let defaultSettings: Record<string, unknown>;
+
+export const setDefaultSettings = (newDefault: Record<string, unknown>) => {
+  defaultSettings = newDefault;
+};
+
 //eventually settings like this will be read from a settings file and will be settable from the frontend
 export let logOutputFile: string;
 

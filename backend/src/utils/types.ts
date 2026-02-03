@@ -79,6 +79,24 @@ export interface clientMetaData extends Omit<storedClientMetaData, 'ldapClient'>
   isConnected: boolean
 };
 
+type settingValue = string | null | number | boolean;
+
+interface settingPath {
+  path: string[]
+}
+
+interface truncateSetting extends settingPath {
+  value: settingValue | settingValue[]
+}
+
+export type delSettingsReq = {
+  settings: settingPath[]
+};
+
+export type truncateSettingsReq = {
+  settings: truncateSetting[]
+};
+
 type ldapError = {
   type: 'ldapError',
   code: number,

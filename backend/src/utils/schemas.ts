@@ -72,3 +72,15 @@ export const modifyReqSchema = z.object({
     values: z.array(z.string())
   })).min(1)
 });
+
+const settingValueSchema = z.union([z.string(), z.null(), z.number(), z.boolean()]);
+
+const settingPathSchema = z.array(z.string());
+
+export const delSettingsReqSchema = z.object({
+  settings: z.array(z.object({ path: settingPathSchema }))
+});
+
+export const truncateSettingsReqSchema = z.object({
+  settings: z.array(z.object({ path: settingPathSchema, value: settingValueSchema }))
+});
