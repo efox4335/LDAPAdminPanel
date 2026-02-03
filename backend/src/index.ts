@@ -1,8 +1,15 @@
 import app from './app';
 import writeToLog from './utils/logger';
+import { initializeState } from './utils/state';
 
-const PORT = 3000;
+const main = async () => {
+  await initializeState();
 
-app.listen(PORT, () => {
-  writeToLog(`backend up at port ${PORT}`);
-});
+  const PORT = 3000;
+
+  app.listen(PORT, () => {
+    writeToLog(`backend up at port ${PORT}`);
+  });
+};
+
+void main();

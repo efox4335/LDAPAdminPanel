@@ -7,9 +7,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "rm ./tests/testLog.log || true && LOG_FILE=\"./tests/testLog.log\" ENABLE_LOGGING=true SETTINGS_FILE=\"./tests/config/testSettings.json\" DEFAULT_SETTINGS_FILE=\"./tests/config/defaultTestSettings.json\" tsx --test",
+    "test": "rm ./tests/testLog.log || true && SETTINGS_FILE=\"./tests/config/testSettings.json\" DEFAULT_SETTINGS_FILE=\"./tests/config/defaultTestSettings.json\" tsx --test",
     "build": "tsc --project tsconfig.build.json",
-    "dev": "LOG_FILE=stdout ENABLE_LOGGING=true SETTINGS_FILE=\"./config/ldapAdminPanelSettings.json\" DEFAULT_SETTINGS_FILE=\"./config/defaultDevSettings.json\" tsx --watch ./src/index.ts",
+    "dev": "SETTINGS_FILE=\"./config/ldapAdminPanelSettings.json\" DEFAULT_SETTINGS_FILE=\"./config/defaultDevSettings.json\" tsx --watch ./src/index.ts",
     "lint": "eslint ."
   },
   "devDependencies": {

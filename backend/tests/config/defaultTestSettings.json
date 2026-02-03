@@ -1,1 +1,6 @@
-{}
+{
+	"logging": {
+		"enableLogging": true,
+		"logFile": "./tests/testLog.log"
+	}
+}

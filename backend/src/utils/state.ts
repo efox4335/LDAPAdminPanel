@@ -2,6 +2,8 @@
 import ldapts from 'ldapts';
 
 import { storedClientMetaData } from './types';
+import getDefaultSettings from '../utils/getDefaultSettings';
+import getCurSettings from '../utils/getCurSettings';
 
 const clients = new Map<string, storedClientMetaData>();
 let newClientId: number = 0;
@@ -56,11 +58,9 @@ export const getAllStoredClientMetaData = (): storedClientMetaData[] => {
 
 export let settingsFile: string;
 
-if (process.env.SETTINGS_FILE) {
-  settingsFile = process.env.SETTINGS_FILE;
-} else {
-  settingsFile = './config/ldapAdminPanelSettings.json';
-}
+export const setSettingsFile = (newSettingsFile: string) => {
+  settingsFile = newSettingsFile;
+};
 
 export let defaultSettings: Record<string, unknown>;
 
@@ -68,19 +68,31 @@ export const setDefaultSettings = (newDefault: Record<string, unknown>) => {
   defaultSettings = newDefault;
 };
 
-//eventually settings like this will be read from a settings file and will be settable from the frontend
-export let logOutputFile: string;
+export let logOutputFile: string = 'stdout';
 
-if (process.env.LOG_FILE) {
-  logOutputFile = process.env.LOG_FILE;
-} else {
-  logOutputFile = 'stdout';
-}
+export const setLogOutputFile = (newLogFile: string) => {
+  logOutputFile = newLogFile;
+};
 
-export let enableLogs: boolean;
+export let enableLogs: boolean = false;
 
-if (process.env.ENABLE_LOGGING) {
-  enableLogs = true;
-} else {
-  enableLogs = false;
-}
+export const setEnableLogs = (newEnableLogs: boolean) => {
+  enableLogs = newEnableLogs;
+};
+
+export const initializeState = async () => {
+  if (process.env.DEFAULT_SETTINGS_FILE) {
+    defaultSettings = await getDefaultSettings(process.env.DEFAULT_SETTINGS_FILE);
+  } else {
+    defaultSettings = {};
+  }
+
+  if (process.env.SETTINGS_FILE) {
+    settingsFile = process.env.SETTINGS_FILE;
+  } else {
+    settingsFile = './config/ldapAdminPanelSettings.json';
+  }
+
+  await getCurSettings();
+
+};

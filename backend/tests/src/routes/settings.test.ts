@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import test, { beforeEach, describe } from 'node:test';
+import test, { before, beforeEach, describe } from 'node:test';
 import { writeFile, unlink, readFile } from 'node:fs/promises';
 import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { settingsFile, defaultSettings } from '../../../src/utils/state';
+import { settingsFile, defaultSettings, initializeState } from '../../../src/utils/state';
 
 describe('settings enpoint tests', () => {
+  before(async () => {
+    await initializeState();
+  });
+
   beforeEach(async () => {
     await writeFile(settingsFile, '');
   });

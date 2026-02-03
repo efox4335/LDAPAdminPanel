@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import test, { afterEach, beforeEach } from 'node:test';
+import test, { afterEach, before, beforeEach } from 'node:test';
 import { describe } from 'node:test';
 import supertest from 'supertest';
 import expect from 'expect';
@@ -9,8 +9,13 @@ import expect from 'expect';
 import app from '../../../src/app';
 import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn, basicCompare, basicModify, validateBasicModify, basicModifyDn, undoBasicModifyDn, validateBasicModifyDn, serverUrl, adminDn } from '../../testUtils';
 import { clientMetaData } from '../../../src/utils/types';
+import { initializeState } from '../../../src/utils/state';
 
 describe('ldapdbs endpoint tests', () => {
+  before(async () => {
+    await initializeState();
+  });
+
   describe('new client tests', (): void => {
     describe('ldap dp url tests', () => {
       test('invalid url', async () => {

@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import test, { afterEach, beforeEach } from 'node:test';
+import test, { afterEach, before, beforeEach } from 'node:test';
 import { describe } from 'node:test';
 import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
 import { testClients } from '../../testUtils';
+import { initializeState } from '../../../src/utils/state';
 
 describe('error handler tests', () => {
+  before(async () => {
+    await initializeState();
+  });
+
   const clients = new testClients;
 
   beforeEach(async () => {
