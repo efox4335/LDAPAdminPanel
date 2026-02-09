@@ -1,14 +1,17 @@
 import { useSelector } from 'react-redux';
 
 import { selectClients } from '../slices/client';
+import { selectSettingsPanelIsOpen } from '../slices/settings';
 import SingleClient from './SingleClient';
 import NewClientForm from './NewClientForm';
 
 const ClientsDisplay = () => {
   const clients = useSelector(selectClients);
 
+  const settingsState = useSelector(selectSettingsPanelIsOpen);
+
   return (
-    <div className='clientsDisplay'>
+    <div className={settingsState ? 'clientsDisplayWithOpenSettings' : 'clientsDisplayWithClosedSettings'}>
       <NewClientForm />
       <h2 className='clientsHeader'>Clients:</h2>
       <div className='clientsList'>

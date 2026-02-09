@@ -8,7 +8,7 @@ const ErrorsDisplay = () => {
   const errors: displayError[] = useSelector(selectErrors);
 
   return (
-    <div className='errorsDisplay' style={{ zIndex: (errors.length > 0) ? 2 : 1 }}>
+    <div className='errorsDisplay' style={{ zIndex: (errors.length > 0) ? 3 : 1 }}>
       {errors.map((err) => {
         return (
           <div key={err.id} className='singleError'>

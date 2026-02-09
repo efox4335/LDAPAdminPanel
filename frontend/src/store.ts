@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import clientsSlice from './slices/client';
 import errorSlice from './slices/error';
+import settingsSlice from './slices/settings';
 
 const store = configureStore({
   reducer: {
     clients: clientsSlice,
-    errors: errorSlice
+    errors: errorSlice,
+    settings: settingsSlice
   }
 });
 

@@ -172,3 +172,38 @@ export type queryFetchRes = {
   visibleEntry: ldapEntry,
   operationalEntry: operationalLdapEntry
 };
+
+type settingPrimitiveValue = string | null | number | boolean;
+
+export type settingValue = settingPrimitiveValue | settingPrimitiveValue[];
+
+export interface settingPath {
+  path: string[]
+}
+
+export interface truncateSetting extends settingPath {
+  value: settingValue
+}
+
+export type delSettingsReq = {
+  settings: settingPath[]
+};
+
+export type truncateSettingsReq = {
+  settings: truncateSetting[]
+};
+
+export type getAllSettingsRes = {
+  settings: Record<string, unknown>,
+  defaults: Record<string, unknown>
+};
+
+export type truncateSettingsRes = {
+  settings: Record<string, unknown>
+};
+
+export type settingsStore = {
+  isSettingsPanelOpen: boolean,
+  defaults: Record<string, unknown>,
+  settings: Record<string, unknown>
+};
