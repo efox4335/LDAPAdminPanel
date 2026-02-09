@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-import { addServer, removeServer, adminBind, unbind } from '../utils/preTestUtils';
+import { addServer, removeServer, adminBind, unbind, navToPage } from '../utils/preTestUtils';
 import { locateEntry, collapseEntry, expandEntry } from '../utils/treeDisplayUtils';
 import { defaultTreeEntries } from '../utils/constants';
 
 test.describe('ldap tree display tests', () => {
   test.beforeEach(async ({ page }) => {
+    await navToPage(page);
+
     await addServer(page);
 
     await adminBind(page);

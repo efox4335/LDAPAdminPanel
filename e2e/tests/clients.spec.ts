@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 import { ldapServerUrl } from '../utils/constants';
+import { navToPage } from '../utils/preTestUtils';
 
 test.describe('client tests', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173');
+    await navToPage(page);
   });
 
   test('incorrect protocol causes error', async ({ page }) => {

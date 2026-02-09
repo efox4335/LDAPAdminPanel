@@ -2,9 +2,11 @@ import type { Page } from '@playwright/test';
 
 import { pageUrl, ldapServerUrl, adminDn, adminPassword } from './constants';
 
-export const addServer = async (page: Page) => {
+export const navToPage = async (page: Page) => {
   await page.goto(pageUrl);
+};
 
+export const addServer = async (page: Page) => {
   await page.getByRole('textbox').fill(ldapServerUrl);
 
   await page.getByRole('button', { name: 'add' }).click();

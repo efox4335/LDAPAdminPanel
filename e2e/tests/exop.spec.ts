@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { addServer, removeServer, adminBind, unbind } from '../utils/preTestUtils';
+import { addServer, removeServer, adminBind, unbind, navToPage } from '../utils/preTestUtils';
 import { whoAmIOid, invalidOid } from '../utils/constants';
 import assertError from '../utils/assertError';
 import expandAdvancedOptions from '../utils/expandAdvancedOptions';
@@ -8,6 +8,7 @@ import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('exop tests', () => {
   test.beforeEach(async ({ page }) => {
+    await navToPage(page);
     await addServer(page);
     await adminBind(page);
   });

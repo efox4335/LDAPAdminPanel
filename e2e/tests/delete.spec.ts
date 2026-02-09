@@ -2,13 +2,15 @@ import { test } from '@playwright/test';
 
 import { addNewEntry, cancelDelete, deleteOpenEntry, openDeleteForm, locateOpenEntryDisplay } from '../utils/openEntryUtils';
 import { defaultNewEntry, invalidCriticalControl } from '../utils/constants';
-import { addServer, removeServer, adminBind, unbind } from '../utils/preTestUtils';
+import { addServer, removeServer, adminBind, unbind, navToPage } from '../utils/preTestUtils';
 import { locateEntry } from '../utils/treeDisplayUtils';
 import assertError from '../utils/assertError';
 import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('delete tests', () => {
   test.beforeEach(async ({ page }) => {
+    await navToPage(page);
+
     await addServer(page);
 
     await adminBind(page);

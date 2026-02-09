@@ -2,11 +2,13 @@ import { test, expect } from '@playwright/test';
 
 import { openEntry } from '../utils/treeDisplayUtils';
 import { assertEntryContents, closeEntry, locateOpenEntry } from '../utils/openEntryUtils';
-import { addServer, adminBind, removeServer, unbind } from '../utils/preTestUtils';
+import { addServer, adminBind, navToPage, removeServer, unbind } from '../utils/preTestUtils';
 import { defaultTreeEntries } from '../utils/constants';
 
 test.describe('open entry tests', () => {
   test.beforeEach(async ({ page }) => {
+    await navToPage(page);
+
     await addServer(page);
 
     await adminBind(page);

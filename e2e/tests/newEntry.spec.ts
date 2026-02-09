@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { addServer, adminBind, unbind, removeServer } from '../utils/preTestUtils';
+import { addServer, adminBind, unbind, removeServer, navToPage } from '../utils/preTestUtils';
 import { defaultNewEntry, invalidCriticalControl, defaultTreeEntries } from '../utils/constants';
 import { locateOpenEntryDisplay, fillNewEntry, deleteOpenEntry, assertEntryContents, clickNewEntryButton, submitNewEntry, clickNewChildButton, assertNewEntryFormContents, clickResetButton, clickCancelButton, deleteNewEntryAttribute, deleteNewEntryValue } from '../utils/openEntryUtils';
 import { locateEntry, openEntry } from '../utils/treeDisplayUtils';
@@ -10,6 +10,8 @@ import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('new entry tests', () => {
   test.beforeEach(async ({ page }) => {
+    await navToPage(page);
+
     await addServer(page);
 
     await adminBind(page);

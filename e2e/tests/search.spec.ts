@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { addServer, adminBind, removeServer, unbind } from '../utils/preTestUtils';
+import { addServer, adminBind, navToPage, removeServer, unbind } from '../utils/preTestUtils';
 import { assertSearchFormContents, clickResetAdvancedFormButton, clickResetBaseFormButton, clickSearchButton, fillSearchForm, locateSearchForm } from '../utils/searchUtils';
 import { assertOpenEntryCount, locateOpenEntry } from '../utils/openEntryUtils';
 import { defaultSearchFormContents, invalidCriticalControl } from '../utils/constants';
@@ -9,6 +9,10 @@ import { locateEntry } from '../utils/treeDisplayUtils';
 import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('search tests', () => {
+  test.beforeEach(async ({ page }) => {
+    await navToPage(page);
+  });
+
   test.describe('server added', () => {
     test.beforeEach(async ({ page }) => {
       await addServer(page);

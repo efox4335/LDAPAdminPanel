@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { addServer, removeServer, adminBind, unbind } from '../utils/preTestUtils';
+import { addServer, removeServer, adminBind, unbind, navToPage } from '../utils/preTestUtils';
 import { addNewEntry, assertEntryContents, assertModifyFormContents, clickCancelButton, clickModifyButton, clickResetButton, clickSaveButton, deleteOpenEntry, fillModifyForm, locateOpenEntry, locateOpenEntryDisplay } from '../utils/openEntryUtils';
 import { defaultNewEntry, defaultNewEntryInvalidModifyBody, defaultNewEntryInvalidModifyDn, defaultNewEntryModifiedBody, defaultNewEntryModifiedDn, defaultNewEntryModifyBody, defaultNewEntryModifyDn, defaultNewEntryRestoreDn, invalidCriticalControl } from '../utils/constants';
 import { openEntry } from '../utils/treeDisplayUtils';
@@ -9,6 +9,8 @@ import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('modify tests', () => {
   test.beforeEach(async ({ page }) => {
+    await navToPage(page);
+
     await addServer(page);
 
     await adminBind(page);

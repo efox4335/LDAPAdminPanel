@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 
 import { ldapServerUrl, adminDn, adminPassword, invalidOid } from '../utils/constants';
-import { addServer, removeServer } from '../utils/preTestUtils';
+import { addServer, navToPage, removeServer } from '../utils/preTestUtils';
 import assertClientInfo from '../utils/assertClientInfo';
 import assertError from '../utils/assertError';
 import expandAdvancedOptions from '../utils/expandAdvancedOptions';
@@ -9,6 +9,8 @@ import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 
 test.describe('bind tests', () => {
   test.beforeEach(async ({ page }) => {
+    await navToPage(page);
+
     await addServer(page);
   });
 
