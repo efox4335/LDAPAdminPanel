@@ -1,5 +1,16 @@
+:root {
+  --mainBackgroundColor: rgb(44, 43, 43);
+  --inputBackgroundColor: rgb(50, 50, 50);
+  --lightTextColor: rgb(207, 207, 207);
+  --darkTextColor: rgb(27, 23, 23);
+  --userInteractionBackground: rgb(60, 60, 60);
+  --defaultBorderColor: rgb(26, 26, 26);
+  --scrollBarBarColor: rgb(100, 100, 100);
+  --ldapTreeChildIndicatorColor: rgb(20, 20, 20);
+}
+
 html {
-  background-color: rgb(44, 43, 43);
+  background-color: var(--mainBackgroundColor);
 }
 
 body {
@@ -7,7 +18,7 @@ body {
 }
 
 .mainDisplay {
-  color: rgb(207, 207, 207);
+  color: var(--lightTextColor);
   display: grid;
   grid-template-columns: 2fr 1fr;
   grid-template-rows: 1fr;
@@ -33,11 +44,11 @@ body {
 
 .rawError {
   overflow: scroll;
-  scrollbar-color: rgb(100, 100, 100) rgb(44, 43, 43);
-  background-color: rgb(44, 43, 43);
+  scrollbar-color: var(--scrollBarBarColor) var(--mainBackgroundColor);
+  background-color: var(--mainBackgroundColor);
   margin: 10px;
   border: solid;
-  border-color: rgb(27, 25, 25);
+  border-color: var(--defaultBorderColor);
   height: 30dvh;
   width: 100dvh;
 }
@@ -53,7 +64,7 @@ body {
   z-index: 2;
   border: solid 2px;
   border-left: 0px;
-  border-color: rgb(26, 26, 26);
+  border-color: var(--defaultBorderColor);
   display: flex;
   flex-direction: column;
 }
@@ -62,7 +73,7 @@ body {
   display: flex;
   justify-content: right;
   border-bottom: solid 2px;
-  border-color: rgb(26, 26, 26);
+  border-color: var(--defaultBorderColor);
 }
 
 .closedSettingsPanelToggleButtonContainer {
@@ -83,7 +94,7 @@ body {
 
 .settingsContainer {
   flex-grow: 1;
-  background-color: rgb(60, 60, 60);
+  background-color: var(--userInteractionBackground);
 }
 
 .settingsTableMarginContainer {
@@ -98,8 +109,8 @@ body {
 }
 
 select {
-  background-color: rgb(50, 50, 50);
-  color: rgb(207, 207, 207);
+  background-color: var(--inputBackgroundColor);
+  color: var(--lightTextColor);
   border: 0px;
 }
 
@@ -112,7 +123,7 @@ select {
   flex-direction: column;
   justify-content: start;
   border: solid 2px;
-  border-color: rgb(26, 26, 26);
+  border-color: var(--defaultBorderColor);
 }
 
 .clientsDisplayWithClosedSettings {
@@ -124,7 +135,7 @@ select {
   flex-direction: column;
   justify-content: start;
   border: solid 2px;
-  border-color: rgb(26, 26, 26);
+  border-color: var(--defaultBorderColor);
 }
 
 .clientsHeader {
@@ -134,7 +145,7 @@ select {
   margin-bottom: 10px;
   border-bottom: 2px;
   border-bottom-style: solid;
-  border-color: rgb(26, 26, 26);
+  border-color: var(--defaultBorderColor);
 }
 
 .newClientContainer {
@@ -144,7 +155,7 @@ select {
   margin-bottom: 10px;
   border-bottom: 2px;
   border-bottom-style: solid;
-  border-color: rgb(26, 26, 26);
+  border-color: var(--defaultBorderColor);
 }
 
 .newClientForm {
@@ -157,7 +168,7 @@ select {
   padding-right: 15px;
   max-height: 100%;
   overflow: auto;
-  scrollbar-color: rgb(100, 100, 100) rgb(37, 37, 37);
+  scrollbar-color: var(--scrollBarBarColor) var(--mainBackgroundColor);
 }
 
 .singleClient {
@@ -238,10 +249,10 @@ select {
   min-height: 1.3em;
   min-width: 15em;
   max-height: 100%;
-  background-color: rgb(60, 60, 60);
+  background-color: var(--userInteractionBackground);
   border-width: 2px;
   border-style: solid;
-  border-color: rgb(26, 26, 26);
+  border-color: var(--defaultBorderColor);
   overflow: auto;
 }
 
@@ -256,7 +267,7 @@ select {
   border-right: 0px;
   border-bottom: 0px;
   border-left-width: 2px;
-  border-color: rgb(20, 20, 20);
+  border-color: var(--ldapTreeChildIndicatorColor);
 }
 
 .ldapTreeEntry:last-child {
@@ -268,9 +279,9 @@ select {
   position: relative;
   left: -2px;
   top: -3px;
-  background-color: rgb(60, 60, 60);
+  background-color: var(--userInteractionBackground);
   border-style: solid;
-  border-color: rgb(20, 20, 20);
+  border-color: var(--ldapTreeChildIndicatorColor);
   border-left-width: 2px;
   border-right: 0px;
   border-bottom-width: 2px;
@@ -280,7 +291,7 @@ select {
 }
 
 .openEntryButton {
-  background-color: rgb(60, 60, 60);
+  background-color: var(--userInteractionBackground);
   padding-left: 0px;
 }
 
@@ -335,8 +346,8 @@ table {
 }
 
 input {
-  background-color: rgb(50, 50, 50);
-  color: rgb(207, 207, 207);
+  background-color: var(--inputBackgroundColor);
+  color: var(--lightTextColor);
   border-style: hidden;
   outline-width: 0;
   padding: 0px;
@@ -344,36 +355,36 @@ input {
 }
 
 button {
-  background-color: rgb(66, 66, 66);
-  color: rgb(207, 207, 207);
+  background-color: var(--userInteractionBackground);
+  color: var(--lightTextColor);
   border-style: hidden;
   margin: 1px;
 }
 
 .positiveButton {
   background: rgb(55, 163, 64);
-  color: rgb(27, 23, 23);
+  color: var(--darkTextColor);
   border-style: hidden;
   margin: 1px;
 }
 
 .negativeButton {
   background: rgb(184, 68, 93);
-  color: rgb(27, 23, 23);
+  color: var(--darkTextColor);
   border-style: hidden;
   margin: 1px;
 }
 
 .deleteButton {
   background: rgb(184, 68, 93);
-  color: rgb(27, 23, 23);
+  color: var(--darkTextColor);
   font-size: 0.7rem;
   padding: 2px;
   margin: 0px;
 }
 
 .criticalCheckbox::before {
-  background: rgb(207, 207, 207);
+  background: var(--lightTextColor);
   content: "";
   width: 11px;
   height: 11px;
@@ -388,7 +399,7 @@ button {
   position: relative;
   top: 1px;
   appearance: none;
-  background-color: rgb(50, 50, 50);
+  background-color: var(--inputBackgroundColor);
   margin: 0;
   font: inherit;
   color: currentColor;
@@ -419,7 +430,7 @@ input[type="radio"] {
   margin-right: 2px;
   margin-left: 5px;
   appearance: none;
-  background-color: rgb(50, 50, 50);
+  background-color: var(--inputBackgroundColor);
   font: inherit;
   color: currentColor;
   height: 15px;
@@ -428,7 +439,7 @@ input[type="radio"] {
 }
 
 input[type="radio"]::before {
-  background: rgb(207, 207, 207);
+  background: var(--lightTextColor);
   content: "";
   float: left;
   margin: 2px;
