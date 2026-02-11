@@ -207,3 +207,14 @@ export type settingsStore = {
   defaults: Record<string, unknown>,
   settings: Record<string, unknown>
 };
+
+export type objectClassSchema = {
+  oid: string,
+  names: string[] | undefined,
+  description: string | undefined,
+  obsolete: boolean,
+  superiorObjectClasses: string[] | undefined,
+  type: 'ABSTRACT' | 'STRUCTURAL' | 'AUXILIARY' | 'INPARENT',
+  reqAttributes: string[] | undefined,
+  optAttributes: string[] | undefined,
+};
