@@ -218,3 +218,8 @@ export type objectClassSchema = {
   reqAttributes: string[] | undefined,
   optAttributes: string[] | undefined,
 };
+
+export type attributeTypeSchema = {
+  oid: string,
+  name: string[] | undefined
+};

@@ -1,3 +1,4 @@
+import tokenizeLdapSchema from './tokenizeLdapSchema';
 import type { objectClassSchema } from './types';
 
 const parseLdapObjectClassList = (curToken: string): 'VALUE' | 'LISTDELIM' | 'LISTEND' => {
@@ -29,83 +30,7 @@ type objectClassSchemaParts =
   'END';
 
 const parseObjectClassSchema = (rawObjectClassSchema: string): objectClassSchema => {
-  const tokens: string[] = [];
-
-  let curToken: string = '';
-
-  let inQuote: boolean = false;
-
-  for (let curCharIndex = 0; curCharIndex < rawObjectClassSchema.length; curCharIndex++) {
-    const curChar = rawObjectClassSchema[curCharIndex];
-
-    if (curChar === '\\') {
-      curCharIndex++;
-
-      continue;
-    }
-
-    if (curChar === ' ' && !inQuote) {
-      if (curToken !== '') {
-        tokens.push(curToken);
-      }
-
-      curToken = '';
-
-      continue;
-    }
-
-    if (curChar === '\'') {
-      if (inQuote) {
-        tokens.push(curToken);
-
-        curToken = '';
-
-        inQuote = false;
-      } else {
-        inQuote = true;
-      }
-
-      continue;
-    }
-
-    if (curChar === '(' && !inQuote) {
-      if (curToken !== '') {
-        tokens.push(curToken);
-
-        curToken = '';
-      }
-
-      tokens.push(curChar);
-
-      continue;
-    }
-
-    if (curChar === ')' && !inQuote) {
-      if (curToken !== '') {
-        tokens.push(curToken);
-
-        curToken = '';
-      }
-
-      tokens.push(curChar);
-
-      continue;
-    }
-
-    if (curChar === '$' && !inQuote) {
-      if (curToken !== '') {
-        tokens.push(curToken);
-
-        curToken = '';
-      }
-
-      tokens.push(curChar);
-
-      continue;
-    }
-
-    curToken += curChar;
-  }
+  const tokens = tokenizeLdapSchema(rawObjectClassSchema);
 
   const curSchema: objectClassSchema = {
     oid: '',
