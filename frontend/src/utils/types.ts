@@ -219,7 +219,17 @@ export type objectClassSchema = {
   optAttributes: string[] | undefined,
 };
 
+export type objectClassSchemaMap = {
+  objectClassSchemas: objectClassSchema[],
+  nameMap: Record<string, number>
+};
+
 export type attributeTypeSchema = {
   oid: string,
   name: string[] | undefined
+};
+
+export type attributeTypeSchemaMap = {
+  attributeTypes: attributeTypeSchema[],
+  nameMap: Record<string, number>
 };
