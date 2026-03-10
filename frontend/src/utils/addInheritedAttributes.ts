@@ -39,7 +39,7 @@ const getAllAttributes = (
   }
 
   curSchema.superiorObjectClasses.forEach((name) => {
-    const supObjectClassIndex = schemas.nameMap[name];
+    const supObjectClassIndex = schemas.nameMap[name.toLowerCase()];
 
     if (supObjectClassIndex === undefined) {
       throw new Error(`object class ${name} has no index`);
@@ -71,7 +71,7 @@ const addAttributes = (
   const attributeArr: string[] = [];
 
   attributesToAdd.forEach((attribute) => {
-    const attributeIndex = attributeTypeMap.nameMap[attribute];
+    const attributeIndex = attributeTypeMap.nameMap[attribute.toLowerCase()];
 
     const alreadyAdded = alreadyAddedAttributes[attributeIndex];
 

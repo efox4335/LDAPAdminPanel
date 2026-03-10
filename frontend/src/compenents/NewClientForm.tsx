@@ -28,7 +28,10 @@ const NewClientForm = () => {
         openEntries: [],
         openEntryMap: {},
         boundDn: null,
-        entryMap: undefined
+        entryMap: undefined,
+        attributeTypeSchemas: undefined,
+        originalObjectClassSchemas: undefined,
+        inheritedObjectClassSchemas: undefined
       };
 
       dispatch(addClient(newClient));
