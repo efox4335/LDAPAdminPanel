@@ -1,7 +1,7 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import type { client, clientStore, ldapEntry, operationalLdapEntry, serverTreeEntry, openLdapEntry } from '../utils/types';
+import type { client, clientStore, ldapEntry, operationalLdapEntry, serverTreeEntry, openLdapEntry, attributeTypeSchemaMap, objectClassSchemaMap } from '../utils/types';
 import getParentDn from '../utils/getParentDn';
 
 const initialState: clientStore = {};
@@ -19,7 +19,33 @@ const clientsSlice = createSlice({
     },
 
     addClients: (state, action: PayloadAction<client[]>) => {
-      action.payload.forEach((client) => state[client.id] = { ...client, openEntries: [], openEntryMap: {} });
+      action.payload.forEach((client) => state[client.id] = {
+        ...client,
+        openEntries: [],
+        openEntryMap: {},
+        attributeTypeSchemas: undefined,
+        originalObjectClassSchemas: undefined,
+        inheritedObjectClassSchemas: undefined
+      });
+    },
+
+    addSchemas: (state, action: PayloadAction<{
+      clientId: string
+      attributeTypeMap: attributeTypeSchemaMap,
+      initialObjectClassMap: objectClassSchemaMap,
+      inheritedObjectClassMap: objectClassSchemaMap
+    }>) => {
+      const existingEntry = state[action.payload.clientId];
+
+      if (existingEntry === undefined) {
+        console.log('no entry exists');
+
+        return;
+      }
+
+      existingEntry.attributeTypeSchemas = action.payload.attributeTypeMap;
+      existingEntry.originalObjectClassSchemas = action.payload.initialObjectClassMap;
+      existingEntry.inheritedObjectClassSchemas = action.payload.inheritedObjectClassMap;
     },
 
     concatEntryMap: (state, action: PayloadAction<{ clientId: string, parentDn: string, subtreeRootDn: string, entryMap: Record<string, serverTreeEntry> }>) => {
@@ -403,7 +429,27 @@ const clientsSlice = createSlice({
   }
 });
 
-export const { addClient, delClient, addClients, addEntry, delEntry, expandEntry, collapseEntry, updateEntry, concatEntryMap, addOpenEntry, closeOpenEntry, updateOrAddEntry } = clientsSlice.actions;
-export const { selectClients, selectLdapEntry, selectOpenEntriesByClientId, selectNamingContextsByClientId } = clientsSlice.selectors;
+export const {
+  addClient,
+  delClient,
+  addClients,
+  addEntry,
+  delEntry,
+  expandEntry,
+  collapseEntry,
+  updateEntry,
+  concatEntryMap,
+  addOpenEntry,
+  closeOpenEntry,
+  updateOrAddEntry,
+  addSchemas
+} = clientsSlice.actions;
+
+export const {
+  selectClients,
+  selectLdapEntry,
+  selectOpenEntriesByClientId,
+  selectNamingContextsByClientId
+} = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

@@ -152,7 +152,10 @@ export type client = {
   isConnected: boolean,
   openEntries: openLdapEntry[],
   openEntryMap: Record<string, string>,
-  entryMap: Record<string, serverTreeEntry> | undefined
+  entryMap: Record<string, serverTreeEntry> | undefined,
+  attributeTypeSchemas: attributeTypeSchemaMap | undefined,
+  originalObjectClassSchemas: objectClassSchemaMap | undefined,
+  inheritedObjectClassSchemas: objectClassSchemaMap | undefined
 };
 
 export type clientStore = Record<string, client>;
@@ -221,6 +224,7 @@ export type objectClassSchema = {
 
 export type objectClassSchemaMap = {
   objectClassSchemas: objectClassSchema[],
+  //map stores names in lower case because object classes are case insensitive
   nameMap: Record<string, number>
 };
 
@@ -231,5 +235,6 @@ export type attributeTypeSchema = {
 
 export type attributeTypeSchemaMap = {
   attributeTypes: attributeTypeSchema[],
+  //map stores names in lower case because attributes are case insensitive
   nameMap: Record<string, number>
 };
