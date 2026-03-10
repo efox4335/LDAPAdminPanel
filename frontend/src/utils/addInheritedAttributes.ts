@@ -73,14 +73,16 @@ const addAttributes = (
   attributesToAdd.forEach((attribute) => {
     const attributeIndex = attributeTypeMap.nameMap[attribute];
 
-    if (attributeIndex === undefined) {
-      throw new Error(`attempted to add attribute ${attribute} with no attribute syntax`);
-    }
-
     const alreadyAdded = alreadyAddedAttributes[attributeIndex];
 
     if (alreadyAdded === undefined) {
       alreadyAddedAttributes[attributeIndex] = true;
+
+      if (attributeIndex === undefined) {
+        attributeArr.push(attribute);
+
+        return;
+      }
 
       const attributeTypeSchema = attributeTypeMap.attributeTypes[attributeIndex];
 
