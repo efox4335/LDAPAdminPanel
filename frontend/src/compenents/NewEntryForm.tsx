@@ -7,13 +7,12 @@ import { addNewEntry } from '../services/ldapdbsService';
 import { addEntry, addOpenEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import getAttributeValues from '../utils/getAttributeValues';
-import NewAttributeList from './NewAttributeList';
 import { fetchLdapEntry } from '../utils/query';
-import NewLdapAttributeValues from './NewLdapAttributeValues';
 import getControls from '../utils/getControls';
 import NewLdapControls from './NewLdapControls';
 import getParentDn from '../utils/getParentDn';
 import AdvancedDropdown from './AdvancedDropdown';
+import LdapEntryInput from './LdapEntryInput';
 
 const NewEntryForm = ({ clientId, defaultEntryAttributes, cancelNewEntry }: { clientId: string, defaultEntryAttributes: Record<string, string[]>, cancelNewEntry: () => void }) => {
   let defaultDn = '';
@@ -116,33 +115,14 @@ const NewEntryForm = ({ clientId, defaultEntryAttributes, cancelNewEntry }: { cl
   return (
     <div>
       <form onSubmit={handleAddEntry}>
-        <table>
-          <thead>
-            <tr>
-              <th scope='row'>attribute</th>
-              <th scope='row'>value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                dn
-              </td>
-              <td>
-                <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                objectClass
-              </td>
-              <td>
-                <NewLdapAttributeValues newValues={newObjectClasses} setNewValues={setNewObjectClasses} />
-              </td>
-            </tr>
-            <NewAttributeList newAttributes={newAttributes} setNewAttributes={setNewAttributes} />
-          </tbody>
-        </table>
+        <LdapEntryInput
+          newDn={newDn}
+          setNewDn={setNewDn}
+          newObjectClasses={newObjectClasses}
+          setNewObjectClasses={setNewObjectClasses}
+          newAttributes={newAttributes}
+          setNewAttributes={setNewAttributes}
+        />
 
         <AdvancedDropdown displayText='advanced options'>
           <NewLdapControls tableName='controls' newControls={newControls} setNewControls={setNewControls} />

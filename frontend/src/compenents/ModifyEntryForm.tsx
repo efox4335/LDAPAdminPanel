@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux';
 import { useState, type SyntheticEvent } from 'react';
 
-import type { modifyReq, newLdapAttribute, serverTreeEntry, newControlObject } from '../utils/types';
+import type { modifyReq, newLdapAttribute, serverTreeEntry, newControlObject, newLdapAttributeValue } from '../utils/types';
 import parseModifyedAttributes from '../utils/parseModifiedAttributes';
 import { addError } from '../slices/error';
 import { modifyEntry, modifyEntryDn } from '../services/ldapdbsService';
@@ -9,11 +9,11 @@ import { fetchLdapEntry, fetchLdapChildren } from '../utils/query';
 import { updateEntry, concatEntryMap, delEntry, closeOpenEntry, addOpenEntry } from '../slices/client';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
 import getParentDn from '../utils/getParentDn';
-import NewAttributeList from './NewAttributeList';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
 import getNewLdapAttributes from '../utils/getNewLdapAttributes';
 import AdvancedDropdown from './AdvancedDropdown';
+import LdapEntryInput from './LdapEntryInput';
 
 const ModifyEntryForm = ({ hideForm, entry, clientId }: {
   hideForm: () => void,
@@ -23,7 +23,18 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
   const dispatch = useDispatch();
 
   const [newDn, setNewDn] = useState<string>(entry.dn);
-  const [modifiedAttributes, setModifiedAttributes] = useState<newLdapAttribute[]>(getNewLdapAttributes(entry.entry));
+
+  const curLdapAttributes = getNewLdapAttributes(entry.entry);
+
+  const objectClassIndex = curLdapAttributes.findIndex((attribute) => attribute.attributeName === 'objectClass');
+
+  const curObjectClassAttribute = curLdapAttributes[objectClassIndex];
+
+  curLdapAttributes.splice(objectClassIndex, 1);
+
+  const [modifiedAttributes, setModifiedAttributes] = useState<newLdapAttribute[]>(curLdapAttributes);
+
+  const [modifiedObjectClasses, setModifiedObjectClasses] = useState<newLdapAttributeValue[]>(curObjectClassAttribute.values);
 
   const [newModifyControls, setNewModifyControls] = useState<newControlObject[]>([]);
 
@@ -42,7 +53,13 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
     try {
       event.preventDefault();
 
-      const modifyOp: modifyReq = parseModifyedAttributes(modifiedAttributes, entry.entry);
+      const modifyOp: modifyReq = parseModifyedAttributes([
+        ...modifiedAttributes,
+        {
+          ...curObjectClassAttribute,
+          values: modifiedObjectClasses
+        }
+      ], entry.entry);
 
       modifyOp['control'] = getControls(newModifyControls);
 
@@ -88,25 +105,14 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
 
   return (
     <form onSubmit={handleUpdate}>
-      <table>
-        <thead>
-          <tr>
-            <th scope='row'>attribute</th>
-            <th scope='row'>value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              dn
-            </td>
-            <td>
-              <input value={newDn} onChange={(event) => setNewDn(event.target.value)} />
-            </td>
-          </tr>
-          <NewAttributeList newAttributes={modifiedAttributes} setNewAttributes={setModifiedAttributes} />
-        </tbody>
-      </table>
+      <LdapEntryInput
+        newDn={newDn}
+        setNewDn={setNewDn}
+        newObjectClasses={modifiedObjectClasses}
+        setNewObjectClasses={setModifiedObjectClasses}
+        newAttributes={modifiedAttributes}
+        setNewAttributes={setModifiedAttributes}
+      />
 
       <AdvancedDropdown displayText='advanced options'>
         <div className='modifyControlContainer'>

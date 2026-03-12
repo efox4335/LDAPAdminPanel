@@ -51,6 +51,13 @@ export const defaultNewEntryModifyBody: modifyEntry = {
   dn: defaultNewEntryDn,
   modifications: [
     {
+      type: 'append',
+      attribute: {
+        name: 'objectClass',
+        values: ['pkiUser']
+      }
+    },
+    {
       type: 'deleteAttribute',
       name: 'description'
     },
@@ -137,7 +144,7 @@ export const defaultNewEntryInvalidModifyDn: modifyEntry = {
 export const defaultNewEntryModifiedBody: entryAttribute[] = [
   {
     name: 'objectClass',
-    values: ['person']
+    values: ['person', 'pkiUser']
   },
   {
     name: 'sn',

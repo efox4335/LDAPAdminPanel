@@ -78,7 +78,11 @@ const locateFormAttributeRow = async (page: Page, entryForm: Locator, attributeN
 
   for (const singleAttributeRow of await attributeRows.all()) {
     try {
-      await expect(singleAttributeRow.locator('>:first-child').getByRole('textbox')).toHaveValue(RegExp(`^${attributeName}$`), { timeout: 100 });
+      if (attributeName === 'objectClass') {
+        await expect(singleAttributeRow).toHaveText(/.*objectClass.*/);
+      } else {
+        await expect(singleAttributeRow.locator('>:first-child').getByRole('textbox')).toHaveValue(RegExp(`^${attributeName}$`), { timeout: 100 });
+      }
 
       return attributeRows.nth(curChild);
     } catch { /* only one expect has to not error */ } finally { curChild += 1; }
