@@ -106,6 +106,7 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
   return (
     <form onSubmit={handleUpdate}>
       <LdapEntryInput
+        clientId={clientId}
         newDn={newDn}
         setNewDn={setNewDn}
         newObjectClasses={modifiedObjectClasses}

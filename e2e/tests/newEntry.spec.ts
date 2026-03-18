@@ -1,12 +1,13 @@
 import { expect, test } from '@playwright/test';
 
 import { addServer, adminBind, unbind, removeServer, navToPage } from '../utils/preTestUtils';
-import { defaultNewEntry, invalidCriticalControl, defaultTreeEntries } from '../utils/constants';
-import { locateOpenEntryDisplay, fillNewEntry, deleteOpenEntry, assertEntryContents, clickNewEntryButton, submitNewEntry, clickNewChildButton, assertNewEntryFormContents, clickResetButton, clickCancelButton, deleteNewEntryAttribute, deleteNewEntryValue } from '../utils/openEntryUtils';
+import { defaultNewEntry, invalidCriticalControl, defaultTreeEntries, personAutoCompelete, autoCompeletePersonModify, autoCompeletePersonFinalEntry } from '../utils/constants';
+import { locateOpenEntryDisplay, fillNewEntry, deleteOpenEntry, assertEntryContents, clickNewEntryButton, submitNewEntry, clickNewChildButton, assertNewEntryFormContents, clickResetButton, clickCancelButton, deleteNewEntryAttribute, deleteNewEntryValue, autoCompeleteObjectClass, modifyEntryFormContents, locateFormAttributeRow } from '../utils/openEntryUtils';
 import { locateEntry, openEntry } from '../utils/treeDisplayUtils';
 import assertError from '../utils/assertError';
 import expandAdvancedOptions from '../utils/expandAdvancedOptions';
 import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
+import locateTableByHeaderText from '../utils/locateTableByHeader';
 
 test.describe('new entry tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -21,6 +22,66 @@ test.describe('new entry tests', () => {
     await unbind(page);
 
     await removeServer(page);
+  });
+
+  test('attribute autofill on auto compelete', async ({ page }) => {
+    await clickNewEntryButton(page);
+
+    const newEntryForm = locateOpenEntryDisplay(page).locator('form');
+
+    await autoCompeleteObjectClass(page, newEntryForm, 'person');
+
+    await assertNewEntryFormContents(page, newEntryForm, personAutoCompelete.attributes, []);
+  });
+
+  test('autofilled attributes save and can be deleted', async ({ page }) => {
+    await clickNewEntryButton(page);
+
+    const newEntryForm = locateOpenEntryDisplay(page).locator('form');
+
+    await autoCompeleteObjectClass(page, newEntryForm, 'person');
+
+    await modifyEntryFormContents(page, newEntryForm, autoCompeletePersonModify.modifications);
+
+    await submitNewEntry(page, newEntryForm);
+
+    await assertEntryContents(page, autoCompeletePersonFinalEntry);
+
+    await deleteOpenEntry(page, autoCompeletePersonFinalEntry.dn, []);
+  });
+
+  test('entry with multiple autofill include attributes only once', async ({ page }) => {
+    await clickNewEntryButton(page);
+
+    const newEntryForm = locateOpenEntryDisplay(page).locator('form');
+
+    await autoCompeleteObjectClass(page, newEntryForm, 'person');
+
+    const attributeTable = locateTableByHeaderText(page, newEntryForm, 'attribute');
+
+    const beforeRowCount = await attributeTable.getByRole('row').count();
+
+    await autoCompeleteObjectClass(page, newEntryForm, 'person');
+
+    const afterRowCount = await attributeTable.getByRole('row').count();
+
+    expect(beforeRowCount).toStrictEqual(afterRowCount);
+  });
+
+  test('attributes with different names are included only once', async ({ page }) => {
+    await clickNewEntryButton(page);
+
+    const newEntryForm = locateOpenEntryDisplay(page).locator('form');
+
+    await autoCompeleteObjectClass(page, newEntryForm, 'person');
+
+    await autoCompeleteObjectClass(page, newEntryForm, 'RFC822localPart');
+
+    try {
+      await locateFormAttributeRow(page, newEntryForm, 'commonName');
+
+      throw new Error('commonName row found');
+    } catch { /* error expected */ }
   });
 
   test('new entry', async ({ page }) => {

@@ -45,6 +45,130 @@ export const defaultNewEntry: ldapEntry = {
   ]
 };
 
+export const personAutoCompelete: ldapEntry = {
+  dn: '',
+  attributes: [
+    {
+      name: 'dn',
+      values: ['']
+    },
+    {
+      name: 'objectClass',
+      values: ['person']
+    },
+    {
+      name: 'sn',
+      values: ['']
+    },
+    {
+      name: 'cn',
+      values: ['']
+    },
+    {
+      name: 'userPassword',
+      values: ['']
+    },
+    {
+      name: 'telephoneNumber',
+      values: ['']
+    },
+    {
+      name: 'seeAlso',
+      values: ['']
+    },
+    {
+      name: 'description',
+      values: ['']
+    }
+  ]
+};
+
+export const autoCompeletePersonModify: modifyEntry = {
+  dn: 'cn=autofillTestPerson,ou=users,dc=example,dc=org',
+  modifications: [
+    {
+      type: 'append',
+      attribute: {
+        name: 'dn',
+        values: ['cn=autofillTestPerson,ou=users,dc=example,dc=org']
+      }
+    },
+    {
+      type: 'append',
+      attribute: {
+        name: 'sn',
+        values: ['testAutofillPerson']
+      }
+    },
+    {
+      type: 'append',
+      attribute: {
+        name: 'cn',
+        values: ['autofillTestPerson']
+      }
+    },
+    {
+      type: 'append',
+      attribute: {
+        name: 'userPassword',
+        values: ['password']
+      }
+    },
+    {
+      type: 'append',
+      attribute: {
+        name: 'telephoneNumber',
+        values: ['123', '456']
+      }
+    },
+    {
+      type: 'append',
+      attribute: {
+        name: 'description',
+        values: ['testDesc']
+      }
+    },
+    {
+      type: 'deleteAttribute',
+      name: 'seeAlso'
+    }
+  ]
+};
+
+export const autoCompeletePersonFinalEntry: ldapEntry = {
+  dn: 'cn=autofillTestPerson,ou=users,dc=example,dc=org',
+  attributes: [
+    {
+      name: 'dn',
+      values: ['cn=autofillTestPerson,ou=users,dc=example,dc=org']
+    },
+    {
+      name: 'objectClass',
+      values: ['person']
+    },
+    {
+      name: 'sn',
+      values: ['testAutofillPerson']
+    },
+    {
+      name: 'cn',
+      values: ['autofillTestPerson']
+    },
+    {
+      name: 'userPassword',
+      values: ['password']
+    },
+    {
+      name: 'telephoneNumber',
+      values: ['123', '456']
+    },
+    {
+      name: 'description',
+      values: ['testDesc']
+    }
+  ]
+};
+
 export const defaultNewEntryModifiedDn: string = 'cn=testModify,ou=users,dc=example,dc=org';
 
 export const defaultNewEntryModifyBody: modifyEntry = {

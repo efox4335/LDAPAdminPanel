@@ -116,6 +116,7 @@ const NewEntryForm = ({ clientId, defaultEntryAttributes, cancelNewEntry }: { cl
     <div>
       <form onSubmit={handleAddEntry}>
         <LdapEntryInput
+          clientId={clientId}
           newDn={newDn}
           setNewDn={setNewDn}
           newObjectClasses={newObjectClasses}

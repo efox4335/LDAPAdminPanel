@@ -358,6 +358,22 @@ const clientsSlice = createSlice({
       return sliceState[clientId].entryMap[dn];
     },
 
+    selectInheritedObjectClassesByClientId: (sliceState, clientId: string) => {
+      if (!sliceState[clientId]) {
+        return undefined;
+      }
+
+      return sliceState[clientId].inheritedObjectClassSchemas;
+    },
+
+    selectAttributeTypesByClientId: (sliceState, clientId: string) => {
+      if (!sliceState[clientId]) {
+        return undefined;
+      }
+
+      return sliceState[clientId].attributeTypeSchemas;
+    },
+
     selectOpenEntriesByClientId: createSelector(
       [(sliceState: clientStore, clientId: string) => {
         return sliceState[clientId].entryMap;
@@ -449,7 +465,9 @@ export const {
   selectClients,
   selectLdapEntry,
   selectOpenEntriesByClientId,
-  selectNamingContextsByClientId
+  selectNamingContextsByClientId,
+  selectInheritedObjectClassesByClientId,
+  selectAttributeTypesByClientId
 } = clientsSlice.selectors;
 
 export default clientsSlice.reducer;

@@ -7,6 +7,7 @@
   --defaultBorderColor: rgb(26, 26, 26);
   --scrollBarBarColor: rgb(100, 100, 100);
   --ldapTreeChildIndicatorColor: rgb(20, 20, 20);
+  --highlightColor: rgb(80, 80, 80);
 }
 
 html {
@@ -377,6 +378,7 @@ button {
 
 .deleteButton {
   background: rgb(184, 68, 93);
+  align-self: flex-start;
   color: var(--darkTextColor);
   font-size: 0.7rem;
   padding: 2px;
@@ -422,6 +424,40 @@ button {
 
 .advancedOptionsContainer {
   padding: 3px;
+}
+
+.autoCompeleteDropDownContainer {
+  max-width: inherit;
+}
+
+.autoCompeleteDropDown {
+  max-height: 7rem;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.autoCompeleteDropDownButton {
+  min-width: 100%;
+  margin: 0px;
+  display: flex;
+  justify-content: start;
+  overflow-y: hidden;
+}
+
+.autoCompeleteDropDownButton:hover {
+  background-color: var(--highlightColor);
+}
+
+.highlightedAutoCompeleteDropDownButton {
+  min-width: 100%;
+  margin: 0px;
+  display: flex;
+  justify-content: start;
+  background-color: var(--highlightColor);
+}
+
+.attributeContainer {
+  display: flex;
 }
 
 input[type="radio"] {

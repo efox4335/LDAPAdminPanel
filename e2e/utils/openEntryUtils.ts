@@ -57,7 +57,7 @@ export const clickCancelButton = async (form: Locator) => {
     .click();
 };
 
-const locateFormAttributeRow = async (page: Page, entryForm: Locator, attributeName: string) => {
+export const locateFormAttributeRow = async (page: Page, entryForm: Locator, attributeName: string) => {
   const attributeTable = locateTableByHeaderText(page, entryForm, 'attribute');
 
   const nonInputAttributeRow = attributeTable
@@ -350,14 +350,33 @@ export const clickModifyButton = async (entryLocation: Locator) => {
     .click();
 };
 
-export const fillModifyForm = async (
+export const autoCompeleteObjectClass = async (page: Page, newEntryForm: Locator, objectClass: string) => {
+  const attributeTable = locateTableByHeaderText(page, newEntryForm, 'attribute');
+
+  const objectClassRow = attributeTable
+    .getByRole('row')
+    .locator('>:first-child')
+    .filter({ has: page.getByText(/^objectClass$/) })
+    .locator('..');
+
+  const input = objectClassRow
+    .locator('>:last-child')
+    .getByRole('textbox')
+    .last();
+
+  await input.fill(objectClass);
+
+  await objectClassRow
+    .getByRole('button', { name: new RegExp(`^${objectClass}$`) })
+    .click();
+};
+
+export const modifyEntryFormContents = async (
   page: Page,
-  modifyForm: Locator,
-  modifyEntry: modification[],
-  modifyBodyControls: ldapControl[],
-  modifyDnControls: ldapControl[]
+  form: Locator,
+  modifyEntry: modification[]
 ) => {
-  const attributeTable = locateTableByHeaderText(page, modifyForm, 'attribute');
+  const attributeTable = locateTableByHeaderText(page, form, 'attribute');
 
   for (const attribute of modifyEntry) {
     switch (attribute.type) {
@@ -464,6 +483,16 @@ export const fillModifyForm = async (
       }
     }
   }
+};
+
+export const fillModifyForm = async (
+  page: Page,
+  modifyForm: Locator,
+  modifyEntry: modification[],
+  modifyBodyControls: ldapControl[],
+  modifyDnControls: ldapControl[]
+) => {
+  await modifyEntryFormContents(page, modifyForm, modifyEntry);
 
   try {
     await expandAdvancedOptions(modifyForm);
