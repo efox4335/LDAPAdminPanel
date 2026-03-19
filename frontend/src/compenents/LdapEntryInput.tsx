@@ -8,6 +8,7 @@ import type { newLdapAttributeValue, newLdapAttribute } from '../utils/types';
 import TextboxWithDropDownAutoCompelete from './TextboxWithDropDownAutoCompelete';
 import type { TextboxWithDropDownAutoCompeletePropsType } from './TextboxWithDropDownAutoCompelete';
 import { selectInheritedObjectClassesByClientId, selectAttributeTypesByClientId } from '../slices/client';
+import getObjectClassFromNameMap from '../utils/getObjectClassFromNameMap';
 
 const LdapEntryInput = (
   {
@@ -53,7 +54,7 @@ const LdapEntryInput = (
       return;
     }
 
-    const curObjectClass = objectClasses.objectClassSchemas[objectClasses.nameMap[name.toLowerCase()]];
+    const curObjectClass = getObjectClassFromNameMap(objectClasses, name);
 
     if (curObjectClass === undefined) {
       return;
