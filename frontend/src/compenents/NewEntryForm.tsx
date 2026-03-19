@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import type { addReq, newLdapAttribute, newLdapAttributeValue, newControlObject } from '../utils/types';
 import { addNewEntry } from '../services/ldapdbsService';
-import { addEntry, addOpenEntry } from '../slices/client';
+import { updateOrAddEntry, addOpenEntry } from '../slices/client';
 import { addError } from '../slices/error';
 import getAttributeValues from '../utils/getAttributeValues';
 import { fetchLdapEntry } from '../utils/query';
@@ -95,7 +95,7 @@ const NewEntryForm = ({ clientId, defaultEntryAttributes, cancelNewEntry }: { cl
       await addNewEntry(clientId, newEntry);
       const res = await fetchLdapEntry(clientId, newEntry.baseDn);
 
-      dispatch(addEntry({
+      dispatch(updateOrAddEntry({
         clientId: clientId,
         parentDn: getParentDn(newDn),
         entry: res.visibleEntry,

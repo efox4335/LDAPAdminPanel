@@ -127,31 +127,6 @@ const clientsSlice = createSlice({
       }
     },
 
-    addEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
-      const map = state[action.payload.clientId].entryMap;
-
-      if (map === undefined) {
-        console.log('tried to add entry before server tree is fetched');
-
-        return;
-      }
-
-      map[action.payload.entry.dn] = {
-        isExpanded: false,
-        dn: action.payload.entry.dn,
-        visible: true,
-        children: {},
-        entry: action.payload.entry,
-        operationalEntry: action.payload.operationalEntry
-      };
-
-      const parentEntry = map[action.payload.parentDn];
-
-      if (parentEntry) {
-        parentEntry.children[action.payload.entry.dn] = action.payload.entry.dn;
-      }
-    },
-
     delEntry: (state, action: PayloadAction<{ clientId: string, dn: string }>) => {
       const map = state[action.payload.clientId].entryMap;
 
@@ -449,7 +424,6 @@ export const {
   addClient,
   delClient,
   addClients,
-  addEntry,
   delEntry,
   expandEntry,
   collapseEntry,
