@@ -18,6 +18,55 @@ test.describe('exop tests', () => {
     await removeServer(page);
   });
 
+  test('reset button', async ({ page }) => {
+    const exopForm = page.locator('.singleClientExop');
+
+    await exopForm
+      .locator('.userInteractionContainer')
+      .getByRole('textbox')
+      .first()
+      .fill(whoAmIOid);
+
+    await exopForm
+      .locator('.userInteractionContainer')
+      .getByRole('textbox')
+      .nth(1)
+      .fill(whoAmIOid);
+
+    await expandAdvancedOptions(exopForm);
+
+    const controlForm = exopForm
+      .getByText('controls')
+      .locator('..')
+      .locator('..')
+      .locator('..');
+
+    await controlForm
+      .getByRole('textbox')
+      .fill(invalidOid);
+
+    await controlForm
+      .getByRole('checkbox')
+      .nth(0)
+      .check();
+
+    await exopForm
+      .getByRole('button', { name: 'reset' })
+      .click();
+
+    const checkBoxes = await exopForm.getByRole('checkbox').all();
+
+    for (const checkBox of checkBoxes) {
+      await expect(checkBox).not.toBeChecked();
+    }
+
+    const inputs = await exopForm.getByRole('textbox').all();
+
+    for (const input of inputs) {
+      await expect(input).toHaveValue('');
+    }
+  });
+
   test('success', async ({ page }) => {
     await page
       .locator('.singleClientExop')
