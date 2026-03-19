@@ -226,24 +226,33 @@ const clientsSlice = createSlice({
     updateEntry: (state, action: PayloadAction<{ clientId: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
       const map = state[action.payload.clientId].entryMap;
 
-      if (!map) {
+      if (map === undefined) {
         console.log('tried to update before server fetched');
 
         return;
       }
 
-      const updateEntry = map[action.payload.entry.dn] as Extract<serverTreeEntry, { visible: true }> | undefined;
+      const updateEntry = map[action.payload.entry.dn];
 
-      if (!updateEntry) {
+      if (updateEntry === undefined) {
         console.log('tried to update non-existent entry');
 
         return;
       }
 
-      updateEntry.visible = true;
-      updateEntry.isExpanded = false;
-      updateEntry.entry = action.payload.entry;
-      updateEntry.operationalEntry = action.payload.operationalEntry;
+      if (updateEntry.visible === false) {
+        map[action.payload.entry.dn] = {
+          visible: true,
+          isExpanded: false,
+          entry: action.payload.entry,
+          operationalEntry: action.payload.operationalEntry,
+          children: updateEntry.children,
+          dn: action.payload.entry.dn
+        };
+      } else {
+        updateEntry.entry = action.payload.entry;
+        updateEntry.operationalEntry = action.payload.operationalEntry;
+      }
     },
 
     addOpenEntry: (state, action: PayloadAction<{ clientId: string, entry: openLdapEntry }>) => {
