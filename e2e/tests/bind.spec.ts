@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { ldapServerUrl, adminDn, adminPassword, invalidOid } from '../utils/constants';
 import { addServer, navToPage, removeServer } from '../utils/preTestUtils';
@@ -45,6 +45,49 @@ test.describe('bind tests', () => {
     await page.getByRole('button', { name: 'bind' }).click();
 
     await assertError(page, 'UnavailableCriticalExtensionError', true);
+  });
+
+  test('reset button', async ({ page }) => {
+    const bindForm = page.locator('.singleClientBind');
+
+    await bindForm
+      .getByText('dn')
+      .locator('..')
+      .getByRole('textbox')
+      .fill(adminDn);
+
+    await bindForm
+      .getByText('password')
+      .locator('..')
+      .getByRole('textbox')
+      .fill(adminPassword);
+
+    await expandAdvancedOptions(bindForm);
+
+    const controlInput = bindForm
+      .getByText('controls')
+      .locator('..')
+      .locator('..')
+      .locator('..');
+
+    await controlInput.getByRole('textbox').fill(invalidOid);
+    await controlInput.locator('.criticalCheckbox').nth(0).click();
+
+    await bindForm
+      .getByRole('button', { name: 'reset' })
+      .click();
+
+    const checkBoxes = await bindForm.getByRole('checkbox').all();
+
+    for (const checkBox of checkBoxes) {
+      await expect(checkBox).not.toBeChecked();
+    }
+
+    const inputs = await bindForm.getByRole('textbox').all();
+
+    for (const input of inputs) {
+      await expect(input).toHaveValue('');
+    }
   });
 
   test.describe('admin bind', () => {
