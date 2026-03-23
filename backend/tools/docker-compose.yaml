@@ -18,3 +18,20 @@ services:
     ports:
       - 1390:1389
       - 1637:1636
+  tlsOnlyLdap:
+    image: bitnami/openldap:latest
+    volumes:
+      - ./../../tools/testTlsFiles:/ldapTlsFiles/:ro
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=password
+      - LDAP_ADMIN_DN=cn=admin
+      - LDAP_ENABLE_TLS=yes
+      - LDAP_REQUIRE_TLS=yes
+      - LDAP_TLS_CERT_FILE=/ldapTlsFiles/ldapTlsCert.pem
+      - LDAP_TLS_KEY_FILE=/ldapTlsFiles/ldapTlsKey.pem
+      - LDAP_TLS_CA_FILE=/ldapTlsFiles/testCaCert.pem
+
+    ports:
+      - 1391:1389
+      - 1638:1636
