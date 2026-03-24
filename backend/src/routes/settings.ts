@@ -6,6 +6,7 @@ import { settingsFile, defaultSettings } from '../utils/state';
 import { delSettingsReqSchema, truncateSettingsReqSchema } from '../utils/schemas';
 import type { delSettingsReq, truncateSettingsReq } from '../utils/types';
 import getCurSettings from '../utils/getCurSettings';
+import applySettings from '../utils/applySettings';
 
 const router = express.Router();
 
@@ -78,6 +79,8 @@ router.post('/truncate', async (req, res, next) => {
 
       await writeFile(settingsFile, JSON.stringify(settingObject, null, ' '));
 
+      applySettings(settingObject);
+
       res.status(201).send({ settings: settingObject });
     });
   } catch (err) {
@@ -140,6 +143,8 @@ router.post('/del', async (req, res, next) => {
       }
 
       await writeFile(settingsFile, JSON.stringify(settingObject, null, ' '));
+
+      applySettings(settingObject);
 
       res.status(204).end();
     });

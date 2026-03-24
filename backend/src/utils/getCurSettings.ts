@@ -1,6 +1,7 @@
 import { writeFile, readFile } from 'node:fs/promises';
 
-import { settingsFile, defaultSettings, setLogOutputFile, setEnableLogs } from './state';
+import { settingsFile, defaultSettings } from './state';
+import applySettings from './applySettings';
 
 const getCurSettings = async (): Promise<Record<string, unknown>> => {
   let settings;
@@ -23,17 +24,7 @@ const getCurSettings = async (): Promise<Record<string, unknown>> => {
 
   const curSettings = JSON.parse(settings) as Record<string, unknown>;
 
-  if (curSettings.logging && typeof (curSettings.logging) === 'object') {
-    const logObj = curSettings.logging as Record<string, unknown>;
-
-    if (logObj.logFile && typeof (logObj.logFile) === 'string') {
-      setLogOutputFile(logObj.logFile);
-    }
-
-    if (logObj.enableLogging && typeof (logObj.enableLogging) === 'boolean') {
-      setEnableLogs(logObj.enableLogging);
-    }
-  }
+  applySettings(curSettings);
 
   return curSettings;
 };
