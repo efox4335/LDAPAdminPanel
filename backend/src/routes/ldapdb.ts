@@ -1,5 +1,6 @@
 import express from 'express';
 import ldapts from 'ldapts';
+import { rootCertificates } from 'node:tls';
 
 import {
   ldapDbNewClientSchema,
@@ -27,11 +28,13 @@ import type {
 } from '../utils/types';
 import {
   addNewClient,
+  customCertificateAuthorities,
+  forceTls,
   getAllStoredClientMetaData,
   getClientById,
   getStoredClientMetaDataById,
   removeClientById,
-  setBoundDnById
+  setBoundDnById,
 } from '../utils/state';
 import controlParser from '../utils/controlParser';
 import changeParser from '../utils/changeParser';
@@ -40,13 +43,24 @@ const router = express.Router();
 
 router.post('/', (req, res, next) => {
   try {
-    const serverUrl: clientReq = ldapDbNewClientSchema.parse(req.body);
+    const curReq: clientReq = ldapDbNewClientSchema.parse(req.body);
 
-    const client = new ldapts.Client({
-      url: serverUrl.url
-    });
+    let client;
 
-    const clientId = addNewClient(client, serverUrl.url);
+    if (curReq.enableTls || forceTls) {
+      client = new ldapts.Client({
+        url: curReq.url,
+        tlsOptions: {
+          ca: [...rootCertificates, ...customCertificateAuthorities]
+        }
+      });
+    } else {
+      client = new ldapts.Client({
+        url: curReq.url
+      });
+    }
+
+    const clientId = addNewClient(client, curReq.url, curReq.enableTls);
 
     res.status(201).send({ id: clientId });
   } catch (err) {
@@ -473,6 +487,7 @@ router.get('/:id', (req, res) => {
 
   const clientMetaData: clientMetaData = {
     id: req.params.id,
+    tlsEnabled: client.tlsEnabled,
     serverUrl: client.serverUrl,
     boundDn: client.boundDn,
     isConnected: isConnected
@@ -493,6 +508,7 @@ router.get('/', (_req, res) => {
 
     return {
       id: val.id,
+      tlsEnabled: val.tlsEnabled,
       serverUrl: val.serverUrl,
       boundDn: val.boundDn,
       isConnected: isConnected

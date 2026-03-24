@@ -8,13 +8,14 @@ import getCurSettings from '../utils/getCurSettings';
 const clients = new Map<string, storedClientMetaData>();
 let newClientId: number = 0;
 
-export const addNewClient = (client: ldapts.Client, serverUrl: string): string => {
+export const addNewClient = (client: ldapts.Client, serverUrl: string, tlsEnabled: boolean): string => {
   const currentClientId = newClientId.toString();
   newClientId += 1;
 
   const newClient: storedClientMetaData = {
     id: currentClientId,
     ldapClient: client,
+    tlsEnabled: tlsEnabled,
     serverUrl: serverUrl,
     boundDn: null
   };

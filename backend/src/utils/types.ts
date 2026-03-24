@@ -22,6 +22,7 @@ export interface bindReq extends control {
 };
 
 export type clientReq = {
+  enableTls: boolean,
   url: string
 };
 
@@ -72,6 +73,7 @@ export interface storedClientMetaData {
   id: string,
   serverUrl: string,
   boundDn: string | null,
+  tlsEnabled: boolean,
   ldapClient: Client
 };
 

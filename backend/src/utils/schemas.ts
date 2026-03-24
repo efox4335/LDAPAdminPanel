@@ -1,6 +1,7 @@
 import * as z from 'zod';
 
 export const ldapDbNewClientSchema = z.object({
+  enableTls: z.boolean(),
   url: z.string()
 });
 

@@ -1,18 +1,44 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import test, { afterEach, before, beforeEach } from 'node:test';
+import test, { afterEach, beforeEach } from 'node:test';
+import { writeFile } from 'node:fs/promises';
 import { describe } from 'node:test';
 import supertest from 'supertest';
 import expect from 'expect';
 
 import app from '../../../src/app';
-import { basicNewClient, invalidClientId, adminBind, customErrorMessageValidator, basicSearch, basicAdd, basicDel, testClients, testControl, unavailableCriticalValiadator, basicExop, baseDn, basicCompare, basicModify, validateBasicModify, basicModifyDn, undoBasicModifyDn, validateBasicModifyDn, serverUrl, adminDn } from '../../testUtils';
+import {
+  basicNewClient,
+  invalidClientId,
+  adminBind,
+  customErrorMessageValidator,
+  basicSearch,
+  basicAdd,
+  basicDel,
+  testClients,
+  testControl,
+  unavailableCriticalValiadator,
+  basicExop,
+  baseDn,
+  basicCompare,
+  basicModify,
+  validateBasicModify,
+  basicModifyDn,
+  undoBasicModifyDn,
+  validateBasicModifyDn,
+  serverUrl,
+  adminDn,
+  tlsRequiredClient
+} from '../../testUtils';
 import { clientMetaData } from '../../../src/utils/types';
-import { initializeState } from '../../../src/utils/state';
+import { initializeState, settingsFile } from '../../../src/utils/state';
 
 describe('ldapdbs endpoint tests', () => {
-  before(async () => {
+  /* initalize state sets settingsFile and rewrites the settings file if there is none or it is empty so it needs to be run twice */
+  beforeEach(async () => {
+    await initializeState();
+    await writeFile(settingsFile, '');
     await initializeState();
   });
 
@@ -94,6 +120,24 @@ describe('ldapdbs endpoint tests', () => {
         unavailableCriticalValiadator(res.body);
       } finally {
         await supertest(app).put(`/ldapdbs/${clientId}/unbind`);
+      }
+    });
+
+    test('tls works', async () => {
+      const newClientRes = await supertest(app)
+        .post('/ldapdbs/')
+        .send(tlsRequiredClient);
+
+      const curClientId = newClientRes.body.id;
+
+      try {
+        await supertest(app)
+          .put(`/ldapdbs/${curClientId}/bind`)
+          .send(adminBind)
+          .expect(200);
+      } finally {
+        await supertest(app).put(`/ldapdbs/${curClientId}/unbind`);
+        await supertest(app).delete(`/ldapdbs/${curClientId}`);
       }
     });
 
@@ -790,6 +834,7 @@ describe('ldapdbs endpoint tests', () => {
         const compObj: clientMetaData = {
           id: clients.adminClient,
           serverUrl: serverUrl,
+          tlsEnabled: false,
           boundDn: null,
           isConnected: false
         };
@@ -814,6 +859,7 @@ describe('ldapdbs endpoint tests', () => {
           const compObj: clientMetaData = {
             id: clients.adminClient,
             serverUrl: serverUrl,
+            tlsEnabled: false,
             boundDn: adminDn,
             isConnected: true
           };
@@ -832,6 +878,7 @@ describe('ldapdbs endpoint tests', () => {
             const compObj: clientMetaData = {
               id: clients.adminClient,
               serverUrl: serverUrl,
+              tlsEnabled: false,
               boundDn: null,
               isConnected: false
             };

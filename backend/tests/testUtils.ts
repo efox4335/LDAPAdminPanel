@@ -6,16 +6,24 @@ import type { addReq, bindReq, clientReq, compareReq, delReq, exopReq, modifyDnR
 
 export const serverUrl = 'ldap://localhost:1389';
 const noAnonBindServerUrl = 'ldap://localhost:1390';
+const tlsRequiredServerUrl = 'ldaps://localhost:1638';
 
 export const invalidClientId: string = 'abcdef';
 
 export const baseDn = 'dc=example,dc=org';
 
 export const basicNewClient: clientReq = {
-  url: serverUrl
+  url: serverUrl,
+  enableTls: false
+};
+
+export const tlsRequiredClient: clientReq = {
+  url: tlsRequiredServerUrl,
+  enableTls: true
 };
 
 const noAnonBindNewClient: clientReq = {
+  enableTls: false,
   url: noAnonBindServerUrl
 };
 
