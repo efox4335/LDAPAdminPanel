@@ -80,6 +80,18 @@ export const setEnableLogs = (newEnableLogs: boolean) => {
   enableLogs = newEnableLogs;
 };
 
+export let forceTls: boolean = false;
+
+export const setForceTls = (newForceTls: boolean) => {
+  forceTls = newForceTls;
+};
+
+export let customCertificateAuthorities: string[] = [];
+
+export const setCustomCertificateAuthorities = (newCustomCertificateAuthorities: string[]) => {
+  customCertificateAuthorities = newCustomCertificateAuthorities;
+};
+
 export const initializeState = async () => {
   if (process.env.DEFAULT_SETTINGS_FILE) {
     defaultSettings = await getDefaultSettings(process.env.DEFAULT_SETTINGS_FILE);
@@ -94,5 +106,4 @@ export const initializeState = async () => {
   }
 
   await getCurSettings();
-
 };

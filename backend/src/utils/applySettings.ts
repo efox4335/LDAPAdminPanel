@@ -1,26 +1,61 @@
-import { setLogOutputFile, setEnableLogs, defaultSettings } from './state';
+import { setLogOutputFile, setEnableLogs, defaultSettings, setForceTls, setCustomCertificateAuthorities } from './state';
+
+const locateSetting = (settingsObject: Record<string, unknown>, path: string[]): unknown => {
+  let curLocation: Record<string, unknown> = settingsObject;
+
+  let curPathPart = 0;
+
+  for (const part of path) {
+    if (curLocation[part] !== undefined) {
+      if (curPathPart + 1 === path.length) {
+        return curLocation[part];
+      } else if (typeof (curLocation[part]) === 'object') {
+        curLocation = curLocation[part] as Record<string, unknown>;
+      } else {
+        return undefined;
+      }
+    } else {
+      return undefined;
+    }
+
+    curPathPart += 1;
+  }
+};
+
+const getCurSettingOrDefault = (settingsObject: Record<string, unknown>, path: string[]): unknown => {
+  const curSetting = locateSetting(settingsObject, path);
+
+  if (curSetting === undefined) {
+    return locateSetting(defaultSettings, path);
+  }
+
+  return curSetting;
+};
 
 const applySettings = (curSettings: Record<string, unknown>) => {
-  if (curSettings.logging !== undefined && typeof (curSettings.logging) === 'object') {
-    const logObj = curSettings.logging as Record<string, unknown>;
+  const curLogFile = getCurSettingOrDefault(curSettings, ['logging', 'logFile']);
 
-    if (logObj.logFile !== undefined && typeof (logObj.logFile) === 'string') {
-      setLogOutputFile(logObj.logFile);
-    }
+  if (typeof (curLogFile) === 'string') {
+    setLogOutputFile(curLogFile);
+  }
 
-    if (logObj.enableLogging !== undefined && typeof (logObj.enableLogging) === 'boolean') {
-      setEnableLogs(logObj.enableLogging);
-    }
-  } else if (defaultSettings.logging !== undefined && typeof (defaultSettings.logging) === 'object') {
-    const logObj = defaultSettings.logging as Record<string, unknown>;
+  const curEnableLogging = getCurSettingOrDefault(curSettings, ['logging', 'enableLogging']);
 
-    if (logObj.logFile !== undefined && typeof (logObj.logFile) === 'string') {
-      setLogOutputFile(logObj.logFile);
-    }
+  if (typeof (curEnableLogging) === 'boolean') {
+    setEnableLogs(curEnableLogging);
+  }
 
-    if (logObj.enableLogging !== undefined && typeof (logObj.enableLogging) === 'boolean') {
-      setEnableLogs(logObj.enableLogging);
-    }
+  const curForceTls = getCurSettingOrDefault(curSettings, ['tls', 'forceTls']);
+
+  if (typeof (curForceTls) === 'boolean') {
+    setForceTls(curForceTls);
+  }
+
+  const curCustomCertificateAuthorities = getCurSettingOrDefault(curSettings, ['tls', 'customCertificateAuthorities']);
+
+  if (Array.isArray(curCustomCertificateAuthorities) &&
+    curCustomCertificateAuthorities.reduce((allPrevAreString: boolean, cert) => allPrevAreString && typeof (cert) === 'string', true)) {
+    setCustomCertificateAuthorities(curCustomCertificateAuthorities as string[]);
   }
 };
 
