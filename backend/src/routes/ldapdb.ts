@@ -47,7 +47,9 @@ router.post('/', (req, res, next) => {
 
     let client;
 
-    if (curReq.enableTls || forceTls) {
+    const isTlsEnabled = curReq.enableTls || forceTls || /^ldaps.*/.test(curReq.url);
+
+    if (isTlsEnabled) {
       client = new ldapts.Client({
         url: curReq.url,
         tlsOptions: {
@@ -60,7 +62,7 @@ router.post('/', (req, res, next) => {
       });
     }
 
-    const clientId = addNewClient(client, curReq.url, curReq.enableTls);
+    const clientId = addNewClient(client, curReq.url, isTlsEnabled);
 
     res.status(201).send({ id: clientId });
   } catch (err) {
