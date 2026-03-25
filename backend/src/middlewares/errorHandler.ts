@@ -36,6 +36,17 @@ const errorHandler = (err: unknown, _req: express.Request, res: express.Response
     return;
   }
 
+  if (err instanceof Error) {
+    const error: responseError = {
+      type: 'customErrorMessage',
+      message: err.message
+    };
+
+    res.status(400).send(error);
+
+    return;
+  }
+
   next(err);
 };
 
