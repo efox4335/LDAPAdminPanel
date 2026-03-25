@@ -83,5 +83,5 @@ export const delSettingsReqSchema = z.object({
 });
 
 export const truncateSettingsReqSchema = z.object({
-  settings: z.array(z.object({ path: settingPathSchema, value: settingValueSchema }))
+  settings: z.array(z.object({ path: settingPathSchema, value: z.union([settingValueSchema, z.array(settingValueSchema)]) }))
 });
