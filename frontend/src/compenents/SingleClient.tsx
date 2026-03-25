@@ -42,12 +42,20 @@ const SingleClient = ({ client }: { client: client }) => {
 
       const newClient: client = {
         ...client,
+        openEntries: [],
+        openEntryMap: {},
+        attributeTypeSchemas: undefined,
+        originalObjectClassSchemas: undefined,
+        inheritedObjectClassSchemas: undefined,
         isConnected: false,
         boundDn: null,
         entryMap: undefined
       };
 
       dispatch(addClient(newClient));
+
+      setFetchedTree(false);
+      setFetchedSchemas(false);
     } catch (err) {
       dispatch(addError(err));
     }

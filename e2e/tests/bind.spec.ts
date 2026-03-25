@@ -125,6 +125,50 @@ test.describe('bind tests', () => {
         await page.getByRole('button', { name: 'unbind' }).click();
       });
 
+      test('bind unbind bind still fetches tree', async ({ page }) => {
+        await page
+          .locator('.singleClientBind')
+          .getByText('dn')
+          .locator('..')
+          .getByRole('textbox')
+          .fill(adminDn);
+
+        await page
+          .locator('.singleClientBind')
+          .getByText('password')
+          .locator('..')
+          .getByRole('textbox')
+          .fill(adminPassword);
+
+        await page
+          .locator('.singleClientBind')
+          .getByRole('button', { name: 'bind' })
+          .click();
+
+        await page.getByRole('button', { name: 'unbind' }).click();
+
+        await page
+          .locator('.singleClientBind')
+          .getByText('dn')
+          .locator('..')
+          .getByRole('textbox')
+          .fill(adminDn);
+
+        await page
+          .locator('.singleClientBind')
+          .getByText('password')
+          .locator('..')
+          .getByRole('textbox')
+          .fill(adminPassword);
+
+        await page
+          .locator('.singleClientBind')
+          .getByRole('button', { name: 'bind' })
+          .click();
+
+        await expect(page.getByText('ldap tree')).toBeVisible();
+      });
+
       test('admin bind server info', async ({ page }) => {
         await assertClientInfo(page, true, adminDn, ldapServerUrl);
       });
