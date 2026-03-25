@@ -1,6 +1,19 @@
 import axios, { type AxiosResponse } from 'axios';
 
-import type { addReq, bindReq, client, delReq, exopReq, exopRes, modifyDnReq, modifyReq, newClientResponse, searchReq, searchRes } from '../utils/types';
+import type {
+  addReq,
+  bindReq,
+  client,
+  delReq,
+  exopReq,
+  exopRes,
+  modifyDnReq,
+  modifyReq,
+  newClientResponse,
+  newClientReq,
+  searchReq,
+  searchRes
+} from '../utils/types';
 
 const baseUrl = '/ldapdbs/';
 
@@ -10,8 +23,8 @@ export const getAllClients = async (): Promise<client[]> => {
   return res.data;
 };
 
-export const addNewClient = async (serverUrl: string): Promise<newClientResponse> => {
-  const res: AxiosResponse<newClientResponse> = await axios.post(baseUrl, { url: serverUrl });
+export const addNewClient = async (req: newClientReq): Promise<newClientResponse> => {
+  const res: AxiosResponse<newClientResponse> = await axios.post(baseUrl, req);
 
   return res.data;
 };

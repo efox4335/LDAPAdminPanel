@@ -252,6 +252,14 @@ const SingleClient = ({ client }: { client: client }) => {
                     </td>
                     <td></td>
                   </tr>
+                  <tr>
+                    <td>
+                      tls enabled
+                    </td>
+                    <td>
+                      {client.tlsEnabled.toString()}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

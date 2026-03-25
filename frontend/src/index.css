@@ -487,3 +487,18 @@ input[type="radio"]::before {
 input[type="radio"]:checked::before {
   transform: scale(1);
 }
+
+input[type="file"] {
+  display: none;
+}
+
+.fileInputDisplay {
+  cursor: pointer;
+  padding: 3px;
+  background-color: var(--inputBackgroundColor);
+}
+
+.rawCertDisplay {
+  overflow: auto;
+  scrollbar-color: var(--scrollBarBarColor) var(--mainBackgroundColor);
+}

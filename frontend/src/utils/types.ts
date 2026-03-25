@@ -2,6 +2,11 @@ export type newClientResponse = {
   id: string
 };
 
+export type newClientReq = {
+  url: string,
+  enableTls: boolean
+};
+
 export interface controlObject {
   type: string,
   critical: boolean
@@ -147,6 +152,7 @@ export type serverTreeEntry = visibleServerTreeEntry | hiddenServerTreeEntry;
 
 export type client = {
   id: string,
+  tlsEnabled: boolean,
   serverUrl: string,
   boundDn: string | null,
   isConnected: boolean,
