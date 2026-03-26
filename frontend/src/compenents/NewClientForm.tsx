@@ -42,14 +42,16 @@ const NewClientForm = () => {
     try {
       event.preventDefault();
 
+      const isTlsOn = enableTls || /^ldaps.*/.test(newLdapUrl) || forceTls;
+
       const newClientId = await addNewClient({
         url: newLdapUrl,
-        enableTls: enableTls || /^ldaps.*/.test(newLdapUrl) || (forceTls ?? false)
+        enableTls: isTlsOn
       });
 
       const newClient: client = {
         id: newClientId.id,
-        tlsEnabled: enableTls,
+        tlsEnabled: isTlsOn,
         serverUrl: newLdapUrl,
         isConnected: false,
         openEntries: [],
