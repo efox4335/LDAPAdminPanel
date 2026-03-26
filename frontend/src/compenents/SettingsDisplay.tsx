@@ -37,7 +37,7 @@ const SettingsDisplay = () => {
   }, [logFile]);
 
   const forceTls = useSelector((state) => selectSetting(state, { path: ['tls', 'forceTls'] }));
-  const defaultForceTls = useSelector((state) => selectSetting(state, { path: ['tls', 'forceTls'] }));
+  const defaultForceTls = useSelector((state) => selectSettingDefault(state, { path: ['tls', 'forceTls'] }));
   const [currentForceTls, setCurrentForceTls] = useState<boolean>(false);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const SettingsDisplay = () => {
   }, [forceTls]);
 
   const customCertificateAuthorities = useSelector((state) => selectSetting(state, { path: ['tls', 'customCertificateAuthorities'] }));
-  const defaultCustomCertificateAuthorities = useSelector((state) => selectSetting(state, { path: ['tls', 'customCertificateAuthorities'] }));
+  const defaultCustomCertificateAuthorities = useSelector((state) => selectSettingDefault(state, { path: ['tls', 'customCertificateAuthorities'] }));
   const [currentCustomCertificateAuthorities, setCurrentCustomCertificateAuthorities] = useState<string[]>([]);
 
   useEffect(() => {
