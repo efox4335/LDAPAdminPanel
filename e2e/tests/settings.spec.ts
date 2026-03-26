@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test';
 
 import locateTableByHeaderText from '../utils/locateTableByHeader';
 import { navToPage } from '../utils/preTestUtils';
+import { applySettings, fillSettingsForm, openSettings, resetSettingsToDefault } from '../utils/settingsUtils';
+import { customCertFilePath, ldapServerUrl, tlsServerUrl } from '../utils/constants';
+import assertClientInfo from '../utils/assertClientInfo';
+import assertError from '../utils/assertError';
 
 test.describe('settings tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -20,5 +24,99 @@ test.describe('settings tests', () => {
     const settingsTable = locateTableByHeaderText(page, page.locator('.mainDisplay'), 'setting');
 
     await expect(settingsTable).toBeVisible();
+  });
+
+  test('custom tls certificates works', async ({ page }) => {
+    await openSettings(page);
+
+    await fillSettingsForm(page, [
+      {
+        setting: 'customCertificates',
+        removeExistingCerts: true,
+        relativeFilePath: '',
+        addNewCert: false
+      }
+    ]);
+
+    await applySettings(page);
+
+    await fillSettingsForm(page, [
+      {
+        setting: 'customCertificates',
+        removeExistingCerts: false,
+        relativeFilePath: customCertFilePath,
+        addNewCert: true
+      }
+    ]);
+
+    await applySettings(page);
+
+    const newClientForm = page.locator('.newClientForm');
+
+    await newClientForm
+      .getByRole('textbox')
+      .fill(tlsServerUrl);
+
+    await newClientForm
+      .getByRole('button', { name: 'add' })
+      .click();
+
+    await page
+      .getByRole('button', { name: 'bind' })
+      .click();
+
+    await assertClientInfo(page, {
+      isConnected: true,
+      boundDn: '',
+      ldapServerUrl: tlsServerUrl,
+      tlsEnabled: true
+    });
+
+    await page
+      .getByRole('button', { name: 'unbind' })
+      .click();
+
+    await page
+      .getByRole('button', { name: 'remove' })
+      .click();
+
+    await resetSettingsToDefault(page);
+  });
+
+  test('force tls works', async ({ page }) => {
+    await openSettings(page);
+
+    await fillSettingsForm(page, [
+      {
+        setting: 'forceTls',
+        newValue: true
+      }
+    ]);
+
+    await applySettings(page);
+
+    const newClientForm = page.locator('.newClientForm');
+
+    await newClientForm
+      .getByRole('textbox')
+      .fill(ldapServerUrl);
+
+    await expect(newClientForm.getByRole('checkbox')).toBeChecked();
+
+    await newClientForm
+      .getByRole('button', { name: 'add' })
+      .click();
+
+    await page
+      .getByRole('button', { name: 'bind' })
+      .click();
+
+    await assertError(page, 'Client network socket disconnected before secure TLS connection was established', true);
+
+    await page
+      .getByRole('button', { name: 'remove' })
+      .click();
+
+    await resetSettingsToDefault(page);
   });
 });

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-import { ldapServerUrl, adminDn, adminPassword, invalidOid } from '../utils/constants';
-import { addServer, navToPage, removeServer } from '../utils/preTestUtils';
+import { ldapServerUrl, adminDn, adminPassword, invalidOid, tlsServerUrl } from '../utils/constants';
+import { addServer, addTlsServer, navToPage, removeServer } from '../utils/preTestUtils';
 import assertClientInfo from '../utils/assertClientInfo';
 import assertError from '../utils/assertError';
 import expandAdvancedOptions from '../utils/expandAdvancedOptions';
@@ -10,97 +10,27 @@ import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
 test.describe('bind tests', () => {
   test.beforeEach(async ({ page }) => {
     await navToPage(page);
-
-    await addServer(page);
   });
 
   test.afterEach(async ({ page }) => {
     await removeServer(page);
   });
 
-  test('no bind server info', async ({ page }) => {
-    await assertClientInfo(page, false, 'null', ldapServerUrl);
-  });
-
-  test('advanced options start closed', async ({ page }) => {
-    const bindForm = page.locator('.singleClientBind');
-
-    await assertAdvancedOptionsClosed(bindForm);
-  });
-
-  test('controls passed', async ({ page }) => {
-    const bindForm = page.locator('.singleClientBind');
-
-    await expandAdvancedOptions(bindForm);
-
-    const controlInput = bindForm
-      .getByText('controls')
-      .locator('..')
-      .locator('..')
-      .locator('..');
-
-    await controlInput.getByRole('textbox').fill(invalidOid);
-    await controlInput.locator('.criticalCheckbox').nth(0).click();
-
-    await page.getByRole('button', { name: 'bind' }).click();
-
-    await assertError(page, 'UnavailableCriticalExtensionError', true);
-  });
-
-  test('reset button', async ({ page }) => {
-    const bindForm = page.locator('.singleClientBind');
-
-    await bindForm
-      .getByText('dn')
-      .locator('..')
-      .getByRole('textbox')
-      .fill(adminDn);
-
-    await bindForm
-      .getByText('password')
-      .locator('..')
-      .getByRole('textbox')
-      .fill(adminPassword);
-
-    await expandAdvancedOptions(bindForm);
-
-    const controlInput = bindForm
-      .getByText('controls')
-      .locator('..')
-      .locator('..')
-      .locator('..');
-
-    await controlInput.getByRole('textbox').fill(invalidOid);
-    await controlInput.locator('.criticalCheckbox').nth(0).click();
-
-    await bindForm
-      .getByRole('button', { name: 'reset' })
-      .click();
-
-    const checkBoxes = await bindForm.getByRole('checkbox').all();
-
-    for (const checkBox of checkBoxes) {
-      await expect(checkBox).not.toBeChecked();
-    }
-
-    const inputs = await bindForm.getByRole('textbox').all();
-
-    for (const input of inputs) {
-      await expect(input).toHaveValue('');
-    }
-  });
-
-  test.describe('admin bind', () => {
+  test.describe('tls server', () => {
     test.beforeEach(async ({ page }) => {
-      await page
-        .locator('.singleClientBind')
+      await addTlsServer(page);
+    });
+
+    test('tls bind', async ({ page }) => {
+      const bindForm = page.locator('.singleClientBind');
+
+      await bindForm
         .getByText('dn')
         .locator('..')
         .getByRole('textbox')
         .fill(adminDn);
 
-      await page
-        .locator('.singleClientBind')
+      await bindForm
         .getByText('password')
         .locator('..')
         .getByRole('textbox')
@@ -110,90 +40,229 @@ test.describe('bind tests', () => {
         .locator('.singleClientBind')
         .getByRole('button', { name: 'bind' })
         .click();
-    });
 
-    test('admin unbind server info', async ({ page }) => {
+      await assertClientInfo(page, {
+        isConnected: true,
+        boundDn: adminDn,
+        ldapServerUrl: tlsServerUrl,
+        tlsEnabled: true
+      });
+
       await page
         .getByRole('button', { name: 'unbind' })
         .click();
+    });
+  });
 
-      await assertClientInfo(page, false, 'null', ldapServerUrl);
+  test.describe('default server', () => {
+    test.beforeEach(async ({ page }) => {
+      await addServer(page);
     });
 
-    test.describe('admin unbind', () => {
+    test('no bind server info', async ({ page }) => {
+      await assertClientInfo(page, {
+        isConnected: false,
+        boundDn: 'null',
+        ldapServerUrl: ldapServerUrl,
+        tlsEnabled: false
+      });
+    });
+
+    test('advanced options start closed', async ({ page }) => {
+      const bindForm = page.locator('.singleClientBind');
+
+      await assertAdvancedOptionsClosed(bindForm);
+    });
+
+    test('controls passed', async ({ page }) => {
+      const bindForm = page.locator('.singleClientBind');
+
+      await expandAdvancedOptions(bindForm);
+
+      const controlInput = bindForm
+        .getByText('controls')
+        .locator('..')
+        .locator('..')
+        .locator('..');
+
+      await controlInput.getByRole('textbox').fill(invalidOid);
+      await controlInput.locator('.criticalCheckbox').nth(0).click();
+
+      await page.getByRole('button', { name: 'bind' }).click();
+
+      await assertError(page, 'UnavailableCriticalExtensionError', true);
+    });
+
+    test('reset button', async ({ page }) => {
+      const bindForm = page.locator('.singleClientBind');
+
+      await bindForm
+        .getByText('dn')
+        .locator('..')
+        .getByRole('textbox')
+        .fill(adminDn);
+
+      await bindForm
+        .getByText('password')
+        .locator('..')
+        .getByRole('textbox')
+        .fill(adminPassword);
+
+      await expandAdvancedOptions(bindForm);
+
+      const controlInput = bindForm
+        .getByText('controls')
+        .locator('..')
+        .locator('..')
+        .locator('..');
+
+      await controlInput.getByRole('textbox').fill(invalidOid);
+      await controlInput.locator('.criticalCheckbox').nth(0).click();
+
+      await bindForm
+        .getByRole('button', { name: 'reset' })
+        .click();
+
+      const checkBoxes = await bindForm.getByRole('checkbox').all();
+
+      for (const checkBox of checkBoxes) {
+        await expect(checkBox).not.toBeChecked();
+      }
+
+      const inputs = await bindForm.getByRole('textbox').all();
+
+      for (const input of inputs) {
+        await expect(input).toHaveValue('');
+      }
+    });
+
+    test.describe('admin bind', () => {
+      test.beforeEach(async ({ page }) => {
+        await page
+          .locator('.singleClientBind')
+          .getByText('dn')
+          .locator('..')
+          .getByRole('textbox')
+          .fill(adminDn);
+
+        await page
+          .locator('.singleClientBind')
+          .getByText('password')
+          .locator('..')
+          .getByRole('textbox')
+          .fill(adminPassword);
+
+        await page
+          .locator('.singleClientBind')
+          .getByRole('button', { name: 'bind' })
+          .click();
+      });
+
+      test('admin unbind server info', async ({ page }) => {
+        await page
+          .getByRole('button', { name: 'unbind' })
+          .click();
+
+        await assertClientInfo(page,
+          {
+            isConnected: false,
+            boundDn: 'null',
+            ldapServerUrl: ldapServerUrl,
+            tlsEnabled: false
+          });
+      });
+
+      test.describe('admin unbind', () => {
+        test.afterEach(async ({ page }) => {
+          await page.getByRole('button', { name: 'unbind' }).click();
+        });
+
+        test('bind unbind bind still fetches tree', async ({ page }) => {
+          await page
+            .locator('.singleClientBind')
+            .getByText('dn')
+            .locator('..')
+            .getByRole('textbox')
+            .fill(adminDn);
+
+          await page
+            .locator('.singleClientBind')
+            .getByText('password')
+            .locator('..')
+            .getByRole('textbox')
+            .fill(adminPassword);
+
+          await page
+            .locator('.singleClientBind')
+            .getByRole('button', { name: 'bind' })
+            .click();
+
+          await page.getByRole('button', { name: 'unbind' }).click();
+
+          await page
+            .locator('.singleClientBind')
+            .getByText('dn')
+            .locator('..')
+            .getByRole('textbox')
+            .fill(adminDn);
+
+          await page
+            .locator('.singleClientBind')
+            .getByText('password')
+            .locator('..')
+            .getByRole('textbox')
+            .fill(adminPassword);
+
+          await page
+            .locator('.singleClientBind')
+            .getByRole('button', { name: 'bind' })
+            .click();
+
+          await expect(page.getByText('ldap tree')).toBeVisible();
+        });
+
+        test('admin bind server info', async ({ page }) => {
+          await assertClientInfo(page, {
+            isConnected: true,
+            boundDn: adminDn,
+            ldapServerUrl: ldapServerUrl,
+            tlsEnabled: false
+          });
+        });
+
+        test('remove while bound', async ({ page }) => {
+          await page.getByRole('button', { name: 'remove' }).click();
+
+          await assertError(page, 'cannot delete: client has active connection to database', true);
+
+          await assertClientInfo(page, {
+            isConnected: true,
+            boundDn: adminDn,
+            ldapServerUrl: ldapServerUrl,
+            tlsEnabled: false
+          });
+        });
+      });
+    });
+
+    test.describe('anon bind', () => {
+      test.beforeEach(async ({ page }) => {
+        await page.getByRole('button', { name: 'bind' }).click();
+      });
+
       test.afterEach(async ({ page }) => {
         await page.getByRole('button', { name: 'unbind' }).click();
       });
 
-      test('bind unbind bind still fetches tree', async ({ page }) => {
-        await page
-          .locator('.singleClientBind')
-          .getByText('dn')
-          .locator('..')
-          .getByRole('textbox')
-          .fill(adminDn);
 
-        await page
-          .locator('.singleClientBind')
-          .getByText('password')
-          .locator('..')
-          .getByRole('textbox')
-          .fill(adminPassword);
-
-        await page
-          .locator('.singleClientBind')
-          .getByRole('button', { name: 'bind' })
-          .click();
-
-        await page.getByRole('button', { name: 'unbind' }).click();
-
-        await page
-          .locator('.singleClientBind')
-          .getByText('dn')
-          .locator('..')
-          .getByRole('textbox')
-          .fill(adminDn);
-
-        await page
-          .locator('.singleClientBind')
-          .getByText('password')
-          .locator('..')
-          .getByRole('textbox')
-          .fill(adminPassword);
-
-        await page
-          .locator('.singleClientBind')
-          .getByRole('button', { name: 'bind' })
-          .click();
-
-        await expect(page.getByText('ldap tree')).toBeVisible();
+      test('anon bind bound dn', async ({ page }) => {
+        await assertClientInfo(page, {
+          isConnected: true,
+          boundDn: '',
+          ldapServerUrl: ldapServerUrl,
+          tlsEnabled: false
+        });
       });
-
-      test('admin bind server info', async ({ page }) => {
-        await assertClientInfo(page, true, adminDn, ldapServerUrl);
-      });
-
-      test('remove while bound', async ({ page }) => {
-        await page.getByRole('button', { name: 'remove' }).click();
-
-        await assertError(page, 'cannot delete: client has active connection to database', true);
-        await assertClientInfo(page, true, adminDn, ldapServerUrl);
-      });
-    });
-  });
-
-  test.describe('anon bind', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.getByRole('button', { name: 'bind' }).click();
-    });
-
-    test.afterEach(async ({ page }) => {
-      await page.getByRole('button', { name: 'unbind' }).click();
-    });
-
-
-    test('anon bind bound dn', async ({ page }) => {
-      await assertClientInfo(page, true, '', ldapServerUrl);
     });
   });
 });

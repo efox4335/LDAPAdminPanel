@@ -1,26 +1,35 @@
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
+import type { clientInfo } from './types';
 
-const assertClientInfo = async (page: Page, isConnected: boolean, boundDn: string, ldapServerUrl: string) => {
-  const clientInfo = page.getByText('client info').locator('..');
+const assertClientInfo = async (page: Page, assertedClientInfo: clientInfo) => {
+  const clientInfoDisplay = page.getByText('client info').locator('..');
 
-  await expect(clientInfo).toHaveText(isConnected ? /.*connected.*/ : /.*not connected.*/);
+  await expect(clientInfoDisplay).toHaveText(assertedClientInfo.isConnected ? /.*connected.*/ : /.*not connected.*/);
 
   await expect(
-    clientInfo
+    clientInfoDisplay
       .getByText('bound dn')
       .locator('..')
       .getByRole('cell')
       .nth(1)
-  ).toHaveText(RegExp(`.*${boundDn}.*`));
+  ).toHaveText(RegExp(`.*${assertedClientInfo.boundDn}.*`));
 
   await expect(
-    clientInfo
+    clientInfoDisplay
       .getByText('server url')
       .locator('..')
       .getByRole('cell')
       .nth(1)
-  ).toHaveText(RegExp(`.*${ldapServerUrl}.*`));
+  ).toHaveText(RegExp(`.*${assertedClientInfo.ldapServerUrl}.*`));
+
+  await expect(
+    clientInfoDisplay
+      .getByText('tls enabled')
+      .locator('..')
+      .getByRole('cell')
+      .nth(1)
+  ).toHaveText(RegExp(`.*${assertedClientInfo.tlsEnabled}.*`));
 };
 
 export default assertClientInfo;

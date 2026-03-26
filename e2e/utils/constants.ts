@@ -12,6 +12,10 @@ export const invalidOid: string = '1.2';
 
 export const whoAmIOid: string = '1.3.6.1.4.1.4203.1.11.3';
 
+export const tlsServerUrl: string = 'ldaps://localhost:1638';
+
+export const customCertFilePath: string = './../tools/testTlsFiles/testCaCert.pem';
+
 export const invalidCriticalControl: ldapControl = {
   oid: invalidOid,
   critical: true

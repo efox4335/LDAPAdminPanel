@@ -63,3 +63,26 @@ export type ldapSearch = {
   scope?: searchScope,
   aliasDeref?: searchDerefAliases,
 };
+
+export type clientInfo = {
+  ldapServerUrl: string,
+  boundDn: string,
+  isConnected: boolean,
+  tlsEnabled: boolean
+};
+
+export type changeSetting = {
+  setting: 'enableLogging',
+  newValue: boolean
+} | {
+  setting: 'logFile',
+  newValue: string
+} | {
+  setting: 'forceTls',
+  newValue: boolean
+} | {
+  setting: 'customCertificates',
+  removeExistingCerts: boolean,
+  addNewCert: boolean,
+  relativeFilePath: string
+};
