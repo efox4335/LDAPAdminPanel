@@ -219,7 +219,7 @@ const SettingsDisplay = () => {
                       </select>
                     </SingleSettingContainer>
                     <SingleSettingContainer<string[]>
-                      name='custom certifictes'
+                      name='custom certificates'
                       curValue={currentCustomCertificateAuthorities}
                       setCurValue={setCurrentCustomCertificateAuthorities}
                       curSetValue={customCertificateAuthorities as string[] | undefined}
