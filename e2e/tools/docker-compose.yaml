@@ -5,6 +5,9 @@ services:
       - LDAP_ADMIN_USERNAME=admin
       - LDAP_ADMIN_PASSWORD=password
       - LDAP_ADMIN_DN=cn=admin
+      - LDAP_CONFIG_ADMIN_ENABLED=yes
+      - LDAP_CONFIG_ADMIN_USERNAME=admin
+      - LDAP_CONFIG_ADMIN_PASSWORD=password
     ports:
       - 1389:1389
       - 1636:1636
@@ -16,6 +19,9 @@ services:
       - LDAP_ADMIN_USERNAME=admin
       - LDAP_ADMIN_PASSWORD=password
       - LDAP_ADMIN_DN=cn=admin
+      - LDAP_CONFIG_ADMIN_ENABLED=yes
+      - LDAP_CONFIG_ADMIN_USERNAME=admin
+      - LDAP_CONFIG_ADMIN_PASSWORD=password
       - LDAP_ENABLE_TLS=yes
       - LDAP_REQUIRE_TLS=yes
       - LDAP_TLS_CERT_FILE=/ldapTlsFiles/ldapTlsCert.pem
