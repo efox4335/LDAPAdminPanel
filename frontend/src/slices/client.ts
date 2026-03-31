@@ -350,6 +350,14 @@ const clientsSlice = createSlice({
       return sliceState[clientId].inheritedObjectClassSchemas;
     },
 
+    selectOriginalObjectClassesByClientId: (sliceState, clientId: string) => {
+      if (!sliceState[clientId]) {
+        return undefined;
+      }
+
+      return sliceState[clientId].originalObjectClassSchemas;
+    },
+
     selectAttributeTypesByClientId: (sliceState, clientId: string) => {
       if (!sliceState[clientId]) {
         return undefined;
@@ -450,6 +458,7 @@ export const {
   selectOpenEntriesByClientId,
   selectNamingContextsByClientId,
   selectInheritedObjectClassesByClientId,
+  selectOriginalObjectClassesByClientId,
   selectAttributeTypesByClientId
 } = clientsSlice.selectors;
 

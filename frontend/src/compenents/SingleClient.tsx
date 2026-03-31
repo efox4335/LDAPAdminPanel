@@ -15,6 +15,7 @@ import SearchForm from './SearchForm';
 import parseObjectClassSchema from '../utils/parseObjectClassSchema';
 import parseAttributeTypeSchema from '../utils/parseAttributeTypeSchema';
 import addInheritedAttributes from '../utils/addInheritedAttributes';
+import SchemaDisplay from './SchemaDisplay';
 
 const SingleClient = ({ client }: { client: client }) => {
   const [fetchedTree, setFetchedTree] = useState<boolean>(false);
@@ -284,6 +285,8 @@ const SingleClient = ({ client }: { client: client }) => {
         <LdapTree clientId={client.id} />
         <OpenEntries clientId={client.id} />
       </div>}
+      <br></br>
+      <SchemaDisplay clientId={client.id} />
     </div>
   );
 };

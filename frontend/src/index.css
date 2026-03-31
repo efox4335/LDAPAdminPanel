@@ -502,3 +502,10 @@ input[type="file"] {
   overflow: auto;
   scrollbar-color: var(--scrollBarBarColor) var(--mainBackgroundColor);
 }
+
+.schemaDisplayContainer {
+  margin: 2px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
