@@ -1,13 +1,24 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type JSX, type ReactNode } from 'react';
 
-const AdvancedDropdown = ({ children, displayText }: { children: ReactNode, displayText: string }) => {
+const AdvancedDropdown = ({ children, displayText, TextWrapper }:
+  {
+    children: ReactNode,
+    displayText: string,
+    TextWrapper?: ({ displayText }: { displayText: string }) => JSX.Element
+  }) => {
   const [visibleState, setVisibleState] = useState<boolean>(false);
 
+  const displayString = (visibleState ? '\u{23F7}' : '\u{23F5}').concat(displayText);
   return (
     <div className='advancedOptionsContainer'>
       <button type='button' className='hiddenButton' onClick={() => setVisibleState(!visibleState)}>
-        {visibleState ? '\u{23F7}' : '\u{23F5}'}
-        {displayText}</button>
+        {TextWrapper ? <>
+          <TextWrapper displayText={displayString} />
+        </> : <>
+          {displayString}
+        </>
+        }
+      </button>
       {visibleState ? children : <></>}
     </div>
   );
