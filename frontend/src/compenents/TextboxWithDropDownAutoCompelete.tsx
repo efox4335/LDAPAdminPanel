@@ -69,7 +69,10 @@ const TextboxWithDropDownAutoCompelete = (
 
             break;
         }
-      }} />
+      }}
+        onClick={() => {
+          setCurAutoCompeleteValues(dropdownStrings.filter((val) => val.toLowerCase().includes(value.toLowerCase())));
+        }} />
 
       {(dropDownVisible) ?
         <div className='autoCompeleteDropDown'>
