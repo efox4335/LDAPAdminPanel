@@ -49,8 +49,8 @@ const TextboxWithDropDownAutoCompelete = (
           case 'ArrowDown':
             event.preventDefault();
 
-            if (nextHighlightedRef !== null) {
-              nextHighlightedRef.current!.scrollIntoView({ block: 'end' });
+            if (nextHighlightedRef !== null && nextHighlightedRef.current !== null) {
+              nextHighlightedRef.current.scrollIntoView({ block: 'end' });
             }
 
             setCurSelectedVal(curSelectedVal + 1 === curAutoCompeleteValues.length ? curSelectedVal : curSelectedVal + 1);
@@ -59,8 +59,8 @@ const TextboxWithDropDownAutoCompelete = (
           case 'ArrowUp':
             event.preventDefault();
 
-            if (prevHighlightedRef !== null) {
-              prevHighlightedRef.current!.scrollIntoView();
+            if (prevHighlightedRef !== null && prevHighlightedRef.current !== null) {
+              prevHighlightedRef.current.scrollIntoView();
             }
 
             setCurSelectedVal(curSelectedVal === 0 ? 0 : curSelectedVal - 1);
