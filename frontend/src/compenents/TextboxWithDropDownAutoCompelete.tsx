@@ -21,8 +21,8 @@ const TextboxWithDropDownAutoCompelete = (
     if (curAutoCompeleteValues.length !== 0) {
       setCurSelectedVal(0);
       setCurAutoCompeleteValues([]);
-      onAutoCompelete(val);
       onChange(val);
+      onAutoCompelete(val);
     }
   };
 
