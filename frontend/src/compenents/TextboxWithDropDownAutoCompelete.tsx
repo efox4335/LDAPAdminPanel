@@ -18,10 +18,12 @@ const TextboxWithDropDownAutoCompelete = (
   const [curSelectedVal, setCurSelectedVal] = useState<number>(0);
 
   const handelAutoCompelete = (val: string) => {
-    setCurSelectedVal(0);
-    setCurAutoCompeleteValues([]);
-    onAutoCompelete(val);
-    onChange(val);
+    if (curAutoCompeleteValues.length !== 0) {
+      setCurSelectedVal(0);
+      setCurAutoCompeleteValues([]);
+      onAutoCompelete(val);
+      onChange(val);
+    }
   };
 
   const [dropDownVisible, setDropDownVisible] = useState<boolean>(false);
