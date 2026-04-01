@@ -1,26 +1,51 @@
-import { useState, type JSX, type ReactNode } from 'react';
+import { useState, type ReactNode, type ComponentType, type JSX } from 'react';
 
-const AdvancedDropdown = ({ children, displayText, TextWrapper }:
-  {
-    children: ReactNode,
-    displayText: string,
-    TextWrapper?: ({ displayText }: { displayText: string }) => JSX.Element
-  }) => {
-  const [visibleState, setVisibleState] = useState<boolean>(false);
+const AdvancedDropdown =
+  <T extends { DropDownButton: JSX.Element, displayText: string } = { DropDownButton: JSX.Element, displayText: string }>
+    ({ children, displayText, TextWrapper, wrapperProps }:
+      {
+        children: ReactNode,
+        displayText: string,
+        TextWrapper?: ComponentType<T>,
+        wrapperProps?: Omit<T, 'displayText' | 'DropDownButton'>
+      }) => {
+    const [visibleState, setVisibleState] = useState<boolean>(false);
 
-  const displayString = (visibleState ? '\u{23F7}' : '\u{23F5}').concat(displayText);
+    const displayString = (visibleState ? '\u{23F7}' : '\u{23F5}').concat(displayText);
+
+    if (TextWrapper === undefined) {
+      return (
+        <div className='advancedOptionsContainer'>
+          <button type='button' className='hiddenButton' onClick={() => setVisibleState(!visibleState)} >
+            {displayString}
+          </button>
+          {visibleState ? children : <></>}
+        </div>
+      );
+    }
+
+    const props: T = wrapperProps === undefined ?
+      {
+        DropDownButton: <ButtonGenerator onClick={() => setVisibleState(!visibleState)} />,
+        displayText: displayString
+      } as T :
+      {
+        ...wrapperProps,
+        DropDownButton: <ButtonGenerator onClick={() => setVisibleState(!visibleState)} />,
+        displayText: displayString
+      } as T;
+
+    return (
+      <div className='advancedOptionsContainer'>
+        <TextWrapper {...props} />
+        {visibleState ? children : <></>}
+      </div>
+    );
+  };
+
+const ButtonGenerator = ({ onClick }: { onClick: () => void }) => {
   return (
-    <div className='advancedOptionsContainer'>
-      <button type='button' className='hiddenButton' onClick={() => setVisibleState(!visibleState)}>
-        {TextWrapper ? <>
-          <TextWrapper displayText={displayString} />
-        </> : <>
-          {displayString}
-        </>
-        }
-      </button>
-      {visibleState ? children : <></>}
-    </div>
+    <button type='button' className='hiddenButton' onClick={onClick} />
   );
 };
 
