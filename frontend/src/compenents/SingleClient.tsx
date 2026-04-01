@@ -1,21 +1,19 @@
 import { useAppDispatch as useDispatch } from '../utils/reduxHooks';
 import { useState } from 'react';
 
-import type { client, objectClassSchemaMap, attributeTypeSchemaMap } from '../utils/types';
+import type { client } from '../utils/types';
 import { deleteClient, unbindClient } from '../services/ldapdbsService';
 import { delClient, addClient, addSchemas } from '../slices/client';
 import { addError } from '../slices/error';
 import LdapTree from './LdapTree';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
-import { fetchCustomSearchEntries, fetchLdapEntry } from '../utils/query';
+import { fetchLdapEntry } from '../utils/query';
 import BindForm from './BindForm';
 import Exop from './Exop';
 import OpenEntries from './OpenEntries';
 import SearchForm from './SearchForm';
-import parseObjectClassSchema from '../utils/parseObjectClassSchema';
-import parseAttributeTypeSchema from '../utils/parseAttributeTypeSchema';
-import addInheritedAttributes from '../utils/addInheritedAttributes';
 import SchemaDisplay from './SchemaDisplay';
+import fetchSchemas from '../utils/fetchSchemas';
 
 const SingleClient = ({ client }: { client: client }) => {
   const [fetchedTree, setFetchedTree] = useState<boolean>(false);
@@ -85,131 +83,41 @@ const SingleClient = ({ client }: { client: client }) => {
     void fetchServerTree();
   }
 
-  const fetchSchemas = async () => {
-    setFetchedSchemas(true);
-
-    if (!client.entryMap) {
-      return;
-    }
-
-    const dse = client.entryMap['dse'];
-
-    if (dse === undefined) {
-      return;
-    }
-
-    if (!dse.visible) {
-      console.log('dse is not visible');
-
-      return;
-    }
-
-    const schemaDn = dse.operationalEntry['subschemaSubentry'];
-
-    if (schemaDn === undefined || Array.isArray(schemaDn)) {
-      dispatch(addError(new Error('dse has no subschemaSubentry')));
-
-      return;
-    }
-
+  const fetchAndAddSchemas = async () => {
     try {
-      const searchRes = await fetchCustomSearchEntries(
-        client.id,
-        schemaDn,
-        'base',
-        'always',
-        '(objectClass=subschema)',
-        0,
-        0,
-        []
-      );
+      setFetchedSchemas(true);
 
-      if (searchRes.length !== 1) {
-        dispatch(addError(new Error('could not get schemas')));
+      if (!client.entryMap) {
+        return;
       }
 
-      const schemas = searchRes[0].operationalEntry;
+      const dse = client.entryMap['dse'];
 
-      const rawAttributeTypes = schemas['attributeTypes'];
+      if (dse === undefined) {
+        return;
+      }
 
-      if (rawAttributeTypes === undefined || !Array.isArray(rawAttributeTypes)) {
-        console.log('no attribute type schemas');
+      if (!dse.visible) {
+        console.log('dse is not visible');
 
         return;
       }
 
-      const rawObjectClassSchemas = schemas['objectClasses'];
+      const schemaDn = dse.operationalEntry['subschemaSubentry'];
 
-      if (rawObjectClassSchemas === undefined || !Array.isArray(rawObjectClassSchemas)) {
-        console.log('no object class schemas');
+      if (schemaDn === undefined || Array.isArray(schemaDn)) {
+        dispatch(addError(new Error('dse has no subschemaSubentry')));
 
         return;
       }
 
-      const attributeTypeMap: attributeTypeSchemaMap =
-      {
-        attributeTypes: [],
-        nameMap: {}
-      };
-
-      for (const rawAttributeType of rawAttributeTypes) {
-        try {
-          attributeTypeMap.attributeTypes.push(parseAttributeTypeSchema(rawAttributeType));
-        } catch (err) {
-          console.log(`error parsing attribute type schema ${rawAttributeType}`);
-
-          if (err instanceof Error) {
-            console.log(err.message);
-          }
-
-          return;
-        }
-      }
-
-      attributeTypeMap.attributeTypes.forEach((attributeType, index) => {
-        attributeTypeMap.nameMap[attributeType.oid] = index;
-
-        if (attributeType.name !== undefined) {
-          attributeType.name.forEach((name) => {
-            attributeTypeMap.nameMap[name.toLowerCase()] = index;
-          });
-        }
-      });
-
-      const objectClassMap: objectClassSchemaMap = {
-        objectClassSchemas: [],
-        nameMap: {}
-      };
-
-      for (const rawObjectClassSchema of rawObjectClassSchemas) {
-        try {
-          objectClassMap.objectClassSchemas.push(parseObjectClassSchema(rawObjectClassSchema));
-        } catch (err) {
-          console.log(`error parsing object class schema ${rawObjectClassSchema}`);
-
-          if (err instanceof Error) {
-            console.log(err.message);
-          }
-        }
-      }
-
-      objectClassMap.objectClassSchemas.forEach((schema, index) => {
-        objectClassMap.nameMap[schema.oid] = index;
-
-        if (schema.names !== undefined) {
-          schema.names.forEach((name) => {
-            objectClassMap.nameMap[name.toLowerCase()] = index;
-          });
-        }
-      });
-
-      const inheritedObjectClassMap = addInheritedAttributes(structuredClone(objectClassMap), attributeTypeMap);
+      const schemas = await fetchSchemas(schemaDn, client.id);
 
       dispatch(addSchemas({
         clientId: client.id,
-        attributeTypeMap: attributeTypeMap,
-        initialObjectClassMap: objectClassMap,
-        inheritedObjectClassMap: inheritedObjectClassMap
+        attributeTypeMap: schemas.attributeTypeMap,
+        initialObjectClassMap: schemas.originalObjectClassMap,
+        inheritedObjectClassMap: schemas.inheritedObjectClassMap
       }));
     } catch (err) {
       dispatch(addError(err));
@@ -219,7 +127,7 @@ const SingleClient = ({ client }: { client: client }) => {
   };
 
   if (fetchedTree && !fetchedSchemas) {
-    void fetchSchemas();
+    void fetchAndAddSchemas();
   }
 
   return (
