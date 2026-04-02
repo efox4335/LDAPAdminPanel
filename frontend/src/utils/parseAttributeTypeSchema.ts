@@ -4,7 +4,8 @@ import type { attributeTypeSchema } from './types';
 const parseAttributeTypeSchema = (rawAttributeSchema: string): attributeTypeSchema => {
   const curSchema: attributeTypeSchema = {
     oid: '',
-    name: undefined
+    name: undefined,
+    noUserMod: false
   };
 
   const tokens = tokenizeLdapSchema(rawAttributeSchema);
@@ -28,6 +29,10 @@ const parseAttributeTypeSchema = (rawAttributeSchema: string): attributeTypeSche
       curSchema.name.push(tokens[3]);
     }
   };
+
+  if (tokens.includes('NO-USER-MODIFICATION')) {
+    curSchema.noUserMod = true;
+  }
 
   return curSchema;
 };
