@@ -139,7 +139,7 @@ describe('addInheritedAttributes.ts tests', () => {
       ],
       nameMap: {
         '1': 0,
-        'testAttribute': 0
+        'testattribute': 0
       }
     };
 
@@ -190,7 +190,7 @@ describe('addInheritedAttributes.ts tests', () => {
       ],
       nameMap: {
         '1': 0,
-        'testObjectClass': 0,
+        'testobjectclass': 0,
         '2': 1
       }
     };
@@ -206,7 +206,7 @@ describe('addInheritedAttributes.ts tests', () => {
       ],
       nameMap: {
         '1': 0,
-        'testAttribute': 0
+        'testattribute': 0
       }
     };
 
@@ -272,7 +272,7 @@ describe('addInheritedAttributes.ts tests', () => {
       ],
       nameMap: {
         '1': 0,
-        'testAttribute': 0
+        'testattribute': 0
       }
     };
 
@@ -323,7 +323,7 @@ describe('addInheritedAttributes.ts tests', () => {
       ],
       nameMap: {
         '1': 0,
-        'testObjectClass': 0,
+        'testobjectclass': 0,
         '2': 1
       }
     };
@@ -339,7 +339,7 @@ describe('addInheritedAttributes.ts tests', () => {
       ],
       nameMap: {
         '1': 0,
-        'testAttribute': 0
+        'testattribute': 0
       }
     };
 
