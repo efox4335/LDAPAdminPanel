@@ -74,7 +74,8 @@ export type exopRes = {
 type ldapError = {
   type: 'ldapError',
   code: number,
-  name: string
+  name: string,
+  message: string
 };
 
 type validationError = {
@@ -217,13 +218,15 @@ export type settingsStore = {
   settings: Record<string, unknown>
 };
 
+export type objectClassType = 'ABSTRACT' | 'STRUCTURAL' | 'AUXILIARY' | 'INPARENT';
+
 export type objectClassSchema = {
   oid: string,
   names: string[] | undefined,
   description: string | undefined,
   obsolete: boolean,
   superiorObjectClasses: string[] | undefined,
-  type: 'ABSTRACT' | 'STRUCTURAL' | 'AUXILIARY' | 'INPARENT',
+  type: objectClassType,
   reqAttributes: string[] | undefined,
   optAttributes: string[] | undefined,
 };
@@ -236,7 +239,8 @@ export type objectClassSchemaMap = {
 
 export type attributeTypeSchema = {
   oid: string,
-  name: string[] | undefined
+  name: string[] | undefined,
+  noUserMod: boolean
 };
 
 export type attributeTypeSchemaMap = {
@@ -244,3 +248,5 @@ export type attributeTypeSchemaMap = {
   //map stores names in lower case because attributes are case insensitive
   nameMap: Record<string, number>
 };
+
+export type ldapVendor = 'openLdap' | 'unknown';

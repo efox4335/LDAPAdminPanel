@@ -1,26 +1,73 @@
-import { useAppSelector as useSelector } from '../utils/reduxHooks';
-import { useState } from 'react';
+import { useAppSelector as useSelector, useAppDispatch as useDispatch } from '../utils/reduxHooks';
+import { useState, type JSX } from 'react';
+import { v4 as uuid } from 'uuid';
 
 import AdvancedDropdown from './AdvancedDropdown';
 import TextboxWithDropDownAutoCompelete from './TextboxWithDropDownAutoCompelete';
-import { selectOriginalObjectClassesByClientId } from '../slices/client';
-import type { objectClassSchema } from '../utils/types';
+import { addSchemas, selectAttributeTypesByClientId, selectLdapEntry, selectOriginalObjectClassesByClientId } from '../slices/client';
+import type { ldapVendor, objectClassSchema } from '../utils/types';
 import getObjectClassFromNameMap from '../utils/getObjectClassFromNameMap';
+import SingleObjectClassSchemaDisplay from './SingleObjectClassSchemaDisplay';
+import NewObjectClassSchemaForm from './NewObjectClassSchemaForm';
+import { addError } from '../slices/error';
+import { addNewEntry } from '../services/ldapdbsService';
+import objectClassSchemaToString from '../utils/objectClassSchemaToString';
+import fetchSchemas from '../utils/fetchSchemas';
 
-const SchemaHeaderWrapper = ({ displayText }: { displayText: string }) => {
+type SchemaHeaderWrapperProps = {
+  DropDownButton: JSX.Element,
+  displayText: string,
+  vendor: ldapVendor,
+  dropDownState: boolean,
+  handleNewSchema: () => void
+};
+
+const SchemaHeaderWrapper = ({ DropDownButton, displayText, vendor, handleNewSchema, dropDownState }: SchemaHeaderWrapperProps) => {
   return (
-    <h4>
-      {displayText}
-    </h4>
+    <span className='schemaDisplayHeader'>
+      <label className='hiddenLabel'>
+        <h4>
+          {displayText}
+        </h4>
+        {DropDownButton}
+      </label>
+      <h4></h4>
+      {(vendor === 'openLdap' && dropDownState) ?
+        <h4>
+          <button className='positiveButton' type='button' onClick={handleNewSchema}>
+            new schema
+          </button>
+        </h4> : <></>}
+    </span>
   );
 };
 
 const SchemaDisplay = ({ clientId }: { clientId: string }) => {
+  const dispatch = useDispatch();
+
   const objectClassSchemas = useSelector((state) => selectOriginalObjectClassesByClientId(state, clientId));
+
+  const attributeTypes = useSelector((state) => selectAttributeTypesByClientId(state, clientId));
 
   const [openObjectClassSchemas, setOpenObjectClassSchemas] = useState<objectClassSchema[]>([]);
 
+  const [newObjectClasses, setNewObjectClasses] = useState<string[]>([]);
+
   const [curSelectedSchema, setCurSelectedSchema] = useState<string>('');
+
+  const dse = useSelector((state) => selectLdapEntry(state, clientId, 'dse'));
+
+  let vendor: ldapVendor = 'unknown';
+
+  if (dse !== undefined && dse.visible) {
+    if (Array.isArray(dse.entry.objectClass)) {
+      if (dse.entry.objectClass.includes('OpenLDAProotDSE')) {
+        vendor = 'openLdap';
+      }
+    } else if (dse.entry.objectClass === 'OpenLDAProotDSE') {
+      vendor = 'openLdap';
+    }
+  }
 
   const onAutoCompelete = (val: string) => {
     if (objectClassSchemas === undefined) {
@@ -60,8 +107,82 @@ const SchemaDisplay = ({ clientId }: { clientId: string }) => {
     objectClassNames = objectClassNames.concat(oids);
   }
 
+  const handleNewSchema = () => {
+    setNewObjectClasses([...newObjectClasses, uuid()]);
+  };
+
+  let attributeTypeNames: string[] = [];
+
+  if (attributeTypes !== undefined) {
+    const oids: string[] = [];
+
+    attributeTypes.attributeTypes.forEach((attributeType) => {
+      if (attributeType.noUserMod) {
+        return;
+      }
+
+      if (attributeType.name !== undefined) {
+        attributeTypeNames = attributeTypeNames.concat(attributeType.name);
+
+        oids.push(attributeType.oid);
+      }
+    });
+
+    objectClassNames = objectClassNames.concat(oids);
+  }
+
+  const createNewSchema = async (newObjectClass: objectClassSchema, id: string) => {
+    try {
+      const objectClassString = objectClassSchemaToString(newObjectClass);
+      switch (vendor) {
+        case 'openLdap':
+          await addNewEntry(clientId, {
+            baseDn: `cn=${newObjectClass.oid},cn=schema,cn=config`,
+            entry: {
+              objectClass: 'olcSchemaConfig',
+              cn: newObjectClass.oid,
+              olcObjectClasses: objectClassString
+            }
+          });
+
+          break;
+      }
+
+      if (dse === undefined || !dse.visible) {
+        return;
+      }
+
+      const schemaDn = dse.operationalEntry['subschemaSubentry'];
+
+      if (schemaDn === undefined || Array.isArray(schemaDn)) {
+        dispatch(addError(new Error('dse has no subschemaSubentry')));
+
+        return;
+      }
+
+      const schemas = await fetchSchemas(schemaDn, clientId);
+
+      dispatch(addSchemas({
+        clientId: clientId,
+        attributeTypeMap: schemas.attributeTypeMap,
+        initialObjectClassMap: schemas.originalObjectClassMap,
+        inheritedObjectClassMap: schemas.inheritedObjectClassMap
+      }));
+
+      setNewObjectClasses(newObjectClasses.filter((val) => val !== id));
+
+      setOpenObjectClassSchemas([newObjectClass, ...openObjectClassSchemas]);
+    } catch (err) {
+      dispatch(addError(err));
+    }
+  };
+
   return (
-    <AdvancedDropdown displayText='schemas' TextWrapper={SchemaHeaderWrapper}>
+    <AdvancedDropdown<SchemaHeaderWrapperProps>
+      displayText='schemas'
+      TextWrapper={SchemaHeaderWrapper}
+      wrapperProps={{ vendor: vendor, handleNewSchema: handleNewSchema }}
+    >
       <div className='userInteractionContainer'>
         {objectClassSchemas !== undefined ?
           <div className='schemaDisplayContainer'>
@@ -83,98 +204,26 @@ const SchemaDisplay = ({ clientId }: { clientId: string }) => {
                         setOpenObjectClassSchemas(openObjectClassSchemas.filter((schema) => schema.oid !== val.oid));
                       }} className='deleteButton'>X</button>
 
-                      <table>
-                        <tbody>
-                          <tr className='headlessFirstTableRow'>
-                            <td>
-                              oid
-                            </td>
-                            <td>
-                              {val.oid}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              names
-                            </td>
-                            <td>
-                              {val.names ? <div>
-                                {val.names.map((name) => {
-                                  return (<div key={name}>{name}</div>);
-                                })}
-                              </div> : <>here</>}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              description
-                            </td>
-                            <td>
-                              {val.description ?? ''}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              obsolete
-                            </td>
-                            <td>
-                              {val.obsolete.toString()}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              superior object classes
-                            </td>
-                            <td>
-                              {val.superiorObjectClasses ? <div>
-                                {val.superiorObjectClasses.map((supObjClass) => {
-                                  return (
-                                    <div key={supObjClass}>
-                                      {supObjClass}
-                                    </div>
-                                  );
-                                })}
-                              </div> : <></>}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              type
-                            </td>
-                            <td>
-                              {val.type}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              required attributes
-                            </td>
-                            <td>
-                              {val.reqAttributes ? <div>
-                                {val.reqAttributes.map((attr) => {
-                                  return (
-                                    <div key={attr}>{attr}</div>
-                                  );
-                                })}
-                              </div> : <></>}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              optional attributes
-                            </td>
-                            <td>
-                              {val.optAttributes ? <div>
-                                {val.optAttributes.map((attr) => {
-                                  return (
-                                    <div key={attr}>{attr}</div>
-                                  );
-                                })}
-                              </div> : <></>}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      <SingleObjectClassSchemaDisplay schema={val} />
+                    </div>
+                  );
+                })
+              }
+            </div>
+            <div>
+              {
+                newObjectClasses.map((id) => {
+                  return (
+                    <div key={id}>
+                      <button type='button' className='deleteButton' onClick={() => {
+                        setNewObjectClasses(newObjectClasses.filter((val) => val !== id));
+                      }}>X</button>
+                      <NewObjectClassSchemaForm
+                        handleSubmit={createNewSchema}
+                        objectClassNames={objectClassNames}
+                        attributeTypeNames={attributeTypeNames}
+                        id={id}
+                      />
                     </div>
                   );
                 })

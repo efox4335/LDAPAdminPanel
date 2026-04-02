@@ -48,7 +48,7 @@ const NewLdapAttributeValues = <T extends { onChange: (arg0: string) => void, va
         return (
           <div key={value.id} className='attributeContainer'>
             {(CustomInput !== undefined && customInputProps !== undefined) ? <CustomInput {...curProps!} /> :
-              <input value={value.value} onChange={(event) => updateFunc(event.target.value)} />}
+              <input className='defaultAttributeInput' value={value.value} onChange={(event) => updateFunc(event.target.value)} />}
             <DeleteButton delFunction={() => setNewValues(newValues.filter((val) => val.id !== value.id))} />
           </div>
         );

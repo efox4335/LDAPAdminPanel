@@ -31,6 +31,10 @@ const generateErrorMessage = (err: unknown): string => {
 
   switch (rawError.type) {
     case 'ldapError':
+      if (rawError.code === 80) {
+        return `${rawError.message}`;
+      }
+
       return `code: ${rawError.code} name: ${rawError.name}`;
     case 'customErrorMessage':
       return rawError.message;
