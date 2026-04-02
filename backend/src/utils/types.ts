@@ -102,7 +102,8 @@ export type truncateSettingsReq = {
 type ldapError = {
   type: 'ldapError',
   code: number,
-  name: string
+  name: string,
+  message: string
 };
 
 type validationError = {

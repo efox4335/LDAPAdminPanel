@@ -28,7 +28,8 @@ const errorHandler = (err: unknown, _req: express.Request, res: express.Response
     const error: responseError = {
       type: 'ldapError',
       code: err.code,
-      name: err.name
+      name: err.name,
+      message: err.message
     };
 
     res.status(400).send(error);
