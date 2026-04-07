@@ -1,4 +1,4 @@
-import { ldapEntry, ldapControl, modifyEntry, entryAttribute, searchScope, searchDerefAliases, ldapSearch } from './types';
+import { ldapEntry, ldapControl, modifyEntry, entryAttribute, searchScope, searchDerefAliases, ldapSearch, objectClassSchema } from './types';
 
 export const pageUrl: string = 'http://localhost:5173';
 
@@ -15,6 +15,85 @@ export const whoAmIOid: string = '1.3.6.1.4.1.4203.1.11.3';
 export const tlsServerUrl: string = 'ldaps://localhost:1638';
 
 export const customCertFilePath: string = './../tools/testTlsFiles/testCaCert.pem';
+
+export const configAdminDn: string = 'cn=admin,cn=config';
+
+export const defaultNewObjectClassSchema: objectClassSchema = {
+  description: 'test desc',
+  obsolete: false,
+  type: 'STRUCTURAL',
+  reqAttributes: ['cn'],
+  optAttributes: ['sn']
+};
+
+export const defaultNewObjectClassTestEntry: ldapEntry = {
+  dn: 'cn=testEntry,ou=users,dc=example,dc=org',
+  attributes: [
+    {
+      name: 'dn',
+      values: ['cn=testEntry,ou=users,dc=example,dc=org']
+    },
+    {
+      name: 'sn',
+      values: ['testSn']
+    },
+    {
+      name: 'cn',
+      values: ['testEntry']
+    }
+  ]
+};
+
+export const pilotPersonSchema: objectClassSchema = {
+  oid: '0.9.2342.19200300.100.4.4',
+  names: [
+    'pilotPerson',
+    'newPilotPerson'
+  ],
+  supObjectClasses: [
+    'person'
+  ],
+  type: 'STRUCTURAL',
+  obsolete: false,
+  optAttributes: [
+    'userid',
+    'textEncodedORAddress',
+    'rfc822Mailbox',
+    'favouriteDrink',
+    'roomNumber',
+    'userClass',
+    'homeTelephoneNumber',
+    'homePostalAddress',
+    'secretary',
+    'personalTitle',
+    'preferredDeliveryMethod',
+    'businessCategory',
+    'janetMailbox',
+    'otherMailbox',
+    'mobileTelephoneNumber',
+    'pagerTelephoneNumber',
+    'organizationalStatus',
+    'mailPreferenceOption',
+    'personalSignature'
+  ]
+};
+
+export const simpleSecurityObjectSchema: objectClassSchema = {
+  oid: '0.9.2342.19200300.100.4.19',
+  names: [
+    'simpleSecurityObject'
+  ],
+  description: 'RFC1274: simple security object',
+  supObjectClasses: [
+    'top'
+  ],
+  type: 'AUXILIARY',
+  reqAttributes: [
+    'userPassword'
+  ]
+};
+
+export const invalidNewSchemaAttribute: string = 'structuralObjectClass';
 
 export const invalidCriticalControl: ldapControl = {
   oid: invalidOid,

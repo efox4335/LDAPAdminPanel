@@ -86,3 +86,16 @@ export type changeSetting = {
   addNewCert: boolean,
   relativeFilePath: string
 };
+
+export type objectClassType = 'ABSTRACT' | 'STRUCTURAL' | 'AUXILIARY' | 'INPARENT';
+
+export type objectClassSchema = {
+  oid?: string,
+  names?: string[],
+  description?: string,
+  obsolete?: boolean,
+  supObjectClasses?: string[],
+  type?: objectClassType,
+  reqAttributes?: string[],
+  optAttributes?: string[]
+};
