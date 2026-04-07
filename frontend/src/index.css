@@ -526,8 +526,8 @@ input[type="file"] {
 }
 
 .hiddenLabel {
-  height: 0px;
-  width: 0px;
+  height: 1px;
+  width: 1px;
 }
 
 textarea {
