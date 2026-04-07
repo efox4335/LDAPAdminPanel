@@ -193,8 +193,11 @@ const SingleClient = ({ client }: { client: client }) => {
         <LdapTree clientId={client.id} />
         <OpenEntries clientId={client.id} />
       </div>}
-      <br></br>
-      <SchemaDisplay clientId={client.id} />
+      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <>
+        <br></br>
+        <SchemaDisplay clientId={client.id} />
+      </>}
+
     </div>
   );
 };
