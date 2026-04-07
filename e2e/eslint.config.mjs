@@ -24,8 +24,11 @@ export default defineConfig([
 
 		rules: {
 			...playwright.configs['flat/recommended'].rules,
-			"playwright/expect-expect": [
-				"off",
+			'playwright/expect-expect': [
+				'off',
+			],
+			'playwright/no-force-option': [
+				'off'
 			],
 			'@stylistic/semi': 'error',
 			'@stylistic/quotes': ['error', 'single'],
