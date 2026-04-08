@@ -16,26 +16,6 @@ import DeleteButton from './DeleteButton';
 import AdvancedDropdown from './AdvancedDropdown';
 
 const SettingsDisplay = () => {
-  const enableLogging = useSelector((state) => selectSetting(state, { path: ['logging', 'enableLogging'] }));
-  const defaultEnableLogging = useSelector((state) => selectSettingDefault(state, { path: ['logging', 'enableLogging'] }));
-  const [currentEnableLogging, setCurrentEnableLogging] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (typeof (enableLogging) === 'boolean') {
-      setCurrentEnableLogging(enableLogging);
-    }
-  }, [enableLogging]);
-
-  const logFile = useSelector((state) => selectSetting(state, { path: ['logging', 'logFile'] }));
-  const defaultLogFile = useSelector((state) => selectSettingDefault(state, { path: ['logging', 'logFile'] }));
-  const [currentLogFile, setCurrentLogFile] = useState<string>('');
-
-  useEffect(() => {
-    if (typeof (logFile) === 'string') {
-      setCurrentLogFile(logFile);
-    }
-  }, [logFile]);
-
   const forceTls = useSelector((state) => selectSetting(state, { path: ['tls', 'forceTls'] }));
   const defaultForceTls = useSelector((state) => selectSettingDefault(state, { path: ['tls', 'forceTls'] }));
   const [currentForceTls, setCurrentForceTls] = useState<boolean>(false);
@@ -70,18 +50,6 @@ const SettingsDisplay = () => {
   };
 
   const handleResetToDefault = () => {
-    if (defaultEnableLogging === undefined || typeof (defaultEnableLogging) !== 'boolean') {
-      dispatch(addError(new Error('enable logging missing default')));
-    } else {
-      setCurrentEnableLogging(defaultEnableLogging);
-    }
-
-    if (defaultLogFile === undefined || typeof (defaultLogFile) !== 'string') {
-      dispatch(addError(new Error('log file missing default')));
-    } else {
-      setCurrentLogFile(defaultLogFile);
-    }
-
     if (defaultForceTls === undefined || typeof (defaultForceTls) !== 'boolean') {
       dispatch(addError(new Error('force tls missing default')));
     } else {
@@ -98,14 +66,6 @@ const SettingsDisplay = () => {
   };
 
   const handleCancelChanges = () => {
-    if (typeof (enableLogging) === 'boolean') {
-      setCurrentEnableLogging(enableLogging);
-    }
-
-    if (typeof (logFile) === 'string') {
-      setCurrentLogFile(logFile);
-    }
-
     if (typeof (forceTls) === 'boolean') {
       setCurrentForceTls(forceTls);
     }
@@ -122,14 +82,6 @@ const SettingsDisplay = () => {
 
       const newSettings = await truncateSettings({
         settings: [
-          {
-            path: ['logging', 'enableLogging'],
-            value: currentEnableLogging
-          },
-          {
-            path: ['logging', 'logFile'],
-            value: currentLogFile
-          },
           {
             path: ['tls', 'forceTls'],
             value: currentForceTls
@@ -170,34 +122,6 @@ const SettingsDisplay = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <SingleSettingContainer<boolean>
-                      name='enable logging'
-                      curValue={currentEnableLogging}
-                      setCurValue={setCurrentEnableLogging}
-                      curSetValue={enableLogging as boolean | undefined}
-                    >
-                      <select
-                        value={currentEnableLogging.toString()}
-                        onChange={(event) => {
-                          if (event.target.value === 'true') {
-                            setCurrentEnableLogging(true);
-                          } else {
-                            setCurrentEnableLogging(false);
-                          }
-                        }}
-                      >
-                        <option value='true'>true</option>
-                        <option value='false'>false</option>
-                      </select>
-                    </SingleSettingContainer>
-                    <SingleSettingContainer<string>
-                      name='log file'
-                      curValue={currentLogFile}
-                      setCurValue={setCurrentLogFile}
-                      curSetValue={logFile as string | undefined}
-                    >
-                      <input type='textbox' value={currentLogFile} onChange={(event) => setCurrentLogFile(event.target.value)} />
-                    </SingleSettingContainer>
                     <SingleSettingContainer<boolean>
                       name='force tls'
                       curValue={currentForceTls}
