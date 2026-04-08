@@ -99,6 +99,19 @@ describe('generateErrorMessage.ts tests', () => {
     expect(errMessage).toStrictEqual('error message');
   });
 
+  test('ldap error 80 uses message', () => {
+    const error: Extract<rawError, { type: 'ldapError' }> = {
+      type: 'ldapError',
+      code: 80,
+      name: 'invalid message',
+      message: 'correct message'
+    };
+
+    const errMessage = generateErrorMessage(error);
+
+    expect(errMessage).toStrictEqual('correct message');
+  });
+
   test('custom validation error', () => {
     const error: Extract<rawError, { type: 'validationError' }> = {
       type: 'validationError',
