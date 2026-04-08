@@ -49,7 +49,7 @@ const LdapEntryInput = (
     objectClassNames = objectClassNames.concat(oids);
   }
 
-  const handelAutoCompelete = (name: string) => {
+  const handleAutoCompelete = (name: string) => {
     if (objectClasses === undefined || attributeTypeSchemas === undefined) {
       return;
     }
@@ -137,7 +137,7 @@ const LdapEntryInput = (
               CustomInput={TextboxWithDropDownAutoCompelete}
               customInputProps={{
                 dropdownStrings: objectClassNames,
-                onAutoCompelete: handelAutoCompelete
+                onAutoCompelete: handleAutoCompelete
               }}
             />
           </td>

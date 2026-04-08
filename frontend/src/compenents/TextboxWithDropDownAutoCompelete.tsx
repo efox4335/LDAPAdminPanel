@@ -17,7 +17,7 @@ const TextboxWithDropDownAutoCompelete = (
   const [curAutoCompeleteValues, setCurAutoCompeleteValues] = useState<string[]>(dropdownStrings);
   const [curSelectedVal, setCurSelectedVal] = useState<number>(0);
 
-  const handelAutoCompelete = (val: string) => {
+  const handleAutoCompelete = (val: string) => {
     if (curAutoCompeleteValues.length !== 0) {
       setCurSelectedVal(0);
       setCurAutoCompeleteValues([]);
@@ -45,7 +45,7 @@ const TextboxWithDropDownAutoCompelete = (
           case 'Enter':
             event.preventDefault();
 
-            handelAutoCompelete(curAutoCompeleteValues[curSelectedVal]);
+            handleAutoCompelete(curAutoCompeleteValues[curSelectedVal]);
 
             break;
           case 'ArrowDown':
@@ -94,7 +94,7 @@ const TextboxWithDropDownAutoCompelete = (
                     ref={curRef}
                     className={(index === curSelectedVal) ? 'highlightedAutoCompeleteDropDownButton' : 'autoCompeleteDropDownButton'}
                     type='button' onMouseDown={() => {
-                      handelAutoCompelete(val);
+                      handleAutoCompelete(val);
                     }}>
                     {val}
                   </button>

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 import { enableLogs, logOutputFile } from './state';
 
-//handels inserting timestamp
+//handles inserting timestamp
 const writeToLog = (inputLog: string) => {
   if (!enableLogs) {
     return;

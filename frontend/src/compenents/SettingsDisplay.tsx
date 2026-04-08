@@ -97,7 +97,7 @@ const SettingsDisplay = () => {
     }
   };
 
-  const handelCancelChanges = () => {
+  const handleCancelChanges = () => {
     if (typeof (enableLogging) === 'boolean') {
       setCurrentEnableLogging(enableLogging);
     }
@@ -116,7 +116,7 @@ const SettingsDisplay = () => {
     }
   };
 
-  const handelSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
 
@@ -160,7 +160,7 @@ const SettingsDisplay = () => {
       {
         isSettingsOpen ?
           <div className='settingsContainer'>
-            <form onSubmit={handelSubmit}>
+            <form onSubmit={handleSubmit}>
               <div className='settingsTableMarginContainer'>
                 <table className='settingsTable'>
                   <thead>
@@ -284,7 +284,7 @@ const SettingsDisplay = () => {
                 </table>
                 <br></br>
                 <button type='button' className='negativeButton' onClick={handleResetToDefault}>reset to default</button>
-                <button type='button' className='negativeButton' onClick={handelCancelChanges}>cancel</button>
+                <button type='button' className='negativeButton' onClick={handleCancelChanges}>cancel</button>
                 <button type='submit' className='positiveButton'>apply</button>
               </div>
             </form>

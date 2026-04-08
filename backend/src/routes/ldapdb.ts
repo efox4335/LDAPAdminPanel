@@ -213,7 +213,7 @@ router.post('/:id/search', async (req, res, next) => {
     }
 
     //i don't like the idea of a search changing the client state
-    //if binding where allowed bind errors would also have to be handeled here
+    //if binding where allowed bind errors would also have to be handled here
     if (!client.isConnected) {
       const err: responseError = {
         type: 'customErrorMessage',
