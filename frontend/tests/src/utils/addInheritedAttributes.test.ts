@@ -61,15 +61,18 @@ describe('addInheritedAttributes.ts tests', () => {
       attributeTypes: [
         {
           oid: '1',
-          name: undefined
+          name: undefined,
+          noUserMod: false
         },
         {
           oid: '2',
-          name: undefined
+          name: undefined,
+          noUserMod: false
         },
         {
           oid: '3',
-          name: undefined
+          name: undefined,
+          noUserMod: false
         }
       ],
       nameMap: {
@@ -134,7 +137,8 @@ describe('addInheritedAttributes.ts tests', () => {
           oid: '1',
           name: [
             'testAttribute'
-          ]
+          ],
+          noUserMod: false
         }
       ],
       nameMap: {
@@ -201,7 +205,8 @@ describe('addInheritedAttributes.ts tests', () => {
           oid: '1',
           name: [
             'testAttribute'
-          ]
+          ],
+          noUserMod: false
         }
       ],
       nameMap: {
@@ -267,7 +272,8 @@ describe('addInheritedAttributes.ts tests', () => {
           oid: '1',
           name: [
             'testAttribute'
-          ]
+          ],
+          noUserMod: false
         }
       ],
       nameMap: {
@@ -334,7 +340,8 @@ describe('addInheritedAttributes.ts tests', () => {
           oid: '1',
           name: [
             'testAttribute'
-          ]
+          ],
+          noUserMod: false
         }
       ],
       nameMap: {

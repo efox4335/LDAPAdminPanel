@@ -79,7 +79,8 @@ describe('generateErrorMessage.ts tests', () => {
     const error: Extract<rawError, { type: 'ldapError' }> = {
       type: 'ldapError',
       code: 1,
-      name: 'error name'
+      name: 'error name',
+      message: ''
     };
 
     const errMessage = generateErrorMessage(error);
