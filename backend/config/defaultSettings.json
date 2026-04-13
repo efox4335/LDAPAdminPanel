@@ -1,0 +1,10 @@
+{
+	"logging": {
+		"enableLogging": false,
+		"logFile": ""
+	},
+	"tls": {
+		"forceTls": false,
+		"customCertificateAuthorities": []
+	}
+}

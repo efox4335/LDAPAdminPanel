@@ -1,2 +1,3 @@
 config/ldapAdminPanelSettings.json
 tests/config/testSettings.json
+static

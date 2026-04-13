@@ -10,6 +10,7 @@
     "test": "rm ./tests/testLog.log || true && SETTINGS_FILE=\"./tests/config/testSettings.json\" DEFAULT_SETTINGS_FILE=\"./tests/config/defaultTestSettings.json\" tsx --test --test-concurrency=1",
     "build": "tsc --project tsconfig.build.json",
     "dev": "SETTINGS_FILE=\"./config/ldapAdminPanelSettings.json\" DEFAULT_SETTINGS_FILE=\"./config/defaultDevSettings.json\" tsx --watch ./src/index.ts",
+    "start": "SETTINGS_FILE=\"./config/ldapAdminPanelSettings.json\" DEFAULT_SETTINGS_FILE=\"./config/defaultSettings.json\" node dist/index.js",
     "lint": "eslint ."
   },
   "devDependencies": {
