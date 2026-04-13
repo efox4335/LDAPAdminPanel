@@ -1,0 +1,27 @@
+FROM node:25
+
+WORKDIR /usr/src/app/
+
+RUN git clone https://github.com/efox4335/LDAPAdminPanel.git
+
+WORKDIR /usr/src/app/LDAPAdminPanel/frontend
+
+RUN npm install
+
+RUN npm run build
+
+WORKDIR /usr/src/app/LDAPAdminPanel/
+
+RUN mkdir -p backend/static/dist
+
+RUN cp -r frontend/dist backend/static/
+
+WORKDIR /usr/src/app/backend/
+
+RUN mkdir -p config/curSettings
+
+RUN npm install
+
+RUN npm run build
+
+CMD npm run start

@@ -1,0 +1,8 @@
+services:
+  ldapadminpanel:
+    build:
+      dockerfile: dockerfile
+    volumes:
+      - {your file here}:/usr/src/app/LDAPAdminPanel/backend/config/curSettings/:rw
+    ports:
+      - {your port here}:3000
