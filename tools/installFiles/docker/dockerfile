@@ -16,7 +16,7 @@ RUN mkdir -p backend/static/dist
 
 RUN cp -r frontend/dist backend/static/
 
-WORKDIR /usr/src/app/backend/
+WORKDIR /usr/src/app/LDAPAdminPanel/backend/
 
 RUN mkdir -p config/curSettings
 
