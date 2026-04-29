@@ -1,5 +1,5 @@
 # LDAP admin panel readme
-A LDAP admin panel
+An LDAP admin panel
 ## Supported Features
 | Feature | Status |
 | --- | --- |
