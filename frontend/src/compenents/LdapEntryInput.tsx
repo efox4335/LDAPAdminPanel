@@ -7,12 +7,12 @@ import NewAttributeList from './NewAttributeList';
 import type { newLdapAttributeValue, newLdapAttribute } from '../utils/types';
 import TextboxWithDropDownAutoCompelete from './TextboxWithDropDownAutoCompelete';
 import type { TextboxWithDropDownAutoCompeletePropsType } from './TextboxWithDropDownAutoCompelete';
-import { selectInheritedObjectClassesByClientId, selectAttributeTypesByClientId } from '../slices/client';
+import { selectInheritedObjectClassesByServerId, selectAttributeTypesByServerId } from '../slices/server';
 import getObjectClassFromNameMap from '../utils/getObjectClassFromNameMap';
 
 const LdapEntryInput = (
   {
-    clientId,
+    serverId,
     newDn,
     setNewDn,
     newObjectClasses,
@@ -20,7 +20,7 @@ const LdapEntryInput = (
     newAttributes,
     setNewAttributes
   }: {
-    clientId: string,
+    serverId: string,
     newDn: string,
     setNewDn: Dispatch<SetStateAction<string>>,
     newObjectClasses: newLdapAttributeValue[],
@@ -29,9 +29,9 @@ const LdapEntryInput = (
     setNewAttributes: Dispatch<SetStateAction<newLdapAttribute[]>>
   }
 ) => {
-  const objectClasses = useSelector((state) => selectInheritedObjectClassesByClientId(state, clientId));
+  const objectClasses = useSelector((state) => selectInheritedObjectClassesByServerId(state, serverId));
 
-  const attributeTypeSchemas = useSelector((state) => selectAttributeTypesByClientId(state, clientId));
+  const attributeTypeSchemas = useSelector((state) => selectAttributeTypesByServerId(state, serverId));
 
   let objectClassNames: string[] = [];
 

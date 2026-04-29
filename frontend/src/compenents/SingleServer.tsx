@@ -1,9 +1,9 @@
 import { useAppDispatch as useDispatch } from '../utils/reduxHooks';
 import { useState } from 'react';
 
-import type { client } from '../utils/types';
-import { deleteClient, unbindClient } from '../services/ldapdbsService';
-import { delClient, addClient, addSchemas } from '../slices/client';
+import type { server } from '../utils/types';
+import { deleteServer, unbindServer } from '../services/ldapdbsService';
+import { delServer, addServer, addSchemas } from '../slices/server';
 import { addError } from '../slices/error';
 import LdapTree from './LdapTree';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
@@ -15,21 +15,21 @@ import SearchForm from './SearchForm';
 import SchemaDisplay from './SchemaDisplay';
 import fetchSchemas from '../utils/fetchSchemas';
 
-const SingleClient = ({ client }: { client: client }) => {
+const SingleServer = ({ server }: { server: server }) => {
   const [fetchedTree, setFetchedTree] = useState<boolean>(false);
   const [fetchedSchemas, setFetchedSchemas] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
-  const boundDn = (client.boundDn === null) ? 'null' : client.boundDn;
+  const boundDn = (server.boundDn === null) ? 'null' : server.boundDn;
 
-  const connectionString = (client.isConnected) ? 'connected' : 'not connected';
+  const connectionString = (server.isConnected) ? 'connected' : 'not connected';
 
   const handleDelete = async () => {
     try {
-      await deleteClient(client.id);
+      await deleteServer(server.id);
 
-      dispatch(delClient(client.id));
+      dispatch(delServer(server.id));
     } catch (err) {
       dispatch(addError(err));
     }
@@ -37,10 +37,10 @@ const SingleClient = ({ client }: { client: client }) => {
 
   const handleUnbind = async () => {
     try {
-      await unbindClient(client.id);
+      await unbindServer(server.id);
 
-      const newClient: client = {
-        ...client,
+      const newServer: server = {
+        ...server,
         openEntries: [],
         openEntryMap: {},
         attributeTypeSchemas: undefined,
@@ -51,7 +51,7 @@ const SingleClient = ({ client }: { client: client }) => {
         entryMap: undefined
       };
 
-      dispatch(addClient(newClient));
+      dispatch(addServer(newServer));
 
       setFetchedTree(false);
       setFetchedSchemas(false);
@@ -62,16 +62,16 @@ const SingleClient = ({ client }: { client: client }) => {
 
   const fetchServerTree = async () => {
     try {
-      const dse = await fetchLdapEntry(client.id, '');
+      const dse = await fetchLdapEntry(server.id, '');
 
       const entryMap = generateLdapServerTree([dse], '');
 
-      const newClient: client = {
-        ...client,
+      const newServer: server = {
+        ...server,
         entryMap: entryMap
       };
 
-      dispatch(addClient(newClient));
+      dispatch(addServer(newServer));
     } catch (err) {
       dispatch(addError(err));
     } finally {
@@ -79,7 +79,7 @@ const SingleClient = ({ client }: { client: client }) => {
     }
   };
 
-  if (client.isConnected && !fetchedTree) {
+  if (server.isConnected && !fetchedTree) {
     void fetchServerTree();
   }
 
@@ -87,11 +87,11 @@ const SingleClient = ({ client }: { client: client }) => {
     try {
       setFetchedSchemas(true);
 
-      if (!client.entryMap) {
+      if (!server.entryMap) {
         return;
       }
 
-      const dse = client.entryMap['dse'];
+      const dse = server.entryMap['dse'];
 
       if (dse === undefined) {
         return;
@@ -111,10 +111,10 @@ const SingleClient = ({ client }: { client: client }) => {
         return;
       }
 
-      const schemas = await fetchSchemas(schemaDn, client.id);
+      const schemas = await fetchSchemas(schemaDn, server.id);
 
       dispatch(addSchemas({
-        clientId: client.id,
+        serverId: server.id,
         attributeTypeMap: schemas.attributeTypeMap,
         initialObjectClassMap: schemas.originalObjectClassMap,
         inheritedObjectClassMap: schemas.inheritedObjectClassMap
@@ -131,11 +131,11 @@ const SingleClient = ({ client }: { client: client }) => {
   }
 
   return (
-    <div className='singleClient'>
-      <div className='singleClientHeader'>
-        <div className='singleClientMetadata'>
+    <div className='singleServer'>
+      <div className='singleServerHeader'>
+        <div className='singleServerMetadata'>
           <div>
-            <h4>client info</h4>
+            <h4>server info</h4>
             <div className='userInteractionContainer'>
               <table>
                 <tbody>
@@ -144,7 +144,7 @@ const SingleClient = ({ client }: { client: client }) => {
                       server url
                     </td>
                     <td>
-                      {client.serverUrl}
+                      {server.serverUrl}
                     </td>
                   </tr>
                   <tr>
@@ -166,7 +166,7 @@ const SingleClient = ({ client }: { client: client }) => {
                       tls enabled
                     </td>
                     <td>
-                      {client.tlsEnabled.toString()}
+                      {server.tlsEnabled.toString()}
                     </td>
                   </tr>
                 </tbody>
@@ -174,32 +174,32 @@ const SingleClient = ({ client }: { client: client }) => {
             </div>
           </div>
           <div className='userInteractionButtons'>
-            <button onClick={handleDelete} className={client.isConnected ? '' : 'negativeButton'}>remove</button>
-            {client.isConnected ?
+            <button onClick={handleDelete} className={server.isConnected ? '' : 'negativeButton'}>remove</button>
+            {server.isConnected ?
               <button onClick={handleUnbind} className='negativeButton'>unbind</button> :
               <></>
             }
           </div>
         </div>
-        <BindForm client={client} />
-        {client.boundDn !== null ?
-          <SearchForm clientId={client.id} /> :
+        <BindForm server={server} />
+        {server.boundDn !== null ?
+          <SearchForm serverId={server.id} /> :
           <></>
         }
-        <Exop clientId={client.id} />
+        <Exop serverId={server.id} />
       </div>
       <br></br>
-      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <div className='ldapTreeContainer'>
-        <LdapTree clientId={client.id} />
-        <OpenEntries clientId={client.id} />
+      {(!server.entryMap || !('dse' in server.entryMap)) ? <></> : <div className='ldapTreeContainer'>
+        <LdapTree serverId={server.id} />
+        <OpenEntries serverId={server.id} />
       </div>}
-      {(!client.entryMap || !('dse' in client.entryMap)) ? <></> : <>
+      {(!server.entryMap || !('dse' in server.entryMap)) ? <></> : <>
         <br></br>
-        <SchemaDisplay clientId={client.id} />
+        <SchemaDisplay serverId={server.id} />
       </>}
 
     </div>
   );
 };
 
-export default SingleClient;
+export default SingleServer;

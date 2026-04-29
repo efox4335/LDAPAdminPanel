@@ -3,7 +3,7 @@ import { memo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import getDisplayDc from '../utils/getDisplayDc';
-import { selectLdapEntry, addOpenEntry, concatEntryMap, collapseEntry, expandEntry } from '../slices/client';
+import { selectLdapEntry, addOpenEntry, concatEntryMap, collapseEntry, expandEntry } from '../slices/server';
 import LdapEntryVisibilityToggle from './LdapEntryVisibilityToggle';
 import { fetchLdapChildren, fetchLdapEntry } from '../utils/query';
 import { addError } from '../slices/error';
@@ -11,8 +11,8 @@ import generateLdapServerTree from '../utils/generateLdapServerTree';
 import getParentDn from '../utils/getParentDn';
 import type { queryFetchRes } from '../utils/types';
 
-const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: string, lastVisibleDn: string, entryDn: string }) => {
-  const entry = useSelector((state) => selectLdapEntry(state, clientId, entryDn));
+const LdapTreeEntry = memo(({ serverId, lastVisibleDn, entryDn }: { serverId: string, lastVisibleDn: string, entryDn: string }) => {
+  const entry = useSelector((state) => selectLdapEntry(state, serverId, entryDn));
 
   const dispatch = useDispatch();
 
@@ -33,7 +33,7 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
       <>
         {childDns.map((childDn) => {
           return (
-            <LdapTreeEntry key={childDn} clientId={clientId} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
+            <LdapTreeEntry key={childDn} serverId={serverId} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
           );
         })}
       </>
@@ -43,7 +43,7 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
   const isExpanded = entry.isExpanded;
 
   const handleOpenEntry = () => {
-    dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn } }));
+    dispatch(addOpenEntry({ serverId: serverId, entry: { entryType: 'existingEntry', entryDn } }));
   };
 
   const handleExpandEntry = async () => {
@@ -53,23 +53,23 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
       let childEntries: queryFetchRes[] = [];
 
       if (entryDn === 'dse') {
-        baseEntry = await fetchLdapEntry(clientId, '');
+        baseEntry = await fetchLdapEntry(serverId, '');
 
         const namingContexts = entry.operationalEntry.namingContexts;
 
         if (typeof (namingContexts) === 'string') {
-          childEntries = [await fetchLdapEntry(clientId, namingContexts)];
+          childEntries = [await fetchLdapEntry(serverId, namingContexts)];
         } else {
           for (const rootDitDn of namingContexts) {
-            const rootDit = await fetchLdapEntry(clientId, rootDitDn);
+            const rootDit = await fetchLdapEntry(serverId, rootDitDn);
 
             childEntries.push(rootDit);
           }
         }
       } else {
-        baseEntry = await fetchLdapEntry(clientId, entryDn);
+        baseEntry = await fetchLdapEntry(serverId, entryDn);
 
-        childEntries = await fetchLdapChildren(clientId, entryDn);
+        childEntries = await fetchLdapChildren(serverId, entryDn);
       }
 
       const formattedEntries = generateLdapServerTree([...childEntries, baseEntry], entryDn);
@@ -84,16 +84,16 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
 
       const parentDn = getParentDn(curEntry.dn);
 
-      dispatch(concatEntryMap({ clientId: clientId, parentDn: parentDn, subtreeRootDn: curEntry.dn, entryMap: formattedEntries }));
+      dispatch(concatEntryMap({ serverId: serverId, parentDn: parentDn, subtreeRootDn: curEntry.dn, entryMap: formattedEntries }));
 
-      dispatch(expandEntry({ clientId, entryDn }));
+      dispatch(expandEntry({ serverId, entryDn }));
     } catch (err) {
       dispatch(addError(err));
     }
   };
 
   const handleCollapseEntry = () => {
-    dispatch(collapseEntry({ clientId: clientId, entryDn: entryDn }));
+    dispatch(collapseEntry({ serverId: serverId, entryDn: entryDn }));
   };
 
   if (!isExpanded) {
@@ -117,7 +117,7 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
       <div className='ldapTreeEntryChildren'>
         {childDns.map((childDn) => {
           return (
-            <LdapTreeEntry key={childDn} clientId={clientId} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
+            <LdapTreeEntry key={childDn} serverId={serverId} lastVisibleDn={childLastVisibleDn} entryDn={childDn} />
           );
         })}
       </div>
@@ -125,14 +125,14 @@ const LdapTreeEntry = memo(({ clientId, lastVisibleDn, entryDn }: { clientId: st
   );
 });
 
-const LdapTree = ({ clientId }: { clientId: string }) => {
+const LdapTree = ({ serverId }: { serverId: string }) => {
   return (
     <div className='ldapTreeDisplayContainer'>
       <h4 className='ldapTreeDisplayHeader'>
         ldap tree
       </h4>
       <div className='userInteractionContainer'>
-        <LdapTreeEntry clientId={clientId} lastVisibleDn='' entryDn='dse' />
+        <LdapTreeEntry serverId={serverId} lastVisibleDn='' entryDn='dse' />
       </div>
     </div>
   );

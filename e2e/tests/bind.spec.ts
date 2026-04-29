@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { ldapServerUrl, adminDn, adminPassword, invalidOid, tlsServerUrl } from '../utils/constants';
 import { addServer, addTlsServer, navToPage, removeServer } from '../utils/preTestUtils';
-import assertClientInfo from '../utils/assertClientInfo';
+import assertServerInfo from '../utils/assertServerInfo';
 import assertError from '../utils/assertError';
 import expandAdvancedOptions from '../utils/expandAdvancedOptions';
 import assertAdvancedOptionsClosed from '../utils/assertAdvancedOptionsClosed';
@@ -22,7 +22,7 @@ test.describe('bind tests', () => {
     });
 
     test('tls bind', async ({ page }) => {
-      const bindForm = page.locator('.singleClientBind');
+      const bindForm = page.locator('.singleServerBind');
 
       await bindForm
         .getByText('dn')
@@ -37,11 +37,11 @@ test.describe('bind tests', () => {
         .fill(adminPassword);
 
       await page
-        .locator('.singleClientBind')
+        .locator('.singleServerBind')
         .getByRole('button', { name: 'bind' })
         .click();
 
-      await assertClientInfo(page, {
+      await assertServerInfo(page, {
         isConnected: true,
         boundDn: adminDn,
         ldapServerUrl: tlsServerUrl,
@@ -60,7 +60,7 @@ test.describe('bind tests', () => {
     });
 
     test('no bind server info', async ({ page }) => {
-      await assertClientInfo(page, {
+      await assertServerInfo(page, {
         isConnected: false,
         boundDn: 'null',
         ldapServerUrl: ldapServerUrl,
@@ -69,13 +69,13 @@ test.describe('bind tests', () => {
     });
 
     test('advanced options start closed', async ({ page }) => {
-      const bindForm = page.locator('.singleClientBind');
+      const bindForm = page.locator('.singleServerBind');
 
       await assertAdvancedOptionsClosed(bindForm);
     });
 
     test('controls passed', async ({ page }) => {
-      const bindForm = page.locator('.singleClientBind');
+      const bindForm = page.locator('.singleServerBind');
 
       await expandAdvancedOptions(bindForm);
 
@@ -94,7 +94,7 @@ test.describe('bind tests', () => {
     });
 
     test('reset button', async ({ page }) => {
-      const bindForm = page.locator('.singleClientBind');
+      const bindForm = page.locator('.singleServerBind');
 
       await bindForm
         .getByText('dn')
@@ -139,21 +139,21 @@ test.describe('bind tests', () => {
     test.describe('admin bind', () => {
       test.beforeEach(async ({ page }) => {
         await page
-          .locator('.singleClientBind')
+          .locator('.singleServerBind')
           .getByText('dn')
           .locator('..')
           .getByRole('textbox')
           .fill(adminDn);
 
         await page
-          .locator('.singleClientBind')
+          .locator('.singleServerBind')
           .getByText('password')
           .locator('..')
           .getByRole('textbox')
           .fill(adminPassword);
 
         await page
-          .locator('.singleClientBind')
+          .locator('.singleServerBind')
           .getByRole('button', { name: 'bind' })
           .click();
       });
@@ -163,7 +163,7 @@ test.describe('bind tests', () => {
           .getByRole('button', { name: 'unbind' })
           .click();
 
-        await assertClientInfo(page,
+        await assertServerInfo(page,
           {
             isConnected: false,
             boundDn: 'null',
@@ -179,42 +179,42 @@ test.describe('bind tests', () => {
 
         test('bind unbind bind still fetches tree', async ({ page }) => {
           await page
-            .locator('.singleClientBind')
+            .locator('.singleServerBind')
             .getByText('dn')
             .locator('..')
             .getByRole('textbox')
             .fill(adminDn);
 
           await page
-            .locator('.singleClientBind')
+            .locator('.singleServerBind')
             .getByText('password')
             .locator('..')
             .getByRole('textbox')
             .fill(adminPassword);
 
           await page
-            .locator('.singleClientBind')
+            .locator('.singleServerBind')
             .getByRole('button', { name: 'bind' })
             .click();
 
           await page.getByRole('button', { name: 'unbind' }).click();
 
           await page
-            .locator('.singleClientBind')
+            .locator('.singleServerBind')
             .getByText('dn')
             .locator('..')
             .getByRole('textbox')
             .fill(adminDn);
 
           await page
-            .locator('.singleClientBind')
+            .locator('.singleServerBind')
             .getByText('password')
             .locator('..')
             .getByRole('textbox')
             .fill(adminPassword);
 
           await page
-            .locator('.singleClientBind')
+            .locator('.singleServerBind')
             .getByRole('button', { name: 'bind' })
             .click();
 
@@ -222,7 +222,7 @@ test.describe('bind tests', () => {
         });
 
         test('admin bind server info', async ({ page }) => {
-          await assertClientInfo(page, {
+          await assertServerInfo(page, {
             isConnected: true,
             boundDn: adminDn,
             ldapServerUrl: ldapServerUrl,
@@ -235,7 +235,7 @@ test.describe('bind tests', () => {
 
           await assertError(page, 'cannot delete: client has active connection to database', true);
 
-          await assertClientInfo(page, {
+          await assertServerInfo(page, {
             isConnected: true,
             boundDn: adminDn,
             ldapServerUrl: ldapServerUrl,
@@ -256,7 +256,7 @@ test.describe('bind tests', () => {
 
 
       test('anon bind bound dn', async ({ page }) => {
-        await assertClientInfo(page, {
+        await assertServerInfo(page, {
           isConnected: true,
           boundDn: '',
           ldapServerUrl: ldapServerUrl,

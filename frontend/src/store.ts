@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import clientsSlice from './slices/client';
+import serversSlice from './slices/server';
 import errorSlice from './slices/error';
 import settingsSlice from './slices/settings';
 
 const store = configureStore({
   reducer: {
-    clients: clientsSlice,
+    servers: serversSlice,
     errors: errorSlice,
     settings: settingsSlice
   }

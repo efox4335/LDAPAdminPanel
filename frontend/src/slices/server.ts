@@ -1,26 +1,35 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import type { client, clientStore, ldapEntry, operationalLdapEntry, serverTreeEntry, openLdapEntry, attributeTypeSchemaMap, objectClassSchemaMap } from '../utils/types';
+import type {
+  server,
+  serverStore,
+  ldapEntry,
+  operationalLdapEntry,
+  serverTreeEntry,
+  openLdapEntry,
+  attributeTypeSchemaMap,
+  objectClassSchemaMap
+} from '../utils/types';
 import getParentDn from '../utils/getParentDn';
 
-const initialState: clientStore = {};
+const initialState: serverStore = {};
 
-const clientsSlice = createSlice({
-  name: 'clients',
+const serversSlice = createSlice({
+  name: 'servers',
   initialState,
   reducers: {
-    addClient: (state, action: PayloadAction<client>) => {
+    addServer: (state, action: PayloadAction<server>) => {
       state[action.payload.id] = action.payload;
     },
 
-    delClient: (state, action: PayloadAction<string>) => {
+    delServer: (state, action: PayloadAction<string>) => {
       delete state[action.payload];
     },
 
-    addClients: (state, action: PayloadAction<client[]>) => {
-      action.payload.forEach((client) => state[client.id] = {
-        ...client,
+    addServers: (state, action: PayloadAction<server[]>) => {
+      action.payload.forEach((server) => state[server.id] = {
+        ...server,
         openEntries: [],
         openEntryMap: {},
         attributeTypeSchemas: undefined,
@@ -30,12 +39,12 @@ const clientsSlice = createSlice({
     },
 
     addSchemas: (state, action: PayloadAction<{
-      clientId: string
+      serverId: string
       attributeTypeMap: attributeTypeSchemaMap,
       initialObjectClassMap: objectClassSchemaMap,
       inheritedObjectClassMap: objectClassSchemaMap
     }>) => {
-      const existingEntry = state[action.payload.clientId];
+      const existingEntry = state[action.payload.serverId];
 
       if (existingEntry === undefined) {
         console.log('no entry exists');
@@ -48,8 +57,8 @@ const clientsSlice = createSlice({
       existingEntry.inheritedObjectClassSchemas = action.payload.inheritedObjectClassMap;
     },
 
-    concatEntryMap: (state, action: PayloadAction<{ clientId: string, parentDn: string, subtreeRootDn: string, entryMap: Record<string, serverTreeEntry> }>) => {
-      const existingMap = state[action.payload.clientId].entryMap;
+    concatEntryMap: (state, action: PayloadAction<{ serverId: string, parentDn: string, subtreeRootDn: string, entryMap: Record<string, serverTreeEntry> }>) => {
+      const existingMap = state[action.payload.serverId].entryMap;
 
       if (existingMap === undefined) {
         console.log('tried to concat with undefined map');
@@ -94,8 +103,8 @@ const clientsSlice = createSlice({
       });
     },
 
-    updateOrAddEntry: (state, action: PayloadAction<{ clientId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
-      const map = state[action.payload.clientId].entryMap;
+    updateOrAddEntry: (state, action: PayloadAction<{ serverId: string, parentDn: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
+      const map = state[action.payload.serverId].entryMap;
 
       if (map === undefined) {
         console.log('tried to add entry before server tree is fetched');
@@ -127,8 +136,8 @@ const clientsSlice = createSlice({
       }
     },
 
-    delEntry: (state, action: PayloadAction<{ clientId: string, dn: string }>) => {
-      const map = state[action.payload.clientId].entryMap;
+    delEntry: (state, action: PayloadAction<{ serverId: string, dn: string }>) => {
+      const map = state[action.payload.serverId].entryMap;
 
       if (!map) {
         console.log('tried to delete entry before server tree is fetched');
@@ -138,7 +147,7 @@ const clientsSlice = createSlice({
 
       const delEntry = map[action.payload.dn];
 
-      if (!delClient) {
+      if (!delServer) {
         console.log('tried to delete non-existent entry');
 
         return;
@@ -171,8 +180,8 @@ const clientsSlice = createSlice({
       delete map[action.payload.dn];
     },
 
-    collapseEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
-      const map = state[action.payload.clientId].entryMap;
+    collapseEntry: (state, action: PayloadAction<{ serverId: string, entryDn: string }>) => {
+      const map = state[action.payload.serverId].entryMap;
 
       if (!map) {
         console.log('tried to collapse before server fetched');
@@ -197,8 +206,8 @@ const clientsSlice = createSlice({
       collapseEntry.isExpanded = false;
     },
 
-    expandEntry: (state, action: PayloadAction<{ clientId: string, entryDn: string }>) => {
-      const map = state[action.payload.clientId].entryMap;
+    expandEntry: (state, action: PayloadAction<{ serverId: string, entryDn: string }>) => {
+      const map = state[action.payload.serverId].entryMap;
 
       if (!map) {
         console.log('tried to expand before server fetched');
@@ -223,8 +232,8 @@ const clientsSlice = createSlice({
       expandEntry.isExpanded = true;
     },
 
-    updateEntry: (state, action: PayloadAction<{ clientId: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
-      const map = state[action.payload.clientId].entryMap;
+    updateEntry: (state, action: PayloadAction<{ serverId: string, entry: ldapEntry, operationalEntry: operationalLdapEntry }>) => {
+      const map = state[action.payload.serverId].entryMap;
 
       if (map === undefined) {
         console.log('tried to update before server fetched');
@@ -255,31 +264,31 @@ const clientsSlice = createSlice({
       }
     },
 
-    addOpenEntry: (state, action: PayloadAction<{ clientId: string, entry: openLdapEntry }>) => {
-      const client = state[action.payload.clientId];
+    addOpenEntry: (state, action: PayloadAction<{ serverId: string, entry: openLdapEntry }>) => {
+      const server = state[action.payload.serverId];
 
-      if (!client) {
-        console.log('tried to open entry on invalid client');
+      if (!server) {
+        console.log('tried to open entry on invalid server');
 
         return;
       }
 
       if (action.payload.entry.entryType === 'existingEntry') {
-        if (client.openEntryMap[action.payload.entry.entryDn] !== undefined) {
+        if (server.openEntryMap[action.payload.entry.entryDn] !== undefined) {
           return;
         }
 
-        client.openEntryMap[action.payload.entry.entryDn] = action.payload.entry.entryDn;
+        server.openEntryMap[action.payload.entry.entryDn] = action.payload.entry.entryDn;
       }
 
-      client.openEntries.push(action.payload.entry);
+      server.openEntries.push(action.payload.entry);
     },
 
-    closeOpenEntry: (state, action: PayloadAction<{ clientId: string, entry: openLdapEntry }>) => {
-      const client = state[action.payload.clientId];
+    closeOpenEntry: (state, action: PayloadAction<{ serverId: string, entry: openLdapEntry }>) => {
+      const server = state[action.payload.serverId];
 
-      if (!client) {
-        console.log('tried to delete open entry on invalid client');
+      if (!server) {
+        console.log('tried to delete open entry on invalid server');
 
         return;
       }
@@ -287,9 +296,9 @@ const clientsSlice = createSlice({
       const curEntry = action.payload.entry;
 
       if (curEntry.entryType === 'existingEntry') {
-        delete client.openEntryMap[curEntry.entryDn];
+        delete server.openEntryMap[curEntry.entryDn];
 
-        const entryIndex = client.openEntries.findIndex((val) => {
+        const entryIndex = server.openEntries.findIndex((val) => {
           if (val.entryType === 'newEntry') {
             return false;
           }
@@ -307,9 +316,9 @@ const clientsSlice = createSlice({
           return;
         }
 
-        client.openEntries.splice(entryIndex, 1);
+        server.openEntries.splice(entryIndex, 1);
       } else {
-        const entryIndex = client.openEntries.findIndex((val) => {
+        const entryIndex = server.openEntries.findIndex((val) => {
           if (val.entryType === 'existingEntry') {
             return false;
           }
@@ -325,56 +334,56 @@ const clientsSlice = createSlice({
           return;
         }
 
-        client.openEntries.splice(entryIndex, 1);
+        server.openEntries.splice(entryIndex, 1);
       }
     }
   },
   selectors: {
-    selectClients: (sliceState) => {
+    selectServers: (sliceState) => {
       return sliceState;
     },
 
-    selectLdapEntry: (sliceState, clientId: string, dn: string) => {
-      if (!sliceState[clientId].entryMap) {
+    selectLdapEntry: (sliceState, serverId: string, dn: string) => {
+      if (!sliceState[serverId].entryMap) {
         return undefined;
       }
 
-      return sliceState[clientId].entryMap[dn];
+      return sliceState[serverId].entryMap[dn];
     },
 
-    selectInheritedObjectClassesByClientId: (sliceState, clientId: string) => {
-      if (!sliceState[clientId]) {
+    selectInheritedObjectClassesByServerId: (sliceState, serverId: string) => {
+      if (!sliceState[serverId]) {
         return undefined;
       }
 
-      return sliceState[clientId].inheritedObjectClassSchemas;
+      return sliceState[serverId].inheritedObjectClassSchemas;
     },
 
-    selectOriginalObjectClassesByClientId: (sliceState, clientId: string) => {
-      if (!sliceState[clientId]) {
+    selectOriginalObjectClassesByServerId: (sliceState, serverId: string) => {
+      if (!sliceState[serverId]) {
         return undefined;
       }
 
-      return sliceState[clientId].originalObjectClassSchemas;
+      return sliceState[serverId].originalObjectClassSchemas;
     },
 
-    selectAttributeTypesByClientId: (sliceState, clientId: string) => {
-      if (!sliceState[clientId]) {
+    selectAttributeTypesByServerId: (sliceState, serverId: string) => {
+      if (!sliceState[serverId]) {
         return undefined;
       }
 
-      return sliceState[clientId].attributeTypeSchemas;
+      return sliceState[serverId].attributeTypeSchemas;
     },
 
-    selectOpenEntriesByClientId: createSelector(
-      [(sliceState: clientStore, clientId: string) => {
-        return sliceState[clientId].entryMap;
+    selectOpenEntriesByServerId: createSelector(
+      [(sliceState: serverStore, serverId: string) => {
+        return sliceState[serverId].entryMap;
       },
-      (sliceState: clientStore, clientId: string) => {
-        return sliceState[clientId].openEntries;
+      (sliceState: serverStore, serverId: string) => {
+        return sliceState[serverId].openEntries;
       },
-      (sliceState: clientStore, clientId: string) => {
-        return sliceState[clientId].openEntryMap;
+      (sliceState: serverStore, serverId: string) => {
+        return sliceState[serverId].openEntryMap;
       }],
 
       (entryMap, openEntries, openEntryMap) => {
@@ -400,17 +409,17 @@ const clientsSlice = createSlice({
       }
     ),
 
-    selectNamingContextsByClientId: createSelector(
-      [(sliceState: clientStore, clientId: string) => {
-        if (!sliceState[clientId]) {
+    selectNamingContextsByServerId: createSelector(
+      [(sliceState: serverStore, serverId: string) => {
+        if (!sliceState[serverId]) {
           return undefined;
         }
 
-        if (!sliceState[clientId].entryMap) {
+        if (!sliceState[serverId].entryMap) {
           return undefined;
         }
 
-        return sliceState[clientId].entryMap['dse'];
+        return sliceState[serverId].entryMap['dse'];
       }],
       (rootEntry) => {
         if (!rootEntry) {
@@ -438,9 +447,9 @@ const clientsSlice = createSlice({
 });
 
 export const {
-  addClient,
-  delClient,
-  addClients,
+  addServer,
+  delServer,
+  addServers,
   delEntry,
   expandEntry,
   collapseEntry,
@@ -450,16 +459,16 @@ export const {
   closeOpenEntry,
   updateOrAddEntry,
   addSchemas
-} = clientsSlice.actions;
+} = serversSlice.actions;
 
 export const {
-  selectClients,
+  selectServers,
   selectLdapEntry,
-  selectOpenEntriesByClientId,
-  selectNamingContextsByClientId,
-  selectInheritedObjectClassesByClientId,
-  selectOriginalObjectClassesByClientId,
-  selectAttributeTypesByClientId
-} = clientsSlice.selectors;
+  selectOpenEntriesByServerId,
+  selectNamingContextsByServerId,
+  selectInheritedObjectClassesByServerId,
+  selectOriginalObjectClassesByServerId,
+  selectAttributeTypesByServerId
+} = serversSlice.selectors;
 
-export default clientsSlice.reducer;
+export default serversSlice.reducer;

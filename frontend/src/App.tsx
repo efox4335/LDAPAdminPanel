@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useAppDispatch as useDispatch } from './utils/reduxHooks';
 
-import { getAllClients } from './services/ldapdbsService';
-import { addClients } from './slices/client';
+import { getAllServers } from './services/ldapdbsService';
+import { addServers } from './slices/server';
 import { setDefaults, setSettings } from './slices/settings';
-import ClientsDisplay from './compenents/ClientsDisplay';
+import ServersDisplay from './compenents/ServersDisplay';
 import ErrorsDisplay from './compenents/ErrorsDisplay';
 import { getSettings } from './services/settingsService';
 import SettingsDisplay from './compenents/SettingsDisplay';
@@ -13,10 +13,10 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchClients = async () => {
-      const clients = await getAllClients();
+    const fetchServers = async () => {
+      const servers = await getAllServers();
 
-      dispatch(addClients(clients));
+      dispatch(addServers(servers));
     };
 
     const fetchSettings = async () => {
@@ -26,14 +26,14 @@ const App = () => {
       dispatch(setDefaults(settings.defaults));
     };
 
-    void fetchClients();
+    void fetchServers();
     void fetchSettings();
   });
 
   return (
     <div className='mainDisplay'>
       <ErrorsDisplay />
-      <ClientsDisplay />
+      <ServersDisplay />
       <SettingsDisplay />
     </div>
   );

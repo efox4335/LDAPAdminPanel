@@ -6,7 +6,7 @@ import parseModifyedAttributes from '../utils/parseModifiedAttributes';
 import { addError } from '../slices/error';
 import { modifyEntry, modifyEntryDn } from '../services/ldapdbsService';
 import { fetchLdapEntry, fetchLdapChildren } from '../utils/query';
-import { updateEntry, concatEntryMap, delEntry, closeOpenEntry, addOpenEntry } from '../slices/client';
+import { updateEntry, concatEntryMap, delEntry, closeOpenEntry, addOpenEntry } from '../slices/server';
 import generateLdapServerTree from '../utils/generateLdapServerTree';
 import getParentDn from '../utils/getParentDn';
 import NewLdapControls from './NewLdapControls';
@@ -15,10 +15,10 @@ import getNewLdapAttributes from '../utils/getNewLdapAttributes';
 import AdvancedDropdown from './AdvancedDropdown';
 import LdapEntryInput from './LdapEntryInput';
 
-const ModifyEntryForm = ({ hideForm, entry, clientId }: {
+const ModifyEntryForm = ({ hideForm, entry, serverId }: {
   hideForm: () => void,
   entry: Extract<serverTreeEntry, { visible: true }>,
-  clientId: string
+  serverId: string
 }) => {
   const dispatch = useDispatch();
 
@@ -64,35 +64,35 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
       modifyOp['control'] = getControls(newModifyControls);
 
       if (modifyOp.changes.length > 0) {
-        await modifyEntry(clientId, modifyOp);
+        await modifyEntry(serverId, modifyOp);
 
-        const res = await fetchLdapEntry(clientId, entry.dn);
+        const res = await fetchLdapEntry(serverId, entry.dn);
 
-        dispatch(updateEntry({ clientId: clientId, entry: res.visibleEntry, operationalEntry: res.operationalEntry }));
+        dispatch(updateEntry({ serverId: serverId, entry: res.visibleEntry, operationalEntry: res.operationalEntry }));
       }
 
       //runs after seemingly redundant fetch and dispatch because if modifyEntryDn throws but modifyEntry does not the entry will have outdated info
       if (newDn !== entry.dn) {
-        await modifyEntryDn(clientId, {
+        await modifyEntryDn(serverId, {
           dn: entry.dn,
           newDN: newDn,
           control: getControls(newModifyDnControls)
         });
 
-        let rawNewEntries = [await fetchLdapEntry(clientId, newDn)];
+        let rawNewEntries = [await fetchLdapEntry(serverId, newDn)];
 
         if (entry.isExpanded) {
-          const rawChildren = await fetchLdapChildren(clientId, newDn);
+          const rawChildren = await fetchLdapChildren(serverId, newDn);
 
           rawNewEntries = rawNewEntries.concat(rawChildren);
         }
 
         const formattedSubtree = generateLdapServerTree(rawNewEntries, newDn);
 
-        dispatch(concatEntryMap({ clientId: clientId, parentDn: getParentDn(newDn), subtreeRootDn: newDn, entryMap: formattedSubtree }));
-        dispatch(closeOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn: entry.dn } }));
-        dispatch(delEntry({ clientId: clientId, dn: entry.dn }));
-        dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn: newDn } }));
+        dispatch(concatEntryMap({ serverId: serverId, parentDn: getParentDn(newDn), subtreeRootDn: newDn, entryMap: formattedSubtree }));
+        dispatch(closeOpenEntry({ serverId: serverId, entry: { entryType: 'existingEntry', entryDn: entry.dn } }));
+        dispatch(delEntry({ serverId: serverId, dn: entry.dn }));
+        dispatch(addOpenEntry({ serverId: serverId, entry: { entryType: 'existingEntry', entryDn: newDn } }));
       }
 
       hideForm();
@@ -106,7 +106,7 @@ const ModifyEntryForm = ({ hideForm, entry, clientId }: {
   return (
     <form onSubmit={handleUpdate}>
       <LdapEntryInput
-        clientId={clientId}
+        serverId={serverId}
         newDn={newDn}
         setNewDn={setNewDn}
         newObjectClasses={modifiedObjectClasses}

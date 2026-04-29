@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAppSelector as useSelector } from '../utils/reduxHooks';
 import { v4 as uuid } from 'uuid';
 
-import { addOpenEntry, closeOpenEntry, selectLdapEntry } from '../slices/client';
+import { addOpenEntry, closeOpenEntry, selectLdapEntry } from '../slices/server';
 import { addError } from '../slices/error';
 import CloseButton from './CloseButton';
 import type { ldapAttribute, openLdapEntry } from '../utils/types';
@@ -14,12 +14,12 @@ import NewEntryForm from './NewEntryForm';
 
 type openExistingEntryState = 'display' | 'modify' | 'delete';
 
-const OpenExistingEntryDisplay = ({ clientId, entryDn }: { clientId: string, entryDn: string }) => {
+const OpenExistingEntryDisplay = ({ serverId, entryDn }: { serverId: string, entryDn: string }) => {
   const dispatch = useDispatch();
 
   const [entryState, setEntryState] = useState<openExistingEntryState>('display');
 
-  const entry = useSelector((state) => selectLdapEntry(state, clientId, entryDn));
+  const entry = useSelector((state) => selectLdapEntry(state, serverId, entryDn));
 
   if (!entry) {
     dispatch(addError(new Error(`entry ${entryDn} is not valid ldap entry`)));
@@ -59,7 +59,7 @@ const OpenExistingEntryDisplay = ({ clientId, entryDn }: { clientId: string, ent
           <button onClick={() => setEntryState('delete')} className='negativeButton'>delete</button>
           <button onClick={() => {
             dispatch(addOpenEntry({
-              clientId: clientId, entry: {
+              serverId: serverId, entry: {
                 entryType: 'newEntry',
                 id: uuid(),
                 initialAttributes: {
@@ -74,39 +74,39 @@ const OpenExistingEntryDisplay = ({ clientId, entryDn }: { clientId: string, ent
       );
     case 'delete':
       return (
-        <DelEntryForm entryDn={entry.dn} clientId={clientId} cancelDel={() => setEntryState('display')} />
+        <DelEntryForm entryDn={entry.dn} serverId={serverId} cancelDel={() => setEntryState('display')} />
       );
     case 'modify':
       return (
-        <ModifyEntryForm hideForm={() => setEntryState('display')} entry={entry} clientId={clientId} />
+        <ModifyEntryForm hideForm={() => setEntryState('display')} entry={entry} serverId={serverId} />
       );
   }
 };
 
-const OpenNewEntryDisplay = ({ clientId, entry }: { clientId: string, entry: Extract<openLdapEntry, { entryType: 'newEntry' }> }) => {
+const OpenNewEntryDisplay = ({ serverId, entry }: { serverId: string, entry: Extract<openLdapEntry, { entryType: 'newEntry' }> }) => {
   const dispatch = useDispatch();
 
   const cancelNewEntry = () => {
-    dispatch(closeOpenEntry({ clientId: clientId, entry }));
+    dispatch(closeOpenEntry({ serverId: serverId, entry }));
   };
 
   return (
-    <NewEntryForm clientId={clientId} defaultEntryAttributes={entry.initialAttributes} cancelNewEntry={cancelNewEntry} />
+    <NewEntryForm serverId={serverId} defaultEntryAttributes={entry.initialAttributes} cancelNewEntry={cancelNewEntry} />
   );
 };
 
-const SingleOpenEntry = ({ clientId, entry }: { clientId: string, entry: openLdapEntry }) => {
+const SingleOpenEntry = ({ serverId, entry }: { serverId: string, entry: openLdapEntry }) => {
   const dispatch = useDispatch();
 
   const handleCloseEntry = () => {
-    dispatch(closeOpenEntry({ clientId: clientId, entry: entry }));
+    dispatch(closeOpenEntry({ serverId: serverId, entry: entry }));
   };
 
   if (entry.entryType === 'existingEntry') {
     return (
       <div className='singleOpenEntry'>
         <CloseButton onClick={handleCloseEntry} />
-        <OpenExistingEntryDisplay clientId={clientId} entryDn={entry.entryDn} />
+        <OpenExistingEntryDisplay serverId={serverId} entryDn={entry.entryDn} />
       </div>
     );
   }
@@ -115,7 +115,7 @@ const SingleOpenEntry = ({ clientId, entry }: { clientId: string, entry: openLda
     return (
       <div className='singleOpenEntry'>
         <CloseButton onClick={handleCloseEntry} />
-        <OpenNewEntryDisplay clientId={clientId} entry={entry} />
+        <OpenNewEntryDisplay serverId={serverId} entry={entry} />
       </div>
     );
   }

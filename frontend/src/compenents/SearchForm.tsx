@@ -8,17 +8,17 @@ import Radio from './Radio';
 import type { searchDerefAliases, searchScope, newControlObject, newLdapAttributeValue } from '../utils/types';
 import { addError } from '../slices/error';
 import { fetchCustomSearchEntries } from '../utils/query';
-import { addOpenEntry, selectNamingContextsByClientId, updateOrAddEntry } from '../slices/client';
+import { addOpenEntry, selectNamingContextsByServerId, updateOrAddEntry } from '../slices/server';
 import getParentDn from '../utils/getParentDn';
 import getControls from '../utils/getControls';
 import AdvancedDropdown from './AdvancedDropdown';
 import getAttributeValues from '../utils/getAttributeValues';
 import NewLdapAttributeValues from './NewLdapAttributeValues';
 
-const SearchForm = ({ clientId }: { clientId: string }) => {
+const SearchForm = ({ serverId }: { serverId: string }) => {
   const dispatch = useDispatch();
 
-  const rawNamingContexts = useSelector((state) => selectNamingContextsByClientId(state, clientId));
+  const rawNamingContexts = useSelector((state) => selectNamingContextsByServerId(state, serverId));
 
   const namingContexts = rawNamingContexts
     .map((dit) => {
@@ -78,7 +78,7 @@ const SearchForm = ({ clientId }: { clientId: string }) => {
 
       for (const baseDn of parsedBaseDns) {
         const fetchRes = await fetchCustomSearchEntries(
-          clientId,
+          serverId,
           baseDn,
           newSearchScope,
           newSearchDerefAliases,
@@ -90,13 +90,13 @@ const SearchForm = ({ clientId }: { clientId: string }) => {
 
         fetchRes.forEach((entry) => {
           dispatch(updateOrAddEntry({
-            clientId,
+            serverId,
             parentDn: getParentDn(entry.visibleEntry.dn),
             entry: entry.visibleEntry,
             operationalEntry: entry.operationalEntry
           }));
 
-          dispatch(addOpenEntry({ clientId, entry: { entryType: 'existingEntry', entryDn: entry.visibleEntry.dn } }));
+          dispatch(addOpenEntry({ serverId, entry: { entryType: 'existingEntry', entryDn: entry.visibleEntry.dn } }));
         });
       }
     } catch (err) {
@@ -119,9 +119,9 @@ const SearchForm = ({ clientId }: { clientId: string }) => {
   };
 
   return (
-    <div className='singleClientSearch'>
+    <div className='singleServerSearch'>
       <h4>search</h4>
-      <form onSubmit={handleSearch} className='singleClientOperationForm'>
+      <form onSubmit={handleSearch} className='singleServerOperationForm'>
         <div className='userInteractionContainer'>
           <table>
             <tbody>
@@ -217,7 +217,7 @@ const SearchForm = ({ clientId }: { clientId: string }) => {
                     </td>
                     <td>
                       <Radio<searchScope>
-                        name={`${clientId}newSearchScope`}
+                        name={`${serverId}newSearchScope`}
                         elements={['sub', 'base', 'one', 'children']}
                         curSelected={newSearchScope}
                         onChange={setNewSearchScope}
@@ -230,7 +230,7 @@ const SearchForm = ({ clientId }: { clientId: string }) => {
                     </td>
                     <td>
                       <Radio<searchDerefAliases>
-                        name={`${clientId}newDerefAliases`}
+                        name={`${serverId}newDerefAliases`}
                         elements={['never', 'always', 'find', 'search']}
                         curSelected={newSearchDerefAliases}
                         onChange={setNewSearchDerefAliases}

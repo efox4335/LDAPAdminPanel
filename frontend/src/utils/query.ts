@@ -1,7 +1,7 @@
 /*
  * my justifaction for not just using a lib is that ldap structures the data really bad and i don't need a lot of the fancy features of a query lib
 */
-import { searchClient } from '../services/ldapdbsService';
+import { searchServer } from '../services/ldapdbsService';
 import type { ldapEntry, searchReq, queryFetchRes, searchScope, searchDerefAliases, searchRes, controlObject } from './types';
 
 const baseVisibleChildSearch: searchReq = {
@@ -103,13 +103,13 @@ const searchResToQueryFetchRes = (visibleSearchRes: searchRes, operationalSearch
   return entries;
 };
 
-export const fetchLdapChildren = async (clientId: string, dn: string): Promise<queryFetchRes[]> => {
-  const visibleChildrenRes = await searchClient(clientId, {
+export const fetchLdapChildren = async (serverId: string, dn: string): Promise<queryFetchRes[]> => {
+  const visibleChildrenRes = await searchServer(serverId, {
     ...baseVisibleChildSearch,
     baseDn: dn
   });
 
-  const operationalChildrenRes = await searchClient(clientId, {
+  const operationalChildrenRes = await searchServer(serverId, {
     ...baseOperationalChildSearch,
     baseDn: dn
   });
@@ -118,7 +118,7 @@ export const fetchLdapChildren = async (clientId: string, dn: string): Promise<q
 };
 
 export const fetchCustomSearchEntries = async (
-  clientId: string,
+  serverId: string,
   baseDn: string,
   scope: searchScope,
   derefAliases: searchDerefAliases,
@@ -127,7 +127,7 @@ export const fetchCustomSearchEntries = async (
   sizeLimit: number,
   control: controlObject[]
 ): Promise<queryFetchRes[]> => {
-  const visibleSearchRes = await searchClient(clientId, {
+  const visibleSearchRes = await searchServer(serverId, {
     ...baseVisibleEntrySearch,
     baseDn,
     options: {
@@ -141,7 +141,7 @@ export const fetchCustomSearchEntries = async (
     control
   });
 
-  const operationalSearchRes = await searchClient(clientId, {
+  const operationalSearchRes = await searchServer(serverId, {
     ...baseOperationalEntrySearch,
     baseDn,
     options: {
@@ -158,13 +158,13 @@ export const fetchCustomSearchEntries = async (
   return searchResToQueryFetchRes(visibleSearchRes, operationalSearchRes);
 };
 
-export const fetchLdapEntry = async (clientId: string, dn: string): Promise<queryFetchRes> => {
-  const visibleEntryRes = await searchClient(clientId, {
+export const fetchLdapEntry = async (serverId: string, dn: string): Promise<queryFetchRes> => {
+  const visibleEntryRes = await searchServer(serverId, {
     ...baseVisibleEntrySearch,
     baseDn: dn
   });
 
-  const operationalEntryRes = await searchClient(clientId, {
+  const operationalEntryRes = await searchServer(serverId, {
     ...baseOperationalEntrySearch,
     baseDn: dn
   });

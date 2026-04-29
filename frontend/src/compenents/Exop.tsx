@@ -2,13 +2,13 @@ import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { addError } from '../slices/error';
-import { exopClient } from '../services/ldapdbsService';
+import { exopServer } from '../services/ldapdbsService';
 import type { newControlObject } from '../utils/types';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
 import AdvancedDropdown from './AdvancedDropdown';
 
-const Exop = ({ clientId }: { clientId: string }) => {
+const Exop = ({ serverId }: { serverId: string }) => {
   const [newExopOid, setNewExopOid] = useState<string>('');
   const [newExopValue, setNewExopValue] = useState<string>('');
 
@@ -33,7 +33,7 @@ const Exop = ({ clientId }: { clientId: string }) => {
 
       setOldExopStatus('pending');
 
-      const res = await exopClient(clientId, {
+      const res = await exopServer(serverId, {
         oid: newExopOid,
         value: newExopValue !== '' ? newExopValue : undefined,
         control: getControls(newControls)
@@ -51,9 +51,9 @@ const Exop = ({ clientId }: { clientId: string }) => {
   };
 
   return (
-    <div className='singleClientExop'>
+    <div className='singleServerExop'>
       <h4>extended operation</h4>
-      <form onSubmit={handleExop} className='singleClientOperationForm'>
+      <form onSubmit={handleExop} className='singleServerOperationForm'>
         <div className='userInteractionContainer'>
           <table>
             <tbody>

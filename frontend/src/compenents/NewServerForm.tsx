@@ -1,13 +1,13 @@
 import { useEffect, useState, type SyntheticEvent } from 'react';
 import { useAppSelector as useSelector, useAppDispatch as useDispatch } from '../utils/reduxHooks';
 
-import { addNewClient } from '../services/ldapdbsService';
+import { addNewServer } from '../services/ldapdbsService';
 import { selectSetting } from '../slices/settings';
-import { addClient } from '../slices/client';
+import { addServer } from '../slices/server';
 import { addError } from '../slices/error';
-import type { client } from '../utils/types';
+import type { server } from '../utils/types';
 
-const NewClientForm = () => {
+const NewServerForm = () => {
   const [newLdapUrl, setNewLdapUrl] = useState<string>('');
 
   const rawForceTls = useSelector((state) => selectSetting(state, { path: ['tls', 'forceTls'] }));
@@ -38,19 +38,19 @@ const NewClientForm = () => {
     }
   };
 
-  const handleNewClient = async (event: SyntheticEvent<HTMLFormElement>) => {
+  const handleNewServer = async (event: SyntheticEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
 
       const isTlsOn = enableTls || /^ldaps.*/.test(newLdapUrl) || forceTls;
 
-      const newClientId = await addNewClient({
+      const newServerId = await addNewServer({
         url: newLdapUrl,
         enableTls: isTlsOn
       });
 
-      const newClient: client = {
-        id: newClientId.id,
+      const newServer: server = {
+        id: newServerId.id,
         tlsEnabled: isTlsOn,
         serverUrl: newLdapUrl,
         isConnected: false,
@@ -63,7 +63,7 @@ const NewClientForm = () => {
         inheritedObjectClassSchemas: undefined
       };
 
-      dispatch(addClient(newClient));
+      dispatch(addServer(newServer));
 
       resetForm();
     } catch (err) {
@@ -72,9 +72,9 @@ const NewClientForm = () => {
   };
 
   return (
-    <div className='newClientContainer'>
-      <h3>Add New Client</h3>
-      <form onSubmit={handleNewClient} className='newClientForm'>
+    <div className='newServerContainer'>
+      <h3>Add New Server</h3>
+      <form onSubmit={handleNewServer} className='newServerForm'>
         <div className='userInteractionContainer'>
           <table>
             <tbody>
@@ -106,4 +106,4 @@ const NewClientForm = () => {
   );
 };
 
-export default NewClientForm;
+export default NewServerForm;

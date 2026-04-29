@@ -1,8 +1,8 @@
-export type newClientResponse = {
+export type newServerResponse = {
   id: string
 };
 
-export type newClientReq = {
+export type newServerReq = {
   url: string,
   enableTls: boolean
 };
@@ -151,7 +151,7 @@ export type openLdapEntry =
 
 export type serverTreeEntry = visibleServerTreeEntry | hiddenServerTreeEntry;
 
-export type client = {
+export type server = {
   id: string,
   tlsEnabled: boolean,
   serverUrl: string,
@@ -165,7 +165,7 @@ export type client = {
   inheritedObjectClassSchemas: objectClassSchemaMap | undefined
 };
 
-export type clientStore = Record<string, client>;
+export type serverStore = Record<string, server>;
 
 export type newLdapAttributeValue = {
   id: string,

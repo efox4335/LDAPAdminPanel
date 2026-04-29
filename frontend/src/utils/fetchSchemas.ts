@@ -6,14 +6,14 @@ import type { attributeTypeSchemaMap, objectClassSchemaMap } from './types';
 
 const fetchSchemas = async (
   schemaDn: string,
-  clientId: string
+  serverId: string
 ): Promise<{
   inheritedObjectClassMap: objectClassSchemaMap,
   originalObjectClassMap: objectClassSchemaMap,
   attributeTypeMap: attributeTypeSchemaMap
 }> => {
   const searchRes = await fetchCustomSearchEntries(
-    clientId,
+    serverId,
     schemaDn,
     'base',
     'always',

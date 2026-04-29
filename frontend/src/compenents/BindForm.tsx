@@ -1,15 +1,15 @@
 import { useState, type SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 
-import type { bindReq, client, newControlObject } from '../utils/types';
-import { bindClient } from '../services/ldapdbsService';
-import { addClient } from '../slices/client';
+import type { bindReq, server, newControlObject } from '../utils/types';
+import { bindServer } from '../services/ldapdbsService';
+import { addServer } from '../slices/server';
 import { addError } from '../slices/error';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
 import AdvancedDropdown from './AdvancedDropdown';
 
-const BindForm = ({ client }: { client: client }) => {
+const BindForm = ({ server }: { server: server }) => {
   const [newDn, setNewDn] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [newControls, setNewControls] = useState<newControlObject[]>([]);
@@ -34,24 +34,24 @@ const BindForm = ({ client }: { client: client }) => {
 
       resetForm();
 
-      await bindClient(client.id, req);
+      await bindServer(server.id, req);
 
-      const newClient = {
-        ...client,
+      const newServer = {
+        ...server,
         isConnected: true,
         boundDn: req.dnOrSaslMechanism
       };
 
-      dispatch(addClient(newClient));
+      dispatch(addServer(newServer));
     } catch (err) {
       dispatch(addError(err));
     }
   };
 
   return (
-    <div className='singleClientBind'>
+    <div className='singleServerBind'>
       <h4>bind</h4>
-      <form onSubmit={handleBind} className='singleClientOperationForm'>
+      <form onSubmit={handleBind} className='singleServerOperationForm'>
         <div className='userInteractionContainer'>
           <table>
             <tbody>

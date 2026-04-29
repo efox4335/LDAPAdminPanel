@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import AdvancedDropdown from './AdvancedDropdown';
 import TextboxWithDropDownAutoCompelete from './TextboxWithDropDownAutoCompelete';
-import { addSchemas, selectAttributeTypesByClientId, selectLdapEntry, selectOriginalObjectClassesByClientId } from '../slices/client';
+import { addSchemas, selectAttributeTypesByServerId, selectLdapEntry, selectOriginalObjectClassesByServerId } from '../slices/server';
 import type { ldapVendor, objectClassSchema } from '../utils/types';
 import getObjectClassFromNameMap from '../utils/getObjectClassFromNameMap';
 import SingleObjectClassSchemaDisplay from './SingleObjectClassSchemaDisplay';
@@ -42,12 +42,12 @@ const SchemaHeaderWrapper = ({ DropDownButton, displayText, vendor, handleNewSch
   );
 };
 
-const SchemaDisplay = ({ clientId }: { clientId: string }) => {
+const SchemaDisplay = ({ serverId }: { serverId: string }) => {
   const dispatch = useDispatch();
 
-  const objectClassSchemas = useSelector((state) => selectOriginalObjectClassesByClientId(state, clientId));
+  const objectClassSchemas = useSelector((state) => selectOriginalObjectClassesByServerId(state, serverId));
 
-  const attributeTypes = useSelector((state) => selectAttributeTypesByClientId(state, clientId));
+  const attributeTypes = useSelector((state) => selectAttributeTypesByServerId(state, serverId));
 
   const [openObjectClassSchemas, setOpenObjectClassSchemas] = useState<objectClassSchema[]>([]);
 
@@ -55,7 +55,7 @@ const SchemaDisplay = ({ clientId }: { clientId: string }) => {
 
   const [curSelectedSchema, setCurSelectedSchema] = useState<string>('');
 
-  const dse = useSelector((state) => selectLdapEntry(state, clientId, 'dse'));
+  const dse = useSelector((state) => selectLdapEntry(state, serverId, 'dse'));
 
   let vendor: ldapVendor = 'unknown';
 
@@ -136,7 +136,7 @@ const SchemaDisplay = ({ clientId }: { clientId: string }) => {
       const objectClassString = objectClassSchemaToString(newObjectClass);
       switch (vendor) {
         case 'openLdap':
-          await addNewEntry(clientId, {
+          await addNewEntry(serverId, {
             baseDn: `cn=${newObjectClass.oid},cn=schema,cn=config`,
             entry: {
               objectClass: 'olcSchemaConfig',
@@ -160,10 +160,10 @@ const SchemaDisplay = ({ clientId }: { clientId: string }) => {
         return;
       }
 
-      const schemas = await fetchSchemas(schemaDn, clientId);
+      const schemas = await fetchSchemas(schemaDn, serverId);
 
       dispatch(addSchemas({
-        clientId: clientId,
+        serverId: serverId,
         attributeTypeMap: schemas.attributeTypeMap,
         initialObjectClassMap: schemas.originalObjectClassMap,
         inheritedObjectClassMap: schemas.inheritedObjectClassMap

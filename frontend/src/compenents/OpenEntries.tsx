@@ -1,14 +1,14 @@
 import { useAppSelector as useSelector } from '../utils/reduxHooks';
 import { v4 as uuid } from 'uuid';
 
-import { selectOpenEntriesByClientId, addOpenEntry } from '../slices/client';
+import { selectOpenEntriesByServerId, addOpenEntry } from '../slices/server';
 import { useAppDispatch as useDispatch } from '../utils/reduxHooks';
 import SingleOpenEntry from './SingleOpenEntry';
 
-const OpenEntries = ({ clientId }: { clientId: string }) => {
+const OpenEntries = ({ serverId }: { serverId: string }) => {
   const dispatch = useDispatch();
 
-  const openEntries = useSelector(((state) => selectOpenEntriesByClientId(state, clientId)));
+  const openEntries = useSelector(((state) => selectOpenEntriesByServerId(state, serverId)));
 
   return (
     <div className='openEntriesContainer'>
@@ -16,7 +16,7 @@ const OpenEntries = ({ clientId }: { clientId: string }) => {
         <div>
           open entries
         </div>
-        <button className='positiveButton' onClick={() => dispatch(addOpenEntry({ clientId: clientId, entry: { entryType: 'newEntry', initialAttributes: {}, id: uuid() } }))}>
+        <button className='positiveButton' onClick={() => dispatch(addOpenEntry({ serverId: serverId, entry: { entryType: 'newEntry', initialAttributes: {}, id: uuid() } }))}>
           new entry
         </button>
       </h4>
@@ -26,7 +26,7 @@ const OpenEntries = ({ clientId }: { clientId: string }) => {
 
           return (
             <div key={key} className='openEntryContainer'>
-              <SingleOpenEntry clientId={clientId} entry={entry} />
+              <SingleOpenEntry serverId={serverId} entry={entry} />
             </div>
           );
         })}

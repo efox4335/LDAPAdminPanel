@@ -2,14 +2,14 @@ import { useDispatch } from 'react-redux';
 import { useState, type SyntheticEvent } from 'react';
 
 import { deleteEntry } from '../services/ldapdbsService';
-import { closeOpenEntry, delEntry } from '../slices/client';
+import { closeOpenEntry, delEntry } from '../slices/server';
 import { addError } from '../slices/error';
 import type { newControlObject } from '../utils/types';
 import NewLdapControls from './NewLdapControls';
 import getControls from '../utils/getControls';
 import AdvancedDropdown from './AdvancedDropdown';
 
-const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clientId: string, cancelDel: () => void }) => {
+const DelEntryForm = ({ entryDn, serverId, cancelDel }: { entryDn: string, serverId: string, cancelDel: () => void }) => {
   const dispatch = useDispatch();
 
   const [newControls, setNewControls] = useState<newControlObject[]>([]);
@@ -18,10 +18,10 @@ const DelEntryForm = ({ entryDn, clientId, cancelDel }: { entryDn: string, clien
     try {
       event.preventDefault();
 
-      await deleteEntry(clientId, { dn: entryDn, control: getControls(newControls) });
+      await deleteEntry(serverId, { dn: entryDn, control: getControls(newControls) });
 
-      dispatch(closeOpenEntry({ clientId: clientId, entry: { entryType: 'existingEntry', entryDn } }));
-      dispatch(delEntry({ clientId: clientId, dn: entryDn }));
+      dispatch(closeOpenEntry({ serverId: serverId, entry: { entryType: 'existingEntry', entryDn } }));
+      dispatch(delEntry({ serverId: serverId, dn: entryDn }));
     } catch (err) {
       dispatch(addError(err));
     }

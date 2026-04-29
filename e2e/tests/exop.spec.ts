@@ -19,7 +19,7 @@ test.describe('exop tests', () => {
   });
 
   test('reset button', async ({ page }) => {
-    const exopForm = page.locator('.singleClientExop');
+    const exopForm = page.locator('.singleServerExop');
 
     await exopForm
       .locator('.userInteractionContainer')
@@ -69,20 +69,20 @@ test.describe('exop tests', () => {
 
   test('success', async ({ page }) => {
     await page
-      .locator('.singleClientExop')
+      .locator('.singleServerExop')
       .locator('.userInteractionContainer')
       .getByRole('textbox')
       .first()
       .fill(whoAmIOid);
 
     await page
-      .locator('.singleClientExop')
+      .locator('.singleServerExop')
       .getByRole('button', { name: 'start' })
       .click();
 
     await expect(
       page
-        .locator('.singleClientExop')
+        .locator('.singleServerExop')
         .locator('.userInteractionContainer')
         .getByText('result')
         .locator('..')
@@ -93,20 +93,20 @@ test.describe('exop tests', () => {
 
   test('error on fail', async ({ page }) => {
     await page
-      .locator('.singleClientExop')
+      .locator('.singleServerExop')
       .locator('.userInteractionContainer')
       .getByRole('textbox')
       .first()
       .fill(invalidOid);
 
     await page
-      .locator('.singleClientExop')
+      .locator('.singleServerExop')
       .getByRole('button', { name: 'start' })
       .click();
 
     await expect(
       page
-        .locator('.singleClientExop')
+        .locator('.singleServerExop')
         .locator('.userInteractionContainer')
         .getByText('result')
         .locator('..')
@@ -118,13 +118,13 @@ test.describe('exop tests', () => {
   });
 
   test('advanced options start closed', async ({ page }) => {
-    const exopForm = page.locator('.singleClientExop');
+    const exopForm = page.locator('.singleServerExop');
 
     await assertAdvancedOptionsClosed(exopForm);
   });
 
   test('control passed', async ({ page }) => {
-    const exopForm = page.locator('.singleClientExop');
+    const exopForm = page.locator('.singleServerExop');
 
     await exopForm
       .locator('.userInteractionContainer')
@@ -150,13 +150,13 @@ test.describe('exop tests', () => {
       .check();
 
     await page
-      .locator('.singleClientExop')
+      .locator('.singleServerExop')
       .getByRole('button', { name: 'start' })
       .click();
 
     await expect(
       page
-        .locator('.singleClientExop')
+        .locator('.singleServerExop')
         .locator('.userInteractionContainer')
         .getByText('result')
         .locator('..')

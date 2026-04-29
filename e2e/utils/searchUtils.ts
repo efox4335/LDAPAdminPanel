@@ -7,7 +7,7 @@ import expandAdvancedOptions from './expandAdvancedOptions';
 
 export const locateSearchForm = (page: Page): Locator => {
   return page
-    .locator('.singleClientSearch')
+    .locator('.singleServerSearch')
     .locator('form');
 };
 

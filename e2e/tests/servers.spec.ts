@@ -2,10 +2,10 @@ import { test, expect } from '@playwright/test';
 
 import { ldapServerUrl, tlsServerUrl } from '../utils/constants';
 import { navToPage } from '../utils/preTestUtils';
-import assertClientInfo from '../utils/assertClientInfo';
+import assertServerInfo from '../utils/assertServerInfo';
 import assertError from '../utils/assertError';
 
-test.describe('client tests', () => {
+test.describe('server tests', () => {
   test.beforeEach(async ({ page }) => {
     await navToPage(page);
   });
@@ -51,7 +51,7 @@ test.describe('client tests', () => {
 
     await page.getByRole('button', { name: 'add' }).click();
 
-    await assertClientInfo(page, {
+    await assertServerInfo(page, {
       isConnected: false,
       boundDn: '',
       ldapServerUrl: tlsServerUrl,
@@ -68,7 +68,7 @@ test.describe('client tests', () => {
 
     await page.getByRole('button', { name: 'add' }).click();
 
-    await assertClientInfo(page, {
+    await assertServerInfo(page, {
       isConnected: false,
       boundDn: '',
       ldapServerUrl: tlsServerUrl,

@@ -64,7 +64,7 @@ export type ldapSearch = {
   aliasDeref?: searchDerefAliases,
 };
 
-export type clientInfo = {
+export type serverInfo = {
   ldapServerUrl: string,
   boundDn: string,
   isConnected: boolean,

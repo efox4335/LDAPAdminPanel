@@ -4,7 +4,7 @@ import locateTableByHeaderText from '../utils/locateTableByHeader';
 import { navToPage } from '../utils/preTestUtils';
 import { applySettings, fillSettingsForm, openSettings, resetSettingsToDefault } from '../utils/settingsUtils';
 import { customCertFilePath, ldapServerUrl, tlsServerUrl } from '../utils/constants';
-import assertClientInfo from '../utils/assertClientInfo';
+import assertServerInfo from '../utils/assertServerInfo';
 import assertError from '../utils/assertError';
 
 test.describe('settings tests', () => {
@@ -51,13 +51,13 @@ test.describe('settings tests', () => {
 
     await applySettings(page);
 
-    const newClientForm = page.locator('.newClientForm');
+    const newServerForm = page.locator('.newServerForm');
 
-    await newClientForm
+    await newServerForm
       .getByRole('textbox')
       .fill(tlsServerUrl);
 
-    await newClientForm
+    await newServerForm
       .getByRole('button', { name: 'add' })
       .click();
 
@@ -65,7 +65,7 @@ test.describe('settings tests', () => {
       .getByRole('button', { name: 'bind' })
       .click();
 
-    await assertClientInfo(page, {
+    await assertServerInfo(page, {
       isConnected: true,
       boundDn: '',
       ldapServerUrl: tlsServerUrl,
@@ -95,15 +95,15 @@ test.describe('settings tests', () => {
 
     await applySettings(page);
 
-    const newClientForm = page.locator('.newClientForm');
+    const newServerForm = page.locator('.newServerForm');
 
-    await newClientForm
+    await newServerForm
       .getByRole('textbox')
       .fill(ldapServerUrl);
 
-    await expect(newClientForm.getByRole('checkbox')).toBeChecked();
+    await expect(newServerForm.getByRole('checkbox')).toBeChecked();
 
-    await newClientForm
+    await newServerForm
       .getByRole('button', { name: 'add' })
       .click();
 

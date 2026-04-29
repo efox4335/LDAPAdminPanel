@@ -169,7 +169,7 @@ const operationalExampleDitSearchRes: searchRes = {
   'searchReferences': []
 };
 
-let mockedSearchClient = (_id: string, _req: searchReq): searchRes => {
+let mockedSearchServer = (_id: string, _req: searchReq): searchRes => {
   throw new Error('assign first');
 };
 
@@ -178,8 +178,8 @@ vi.mock('../../../src/services/ldapdbsService', (original) => {
 
   return {
     ...mod,
-    searchClient: vi.fn((id: string, req: searchReq): searchRes => {
-      return mockedSearchClient(id, req);
+    searchServer: vi.fn((id: string, req: searchReq): searchRes => {
+      return mockedSearchServer(id, req);
     })
   };
 });
@@ -187,7 +187,7 @@ vi.mock('../../../src/services/ldapdbsService', (original) => {
 describe('query.ts tests', () => {
   describe('fetchLdapEntry tests', () => {
     test('not found', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+      mockedSearchServer = (id: string, req: searchReq): searchRes => {
         if (id !== 'id') {
           throw new Error(`incorrect id: ${id}`);
         }
@@ -216,7 +216,7 @@ describe('query.ts tests', () => {
     });
 
     test('entry does not have dn', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+      mockedSearchServer = (id: string, req: searchReq): searchRes => {
         if (id !== 'id') {
           throw new Error(`incorrect id: ${id}`);
         }
@@ -255,7 +255,7 @@ describe('query.ts tests', () => {
     });
 
     test('entry does not have objectClass', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+      mockedSearchServer = (id: string, req: searchReq): searchRes => {
         if (id !== 'id') {
           throw new Error(`incorrect id: ${id}`);
         }
@@ -294,7 +294,7 @@ describe('query.ts tests', () => {
     });
 
     test('success test', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+      mockedSearchServer = (id: string, req: searchReq): searchRes => {
         if (id !== 'id') {
           throw new Error(`incorrect id: ${id}`);
         }
@@ -364,7 +364,7 @@ describe('query.ts tests', () => {
     )) as searchRes;
 
     test('entry does not have dn', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+      mockedSearchServer = (id: string, req: searchReq): searchRes => {
         if (id !== 'id') {
           throw new Error(`incorrect id: ${id}`);
         }
@@ -403,7 +403,7 @@ describe('query.ts tests', () => {
     });
 
     test('entry does not have objectClass', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+      mockedSearchServer = (id: string, req: searchReq): searchRes => {
         if (id !== 'id') {
           throw new Error(`incorrect id: ${id}`);
         }
@@ -442,7 +442,7 @@ describe('query.ts tests', () => {
     });
 
     test('success test', async () => {
-      mockedSearchClient = (id: string, req: searchReq): searchRes => {
+      mockedSearchServer = (id: string, req: searchReq): searchRes => {
         if (id !== 'id') {
           throw new Error(`incorrect id: ${id}`);
         }

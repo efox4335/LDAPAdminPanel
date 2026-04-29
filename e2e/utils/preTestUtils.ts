@@ -26,42 +26,42 @@ export const removeServer = async (page: Page) => {
 
 export const adminBind = async (page: Page) => {
   await page
-    .locator('.singleClientBind')
+    .locator('.singleServerBind')
     .getByText('dn')
     .locator('..')
     .getByRole('textbox')
     .fill(adminDn);
 
   await page
-    .locator('.singleClientBind')
+    .locator('.singleServerBind')
     .getByText('password')
     .locator('..')
     .getByRole('textbox')
     .fill(adminPassword);
 
   await page
-    .locator('.singleClientBind')
+    .locator('.singleServerBind')
     .getByRole('button', { name: 'bind' })
     .click();
 };
 
 export const configAdminBind = async (page: Page) => {
   await page
-    .locator('.singleClientBind')
+    .locator('.singleServerBind')
     .getByText('dn')
     .locator('..')
     .getByRole('textbox')
     .fill(configAdminDn);
 
   await page
-    .locator('.singleClientBind')
+    .locator('.singleServerBind')
     .getByText('password')
     .locator('..')
     .getByRole('textbox')
     .fill(adminPassword);
 
   await page
-    .locator('.singleClientBind')
+    .locator('.singleServerBind')
     .getByRole('button', { name: 'bind' })
     .click();
 };
