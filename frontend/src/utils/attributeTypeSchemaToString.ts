@@ -88,11 +88,7 @@ const attributeTypeSchemaToString = (schema: attributeTypeSchema): string => {
       if (extension.value.length === 1) {
         attributeTypeString = attributeTypeString.concat(` '${extension.value[0]}'`);
       } else {
-<<<<<<< HEAD
         attributeTypeString = attributeTypeString.concat(` ${createLdapSchemaList(extension.value.map((value) => '\''.concat(value).concat('\'')), false)}`);
-=======
-        attributeTypeString = attributeTypeString.concat(` ${createLdapSchemaList(extension.value.map((name) => '\''.concat(name).concat('\'')), false)}`);
->>>>>>> refs/remotes/origin/main
       }
     });
   }
