@@ -1,18 +1,5 @@
 import type { objectClassSchema } from './types';
-
-const createList = (listItems: string[], includeDollar: boolean): string => {
-  let listString = '(';
-
-  listItems.forEach((item, index) => {
-    listString = listString.concat(` ${item}`);
-
-    if (index + 1 < listItems.length && includeDollar) {
-      listString = listString.concat(' $');
-    }
-  });
-
-  return listString.concat(' )');
-};
+import createLdapSchemaList from './createLdapSchemaList';
 
 const objectClassSchemaToString = (schema: objectClassSchema): string => {
   let objectClassString = `( ${schema.oid}`;
@@ -23,7 +10,7 @@ const objectClassSchemaToString = (schema: objectClassSchema): string => {
     if (schema.names.length === 1) {
       objectClassString = objectClassString.concat(` '${schema.names[0]}'`);
     } else {
-      objectClassString = objectClassString.concat(` ${createList(schema.names.map((name) => '\''.concat(name).concat('\'')), false)}`);
+      objectClassString = objectClassString.concat(` ${createLdapSchemaList(schema.names.map((name) => '\''.concat(name).concat('\'')), false)}`);
     }
   }
 
@@ -41,7 +28,7 @@ const objectClassSchemaToString = (schema: objectClassSchema): string => {
     if (schema.superiorObjectClasses.length === 1) {
       objectClassString = objectClassString.concat(` ${schema.superiorObjectClasses[0]}`);
     } else {
-      objectClassString = objectClassString.concat(` ${createList(schema.superiorObjectClasses, true)}`);
+      objectClassString = objectClassString.concat(` ${createLdapSchemaList(schema.superiorObjectClasses, true)}`);
     }
   }
 
@@ -55,7 +42,7 @@ const objectClassSchemaToString = (schema: objectClassSchema): string => {
     if (schema.reqAttributes.length === 1) {
       objectClassString = objectClassString.concat(` ${schema.reqAttributes[0]}`);
     } else {
-      objectClassString = objectClassString.concat(` ${createList(schema.reqAttributes, true)}`);
+      objectClassString = objectClassString.concat(` ${createLdapSchemaList(schema.reqAttributes, true)}`);
     }
   }
 
@@ -65,7 +52,7 @@ const objectClassSchemaToString = (schema: objectClassSchema): string => {
     if (schema.optAttributes.length === 1) {
       objectClassString = objectClassString.concat(` ${schema.optAttributes[0]}`);
     } else {
-      objectClassString = objectClassString.concat(` ${createList(schema.optAttributes, true)}`);
+      objectClassString = objectClassString.concat(` ${createLdapSchemaList(schema.optAttributes, true)}`);
     }
   }
 
