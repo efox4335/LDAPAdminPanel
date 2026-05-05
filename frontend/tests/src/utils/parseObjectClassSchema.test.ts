@@ -2,6 +2,7 @@ import { test, describe } from 'vitest';
 
 import parseObjectClassSchema from '../../../src/utils/parseObjectClassSchema';
 import type { objectClassSchema } from '../../../src/utils/types';
+import assertArrayEqual from './assertArrayEqual';
 
 const testData: {
   rawSchema: string,
@@ -353,36 +354,14 @@ const testData: {
     },
   ];
 
-const assertSchemaArraysEqual = (schemaOneArr: string[] | undefined, schemaTwoArr: string[] | undefined, arrName: string) => {
-  if (schemaOneArr === undefined) {
-    if (schemaTwoArr !== undefined) {
-      throw new Error(`schema one ${arrName} undefined but schema two was not`);
-    }
-  } else {
-    if (schemaTwoArr === undefined) {
-      throw new Error(`schema one ${arrName} was not undefined but schema two was`);
-    }
 
-    if (schemaOneArr.length !== schemaTwoArr.length) {
-      throw new Error(`schema one ${arrName} array was of length ${schemaOneArr.length} but schema two was of length ${schemaTwoArr.length}`);
-    }
-
-    for (const schemaOneArrElement of schemaOneArr) {
-      const found = schemaTwoArr.find((schemaTwoArrElement) => schemaTwoArrElement === schemaOneArrElement);
-
-      if (found === undefined) {
-        throw new Error(`schema one ${arrName} array element ${schemaOneArrElement} not found in schema two array`);
-      }
-    }
-  }
-};
 
 const assertObjectClassSchemaEqual = (schemaOne: objectClassSchema, schemaTwo: objectClassSchema) => {
   if (schemaOne.oid !== schemaTwo.oid) {
     throw new Error(`oid ${schemaOne.oid} did not equal ${schemaTwo.oid}`);
   }
 
-  assertSchemaArraysEqual(schemaOne.names, schemaTwo.names, 'names');
+  assertArrayEqual<string>(schemaOne.names, schemaTwo.names, (e) => e);
 
   if (schemaOne.description === undefined) {
     if (schemaTwo.description !== undefined) {
@@ -398,15 +377,15 @@ const assertObjectClassSchemaEqual = (schemaOne: objectClassSchema, schemaTwo: o
     throw new Error(`schema one obsolete was ${schemaOne.obsolete.toString()} but schema two obsolete was ${schemaTwo.obsolete.toString()}`);
   }
 
-  assertSchemaArraysEqual(schemaOne.superiorObjectClasses, schemaTwo.superiorObjectClasses, 'superior object classes');
+  assertArrayEqual(schemaOne.superiorObjectClasses, schemaTwo.superiorObjectClasses, (e) => e);
 
   if (schemaOne.type !== schemaTwo.type) {
     throw new Error(`schema one type was ${schemaOne.type} but schema two type was ${schemaTwo.type}`);
   }
 
-  assertSchemaArraysEqual(schemaOne.reqAttributes, schemaTwo.reqAttributes, 'required attributes');
+  assertArrayEqual(schemaOne.reqAttributes, schemaTwo.reqAttributes, (e) => e);
 
-  assertSchemaArraysEqual(schemaOne.optAttributes, schemaTwo.optAttributes, 'optional arributes');
+  assertArrayEqual(schemaOne.optAttributes, schemaTwo.optAttributes, (e) => e);
 };
 
 describe('parseObjectClassSchema.ts tests', () => {

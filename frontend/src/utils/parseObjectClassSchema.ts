@@ -1,18 +1,6 @@
 import tokenizeLdapSchema from './tokenizeLdapSchema';
 import type { objectClassSchema } from './types';
-
-const parseLdapObjectClassList = (curToken: string): 'VALUE' | 'LISTDELIM' | 'LISTEND' => {
-  switch (curToken) {
-    case '(':
-      return 'LISTDELIM';
-    case '$':
-      return 'LISTDELIM';
-    case ')':
-      return 'LISTEND';
-    default:
-      return 'VALUE';
-  }
-};
+import detLdapSchemaListPart from './detLdapSchemaListPart';
 
 type objectClassSchemaParts =
   'DETERMINENEXTPART' |
@@ -111,7 +99,7 @@ const parseObjectClassSchema = (rawObjectClassSchema: string): objectClassSchema
 
         break;
       case 'NAMELIST':
-        switch (parseLdapObjectClassList(token)) {
+        switch (detLdapSchemaListPart(token)) {
           case 'LISTDELIM':
             break;
           case 'LISTEND':
@@ -148,7 +136,7 @@ const parseObjectClassSchema = (rawObjectClassSchema: string): objectClassSchema
 
         break;
       case 'SUPERIORLIST':
-        switch (parseLdapObjectClassList(token)) {
+        switch (detLdapSchemaListPart(token)) {
           case 'LISTDELIM':
             break;
           case 'LISTEND':
@@ -179,7 +167,7 @@ const parseObjectClassSchema = (rawObjectClassSchema: string): objectClassSchema
 
         break;
       case 'REQATTRIBUTELIST':
-        switch (parseLdapObjectClassList(token)) {
+        switch (detLdapSchemaListPart(token)) {
           case 'LISTDELIM':
             break;
           case 'LISTEND':
@@ -211,7 +199,7 @@ const parseObjectClassSchema = (rawObjectClassSchema: string): objectClassSchema
 
         break;
       case 'OPTATTRIBUTELIST':
-        switch (parseLdapObjectClassList(token)) {
+        switch (detLdapSchemaListPart(token)) {
           case 'LISTDELIM':
             break;
           case 'LISTEND':

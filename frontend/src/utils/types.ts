@@ -218,6 +218,11 @@ export type settingsStore = {
   settings: Record<string, unknown>
 };
 
+export type ldapSchemaExtension = {
+  name: string,
+  value: string[]
+};
+
 export type objectClassType = 'ABSTRACT' | 'STRUCTURAL' | 'AUXILIARY' | 'INPARENT';
 
 export type objectClassSchema = {
@@ -240,7 +245,18 @@ export type objectClassSchemaMap = {
 export type attributeTypeSchema = {
   oid: string,
   name: string[] | undefined,
-  noUserMod: boolean
+  description: string | undefined,
+  obsolete: boolean,
+  superiorAttributeType: string | undefined,
+  eqMatchingRule: string | undefined,
+  ordMatchingRule: string | undefined,
+  subStrMatchingRule: string | undefined,
+  attributeSyntax: { oid: string, size: number | undefined } | undefined,
+  singleValue: boolean,
+  collective: boolean,
+  noUserMod: boolean,
+  usage: 'USERAPPLICATIONS' | 'DIRECTORYOPERATION' | 'DISTRIBUTEDOPERATION' | 'DSAOPERATION' | undefined,
+  extensions: ldapSchemaExtension[] | undefined
 };
 
 export type attributeTypeSchemaMap = {
@@ -250,3 +266,5 @@ export type attributeTypeSchemaMap = {
 };
 
 export type ldapVendor = 'openLdap' | 'unknown';
+
+export type ldapSchemaListPart = 'VALUE' | 'LISTDELIM' | 'LISTEND';
