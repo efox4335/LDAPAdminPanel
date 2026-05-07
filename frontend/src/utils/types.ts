@@ -242,6 +242,8 @@ export type objectClassSchemaMap = {
   nameMap: Record<string, number>
 };
 
+export type attributeTypeUsage = 'USERAPPLICATIONS' | 'DIRECTORYOPERATION' | 'DISTRIBUTEDOPERATION' | 'DSAOPERATION';
+
 export type attributeTypeSchema = {
   oid: string,
   name: string[] | undefined,
@@ -255,7 +257,7 @@ export type attributeTypeSchema = {
   singleValue: boolean,
   collective: boolean,
   noUserMod: boolean,
-  usage: 'USERAPPLICATIONS' | 'DIRECTORYOPERATION' | 'DISTRIBUTEDOPERATION' | 'DSAOPERATION' | undefined,
+  usage: attributeTypeUsage | undefined,
   extensions: ldapSchemaExtension[] | undefined
 };
 
@@ -264,6 +266,8 @@ export type attributeTypeSchemaMap = {
   //map stores names in lower case because attributes are case insensitive
   nameMap: Record<string, number>
 };
+
+export type schemaType = 'objectClass' | 'attributeType';
 
 export type ldapVendor = 'openLdap' | 'unknown';
 

@@ -6,6 +6,14 @@ const SingleObjectClassSchemaDisplay = ({ schema }: { schema: objectClassSchema 
       <tbody>
         <tr className='headlessFirstTableRow'>
           <td>
+            schema type
+          </td>
+          <td>
+            object class
+          </td>
+        </tr>
+        <tr>
+          <td>
             oid
           </td>
           <td>

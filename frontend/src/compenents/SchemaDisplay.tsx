@@ -5,14 +5,17 @@ import { v4 as uuid } from 'uuid';
 import AdvancedDropdown from './AdvancedDropdown';
 import TextboxWithDropDownAutoCompelete from './TextboxWithDropDownAutoCompelete';
 import { addSchemas, selectAttributeTypesByServerId, selectLdapEntry, selectOriginalObjectClassesByServerId } from '../slices/server';
-import type { ldapVendor, objectClassSchema } from '../utils/types';
+import type { attributeTypeSchema, ldapVendor, objectClassSchema, schemaType } from '../utils/types';
 import getObjectClassFromNameMap from '../utils/getObjectClassFromNameMap';
 import SingleObjectClassSchemaDisplay from './SingleObjectClassSchemaDisplay';
-import NewObjectClassSchemaForm from './NewObjectClassSchemaForm';
+import NewObjectClassSchemaForm from './NewSchemaForm';
 import { addError } from '../slices/error';
 import { addNewEntry } from '../services/ldapdbsService';
 import objectClassSchemaToString from '../utils/objectClassSchemaToString';
 import fetchSchemas from '../utils/fetchSchemas';
+import SingleAttributeTypeSchemaDisplay from './SingleAttributeTypeSchemaDisplay';
+import getAttributeTypeFromNameMap from '../utils/getAttributeTypeFromNameMap';
+import attributeTypeSchemaToString from '../utils/attributeTypeSchemaToString';
 
 type SchemaHeaderWrapperProps = {
   DropDownButton: JSX.Element,
@@ -21,6 +24,16 @@ type SchemaHeaderWrapperProps = {
   dropDownState: boolean,
   handleNewSchema: () => void
 };
+
+type openSchema =
+  {
+    schemaType: 'objectClass',
+    schema: objectClassSchema
+  } |
+  {
+    schemaType: 'attributeType',
+    schema: attributeTypeSchema
+  };
 
 const SchemaHeaderWrapper = ({ DropDownButton, displayText, vendor, handleNewSchema, dropDownState }: SchemaHeaderWrapperProps) => {
   return (
@@ -47,13 +60,15 @@ const SchemaDisplay = ({ serverId }: { serverId: string }) => {
 
   const objectClassSchemas = useSelector((state) => selectOriginalObjectClassesByServerId(state, serverId));
 
-  const attributeTypes = useSelector((state) => selectAttributeTypesByServerId(state, serverId));
+  const attributeTypeSchemas = useSelector((state) => selectAttributeTypesByServerId(state, serverId));
 
-  const [openObjectClassSchemas, setOpenObjectClassSchemas] = useState<objectClassSchema[]>([]);
+  const [openSchemas, setOpenSchemas] = useState<openSchema[]>([]);
 
-  const [newObjectClasses, setNewObjectClasses] = useState<string[]>([]);
+  const [newSchemas, setNewSchemas] = useState<string[]>([]);
 
-  const [curSelectedSchema, setCurSelectedSchema] = useState<string>('');
+  const [curSelectedObjectClass, setCurSelectedObjectClass] = useState<string>('');
+
+  const [curSelectedAttributeType, setCurSelectedAttributeType] = useState<string>('');
 
   const dse = useSelector((state) => selectLdapEntry(state, serverId, 'dse'));
 
@@ -69,26 +84,48 @@ const SchemaDisplay = ({ serverId }: { serverId: string }) => {
     }
   }
 
-  const onAutoCompelete = (val: string) => {
+  const onObjectClassAutoCompelete = (val: string) => {
     if (objectClassSchemas === undefined) {
       return;
     }
 
     const curSchema = getObjectClassFromNameMap(objectClassSchemas, val);
 
-    setCurSelectedSchema('');
+    setCurSelectedObjectClass('');
 
     if (curSchema === undefined) {
       return;
     }
 
-    if (openObjectClassSchemas.reduce((schemaIncluded, curVal) => {
-      return schemaIncluded || curVal.oid === curSchema.oid;
+    if (openSchemas.reduce((schemaIncluded, curVal) => {
+      return schemaIncluded || curVal.schema.oid === curSchema.oid;
     }, false)) {
       return;
     }
 
-    setOpenObjectClassSchemas([...openObjectClassSchemas, curSchema]);
+    setOpenSchemas([...openSchemas, { schemaType: 'objectClass', schema: curSchema }]);
+  };
+
+  const onAttributeTypeAutoCompelete = (val: string) => {
+    if (attributeTypeSchemas === undefined) {
+      return;
+    }
+
+    const curSchema = getAttributeTypeFromNameMap(attributeTypeSchemas, val);
+
+    setCurSelectedAttributeType('');
+
+    if (curSchema === undefined) {
+      return;
+    }
+
+    if (openSchemas.reduce((schemaIncluded, curVal) => {
+      return schemaIncluded || curVal.schema.oid === curSchema.oid;
+    }, false)) {
+      return;
+    }
+
+    setOpenSchemas([...openSchemas, { schemaType: 'attributeType', schema: curSchema }]);
   };
 
   let objectClassNames: string[] = [];
@@ -99,79 +136,145 @@ const SchemaDisplay = ({ serverId }: { serverId: string }) => {
     objectClassSchemas.objectClassSchemas.forEach((objectClass) => {
       if (objectClass.names !== undefined) {
         objectClassNames = objectClassNames.concat(objectClass.names);
-
-        oids.push(objectClass.oid);
       }
+
+      oids.push(objectClass.oid);
     });
 
     objectClassNames = objectClassNames.concat(oids);
   }
 
   const handleNewSchema = () => {
-    setNewObjectClasses([...newObjectClasses, uuid()]);
+    setNewSchemas([...newSchemas, uuid()]);
   };
 
   let attributeTypeNames: string[] = [];
 
-  if (attributeTypes !== undefined) {
+  let operationalExcludedAttributeTypeNames: string[] = [];
+
+  if (attributeTypeSchemas !== undefined) {
     const oids: string[] = [];
 
-    attributeTypes.attributeTypes.forEach((attributeType) => {
-      if (attributeType.noUserMod) {
-        return;
-      }
+    const noOperationalOids: string[] = [];
 
+    attributeTypeSchemas.attributeTypes.forEach((attributeType) => {
       if (attributeType.name !== undefined) {
         attributeTypeNames = attributeTypeNames.concat(attributeType.name);
+      }
 
-        oids.push(attributeType.oid);
+      oids.push(attributeType.oid);
+
+      if (!attributeType.noUserMod) {
+        operationalExcludedAttributeTypeNames = operationalExcludedAttributeTypeNames.concat(attributeType.name ?? []);
+
+        noOperationalOids.push(attributeType.oid);
       }
     });
 
-    objectClassNames = objectClassNames.concat(oids);
+    operationalExcludedAttributeTypeNames = operationalExcludedAttributeTypeNames.concat(noOperationalOids);
+    attributeTypeNames = attributeTypeNames.concat(oids);
   }
 
-  const createNewSchema = async (newObjectClass: objectClassSchema, id: string) => {
+  const createNewSchema = async (newSchema: objectClassSchema | attributeTypeSchema, type: schemaType, id: string) => {
     try {
-      const objectClassString = objectClassSchemaToString(newObjectClass);
-      switch (vendor) {
-        case 'openLdap':
-          await addNewEntry(serverId, {
-            baseDn: `cn=${newObjectClass.oid},cn=schema,cn=config`,
-            entry: {
-              objectClass: 'olcSchemaConfig',
-              cn: newObjectClass.oid,
-              olcObjectClasses: objectClassString
+      switch (type) {
+        case 'objectClass':
+          {
+            const newObjectClass = newSchema as objectClassSchema;
+            const objectClassString = objectClassSchemaToString(newObjectClass);
+
+            switch (vendor) {
+              case 'openLdap':
+                await addNewEntry(serverId, {
+                  baseDn: `cn=${newObjectClass.oid},cn=schema,cn=config`,
+                  entry: {
+                    objectClass: 'olcSchemaConfig',
+                    cn: newObjectClass.oid,
+                    olcObjectClasses: objectClassString
+                  }
+                });
+
+                break;
+              default:
+                return;
             }
-          });
+
+            if (dse === undefined || !dse.visible) {
+              return;
+            }
+
+            const schemaDn = dse.operationalEntry['subschemaSubentry'];
+
+            if (schemaDn === undefined || Array.isArray(schemaDn)) {
+              dispatch(addError(new Error('dse has no subschemaSubentry')));
+
+              return;
+            }
+
+            const schemas = await fetchSchemas(schemaDn, serverId);
+
+            dispatch(addSchemas({
+              serverId: serverId,
+              attributeTypeMap: schemas.attributeTypeMap,
+              initialObjectClassMap: schemas.originalObjectClassMap,
+              inheritedObjectClassMap: schemas.inheritedObjectClassMap
+            }));
+
+            setNewSchemas(newSchemas.filter((val) => val !== id));
+
+            setOpenSchemas([{ schemaType: 'objectClass', schema: newObjectClass }, ...openSchemas]);
+          }
+
+          break;
+        case 'attributeType':
+          {
+            const newAttributeType = newSchema as attributeTypeSchema;
+            const attributeTypeString = attributeTypeSchemaToString(newAttributeType);
+
+            switch (vendor) {
+              case 'openLdap':
+                await addNewEntry(serverId, {
+                  baseDn: `cn=${newAttributeType.oid},cn=schema,cn=config`,
+                  entry: {
+                    objectClass: 'olcSchemaConfig',
+                    cn: newAttributeType.oid,
+                    olcAttributetypes: attributeTypeString
+                  }
+                });
+
+                break;
+              default:
+                return;
+            }
+
+            if (dse === undefined || !dse.visible) {
+              return;
+            }
+
+            const schemaDn = dse.operationalEntry['subschemaSubentry'];
+
+            if (schemaDn === undefined || Array.isArray(schemaDn)) {
+              dispatch(addError(new Error('dse has no subschemaSubentry')));
+
+              return;
+            }
+
+            const schemas = await fetchSchemas(schemaDn, serverId);
+
+            dispatch(addSchemas({
+              serverId: serverId,
+              attributeTypeMap: schemas.attributeTypeMap,
+              initialObjectClassMap: schemas.originalObjectClassMap,
+              inheritedObjectClassMap: schemas.inheritedObjectClassMap
+            }));
+
+            setNewSchemas(newSchemas.filter((val) => val !== id));
+
+            setOpenSchemas([{ schemaType: 'attributeType', schema: newAttributeType }, ...openSchemas]);
+          }
 
           break;
       }
-
-      if (dse === undefined || !dse.visible) {
-        return;
-      }
-
-      const schemaDn = dse.operationalEntry['subschemaSubentry'];
-
-      if (schemaDn === undefined || Array.isArray(schemaDn)) {
-        dispatch(addError(new Error('dse has no subschemaSubentry')));
-
-        return;
-      }
-
-      const schemas = await fetchSchemas(schemaDn, serverId);
-
-      dispatch(addSchemas({
-        serverId: serverId,
-        attributeTypeMap: schemas.attributeTypeMap,
-        initialObjectClassMap: schemas.originalObjectClassMap,
-        inheritedObjectClassMap: schemas.inheritedObjectClassMap
-      }));
-
-      setNewObjectClasses(newObjectClasses.filter((val) => val !== id));
-
-      setOpenObjectClassSchemas([newObjectClass, ...openObjectClassSchemas]);
     } catch (err) {
       dispatch(addError(err));
     }
@@ -187,24 +290,41 @@ const SchemaDisplay = ({ serverId }: { serverId: string }) => {
         {objectClassSchemas !== undefined ?
           <div className='schemaDisplayContainer'>
             <div>
-              search
-              <TextboxWithDropDownAutoCompelete
-                onAutoCompelete={onAutoCompelete}
-                dropdownStrings={objectClassNames}
-                value={curSelectedSchema}
-                onChange={setCurSelectedSchema}
-              />
+              <div>
+                search object classes
+                <TextboxWithDropDownAutoCompelete
+                  onAutoCompelete={onObjectClassAutoCompelete}
+                  dropdownStrings={objectClassNames}
+                  value={curSelectedObjectClass}
+                  onChange={setCurSelectedObjectClass}
+                />
+              </div>
+              <div>
+                search attribute types
+                <TextboxWithDropDownAutoCompelete
+                  onAutoCompelete={onAttributeTypeAutoCompelete}
+                  dropdownStrings={attributeTypeNames}
+                  value={curSelectedAttributeType}
+                  onChange={setCurSelectedAttributeType}
+                />
+              </div>
             </div>
             <div>
               {
-                openObjectClassSchemas.map((val) => {
+                openSchemas.map((val) => {
                   return (
-                    <div key={val.oid}>
+                    <div key={val.schema.oid}>
                       <button type='button' onClick={() => {
-                        setOpenObjectClassSchemas(openObjectClassSchemas.filter((schema) => schema.oid !== val.oid));
+                        setOpenSchemas(openSchemas.filter((schema) => schema.schema.oid !== val.schema.oid));
                       }} className='deleteButton'>X</button>
 
-                      <SingleObjectClassSchemaDisplay schema={val} />
+                      {(val.schemaType === 'objectClass') ?
+                        <SingleObjectClassSchemaDisplay schema={val.schema} /> : <></>
+                      }
+
+                      {(val.schemaType === 'attributeType') ?
+                        <SingleAttributeTypeSchemaDisplay schema={val.schema} /> : <></>
+                      }
                     </div>
                   );
                 })
@@ -212,11 +332,11 @@ const SchemaDisplay = ({ serverId }: { serverId: string }) => {
             </div>
             <div>
               {
-                newObjectClasses.map((id) => {
+                newSchemas.map((id) => {
                   return (
                     <div key={id}>
                       <button type='button' className='deleteButton' onClick={() => {
-                        setNewObjectClasses(newObjectClasses.filter((val) => val !== id));
+                        setNewSchemas(newSchemas.filter((val) => val !== id));
                       }}>X</button>
                       <NewObjectClassSchemaForm
                         handleSubmit={createNewSchema}
