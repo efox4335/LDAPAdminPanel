@@ -8,7 +8,6 @@ import { addSchemas, selectAttributeTypesByServerId, selectLdapEntry, selectOrig
 import type { attributeTypeSchema, ldapVendor, objectClassSchema, schemaType } from '../utils/types';
 import getObjectClassFromNameMap from '../utils/getObjectClassFromNameMap';
 import SingleObjectClassSchemaDisplay from './SingleObjectClassSchemaDisplay';
-import NewObjectClassSchemaForm from './NewSchemaForm';
 import { addError } from '../slices/error';
 import { addNewEntry } from '../services/ldapdbsService';
 import objectClassSchemaToString from '../utils/objectClassSchemaToString';
@@ -16,6 +15,7 @@ import fetchSchemas from '../utils/fetchSchemas';
 import SingleAttributeTypeSchemaDisplay from './SingleAttributeTypeSchemaDisplay';
 import getAttributeTypeFromNameMap from '../utils/getAttributeTypeFromNameMap';
 import attributeTypeSchemaToString from '../utils/attributeTypeSchemaToString';
+import NewSchemaForm from './NewSchemaForm';
 
 type SchemaHeaderWrapperProps = {
   DropDownButton: JSX.Element,
@@ -338,10 +338,10 @@ const SchemaDisplay = ({ serverId }: { serverId: string }) => {
                       <button type='button' className='deleteButton' onClick={() => {
                         setNewSchemas(newSchemas.filter((val) => val !== id));
                       }}>X</button>
-                      <NewObjectClassSchemaForm
+                      <NewSchemaForm
                         handleSubmit={createNewSchema}
                         objectClassNames={objectClassNames}
-                        attributeTypeNames={attributeTypeNames}
+                        attributeTypeNames={operationalExcludedAttributeTypeNames}
                         id={id}
                       />
                     </div>
