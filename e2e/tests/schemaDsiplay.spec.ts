@@ -144,8 +144,7 @@ test.describe('schema display tests', () => {
         await clickNewSchemaButton(schemaDisplay);
 
         const formDiv = schemaDisplay
-          .locator('form')
-          .locator('..');
+          .locator('form');
 
         await closeNewSchemaForm(formDiv);
 
@@ -157,7 +156,7 @@ test.describe('schema display tests', () => {
 
         const schemaName = pilotPersonSchema.oid as string;
 
-        await openSchema(schemaDisplay, schemaName);
+        await openSchema(schemaDisplay, schemaName, 'objectClass');
 
         const curSchema = locateOpenSchema(page, schemaDisplay, 'oid', schemaName);
 
@@ -322,7 +321,7 @@ test.describe('schema display tests', () => {
 
         const pilotOid = pilotPersonSchema.oid as string;
 
-        await openSchema(schemaDisplay, pilotOid);
+        await openSchema(schemaDisplay, pilotOid, 'objectClass');
 
         const pilotSchemaLoc = locateOpenSchema(page, schemaDisplay, 'oid', pilotOid);
 
@@ -330,7 +329,7 @@ test.describe('schema display tests', () => {
 
         const secOid = simpleSecurityObjectSchema.oid as string;
 
-        await openSchema(schemaDisplay, secOid);
+        await openSchema(schemaDisplay, secOid, 'objectClass');
 
         const secSchemaLoc = locateOpenSchema(page, schemaDisplay, 'oid', secOid);
 

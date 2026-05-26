@@ -99,3 +99,5 @@ export type objectClassSchema = {
   reqAttributes?: string[],
   optAttributes?: string[]
 };
+
+export type schemaType = 'objectClass' | 'attributeType';

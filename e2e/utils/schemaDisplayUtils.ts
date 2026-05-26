@@ -1,6 +1,6 @@
 import { type Page, type Locator, expect } from '@playwright/test';
 
-import { objectClassSchema } from './types';
+import { objectClassSchema, schemaType } from './types';
 
 export const generateSchemaName = (baseName: string): string => {
   return baseName.concat(Date.now().toString());
@@ -121,10 +121,24 @@ export const clickNewSchemaButton = async (schemaDisplay: Locator) => {
     .click();
 };
 
-export const openSchema = async (schemaDisplay: Locator, schemaName: string) => {
+export const openSchema = async (schemaDisplay: Locator, schemaName: string, type: schemaType) => {
+  let searchText: RegExp = /.*/;
+
+  switch (type) {
+    case 'attributeType':
+      searchText = /.*search attribute types.*/;
+
+      break;
+    case 'objectClass':
+      searchText = /.*search object classes.*/;
+
+      break;
+  }
+
   const searchLocation = schemaDisplay
     .locator('.schemaDisplayContainer')
-    .first();
+    .first()
+    .getByText(searchText);
 
   await searchLocation
     .getByRole('textbox')
@@ -196,7 +210,7 @@ export const assertSchemaContents = async (page: Page, openSchemaLocator: Locato
 export const locateOpenSchema = (page: Page, schemaDisplay: Locator, locAttribute: string, locValue: string): Locator => {
   return schemaDisplay
     .locator('.schemaDisplayContainer')
-    .locator('div')
+    .locator('>div')
     .nth(1)
     .getByRole('table')
     .filter({
@@ -219,6 +233,8 @@ export const closeOpenSchema = async (openSchemaLocator: Locator) => {
 
 export const closeNewSchemaForm = async (formLoc: Locator) => {
   await formLoc
+    .locator('..')
+    .locator('..')
     .getByRole('button', { name: 'X' })
     .first()
     .click();
