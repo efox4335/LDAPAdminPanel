@@ -91,10 +91,10 @@ const SingleAttributeTypeSchemaDisplay = ({ schema }: { schema: attributeTypeSch
           <td>
             {(schema.attributeSyntax !== undefined) ? <div>
               <div>
-                syntax oid {schema.attributeSyntax.oid}
+                syntax oid: {schema.attributeSyntax.oid}
               </div>
               <div>
-                size {(schema.attributeSyntax.size ?? '').toString()}
+                size: {(schema.attributeSyntax.size ?? '').toString()}
               </div>
             </div> : <></>}
           </td>
