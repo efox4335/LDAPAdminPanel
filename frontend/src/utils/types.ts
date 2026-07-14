@@ -272,3 +272,8 @@ export type schemaType = 'objectClass' | 'attributeType';
 export type ldapVendor = 'openLdap' | 'unknown';
 
 export type ldapSchemaListPart = 'VALUE' | 'LISTDELIM' | 'LISTEND';
+
+export type autoExpandingListContainer<T> = {
+  id: string,
+  data: T
+};

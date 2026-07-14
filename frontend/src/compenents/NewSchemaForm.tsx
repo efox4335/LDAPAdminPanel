@@ -4,17 +4,16 @@ import { v4 as uuid } from 'uuid';
 import type {
   objectClassType,
   schemaType,
-  newLdapAttributeValue,
   objectClassSchema,
   attributeTypeSchema,
   attributeTypeUsage,
-  newLdapAttribute,
   ldapSchemaExtension
 } from '../utils/types';
-import TextboxWithDropDownAutoCompelete, { type TextboxWithDropDownAutoCompeletePropsType } from './TextboxWithDropDownAutoCompelete';
-import getAttributeValues from '../utils/getAttributeValues';
-import NewLdapAttributeValues from './NewLdapAttributeValues';
-import NewAttributeList from './NewAttributeList';
+import AutoExpandingList from './AutoExpandingList';
+import DeleteButton from './DeleteButton';
+import AutoExpandingStringDisplay from './AutoExpandingStringDisplay';
+
+import AutoExpandingStringDisplayWithAutocomplete from './AutoExpandingStringDisplayWithAutocomplete';
 
 const NewSchemaForm = ({ handleSubmit, objectClassNames, attributeTypeNames, id }:
   {
@@ -79,12 +78,59 @@ const NewOidInput = ({ newOid, setNewOid, oidGenerated, setOidGenerated }:
   );
 };
 
+const ExtensionValueDisplay = ({ data, id, handleUpdate }:
+  {
+    data: string,
+    id: string,
+    handleUpdate: (newData: string, delData: boolean, id: string) => void
+  }
+) => {
+  return (
+    <div>
+      <input type='text' value={data} onChange={(event) => handleUpdate(event.target.value, false, id)} />
+      <DeleteButton delFunction={() => handleUpdate(data, true, id)} />
+    </div>
+  );
+};
+
+const ExtensionDisplay = ({ data, id, handleUpdate }:
+  {
+    data: ldapSchemaExtension,
+    id: string,
+    handleUpdate: (newData: ldapSchemaExtension, delData: boolean, id: string) => void
+  }
+) => {
+  return (
+    <div className='ldapSchemaExtensionContainer'>
+      <span className='ldapSchemaExtensionValueContainer'>
+        name
+        <div>
+          <input type='text' value={data.name} onChange={(event) => handleUpdate({ ...data, name: event.target.value }, false, id)} />
+          <DeleteButton delFunction={() => handleUpdate(data, true, id)} />
+        </div>
+      </span>
+      <span className='ldapSchemaExtensionValueContainer'>
+        values
+        <div>
+          <AutoExpandingList<string>
+            isBlankEntry={(val) => val === ''}
+            newBlankEntry={() => ''}
+            data={data.value}
+            setData={(newValues) => handleUpdate({ ...data, value: newValues }, false, id)}
+            DataDisplay={ExtensionValueDisplay}
+          />
+        </div>
+      </span>
+    </div>
+  );
+};
+
 const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: attributeTypeSchema) => void }) => {
   const [newOid, setNewOid] = useState<string>('');
 
   const [oidGenerated, setOidGenerated] = useState<boolean>(false);
 
-  const [newNames, setNewNames] = useState<newLdapAttributeValue[]>([]);
+  const [newNames, setNewNames] = useState<string[]>([]);
 
   const [newDescription, setNewDescription] = useState<string>('');
 
@@ -110,7 +156,7 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
 
   const [newUsage, setNewUsage] = useState<attributeTypeUsage | 'none'>('none');
 
-  const [newExtensions, setNewExtensions] = useState<newLdapAttribute[]>([]);
+  const [newExtensions, setNewExtensions] = useState<ldapSchemaExtension[]>([]);
 
   const [onConfirmScreen, setOnConfirmScreen] = useState<boolean>(false);
 
@@ -137,14 +183,14 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
     <form onSubmit={(event) => {
       event.preventDefault();
 
-      const gottenNewNames = getAttributeValues(newNames);
+      const gottenNewNames = newNames.filter((name) => name !== '');
 
       const gottenNewExtensions: ldapSchemaExtension[] = newExtensions
-        .filter((ele) => ele.attributeName !== '')
+        .filter((ele) => ele.name !== '')
         .map((ele) => {
           return {
-            name: ele.attributeName,
-            value: getAttributeValues(ele.values)
+            name: ele.name,
+            value: ele.value.filter((val) => val !== '')
           };
         });
 
@@ -184,7 +230,7 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
                 names
               </td>
               <td>
-                <NewLdapAttributeValues newValues={newNames} setNewValues={setNewNames} />
+                <AutoExpandingStringDisplay data={newNames} setData={setNewNames} />
               </td>
             </tr>
             <tr>
@@ -220,7 +266,7 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
                 superior attribute type
               </td>
               <td>
-                <input type='textbox' value={newSupAttributeType} onChange={(e) => setNewSupAttributeType(e.target.value)} />
+                <input type='text' value={newSupAttributeType} onChange={(e) => setNewSupAttributeType(e.target.value)} />
               </td>
             </tr>
             <tr>
@@ -228,7 +274,7 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
                 equality matching rule
               </td>
               <td>
-                <input type='textbox' value={newEqMatchingRule} onChange={(e) => setNewEqMatchingRule(e.target.value)} />
+                <input type='text' value={newEqMatchingRule} onChange={(e) => setNewEqMatchingRule(e.target.value)} />
               </td>
             </tr>
             <tr>
@@ -236,7 +282,7 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
                 substring matching rule
               </td>
               <td>
-                <input type='textbox' value={newSubStrMatchingRule} onChange={(e) => setNewSubStrMatchingRule(e.target.value)} />
+                <input type='text' value={newSubStrMatchingRule} onChange={(e) => setNewSubStrMatchingRule(e.target.value)} />
               </td>
             </tr>
             <tr>
@@ -244,7 +290,7 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
                 attribute syntax
               </td>
               <td>
-                <input type='textbox' value={newAttributeSyntax} onChange={(e) => setNewAttributeSyntax(e.target.value)} />
+                <input type='text' value={newAttributeSyntax} onChange={(e) => setNewAttributeSyntax(e.target.value)} />
               </td>
             </tr>
             <tr>
@@ -253,7 +299,7 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
               </td>
               <td>
                 <div>
-                  <input type='textbox' value={newAttributeSize} onChange={(e) => {
+                  <input type='text' value={newAttributeSize} onChange={(e) => {
                     const valString = e.target.value;
 
                     if (valString === '') {
@@ -362,7 +408,26 @@ const NewAttributeTypeSchemaForm = ({ handleSubmit }: { handleSubmit: (arg0: att
                 extensions
               </td>
               <td>
-                <NewAttributeList newAttributes={newExtensions} setNewAttributes={setNewExtensions} />
+                <AutoExpandingList<ldapSchemaExtension>
+                  isBlankEntry={(ext: ldapSchemaExtension) => {
+                    const isBlank =
+                      ext.name === '' &&
+                      (
+                        ext.value.length === 0 ||
+                        ext.value.reduce((isAllEmpty, curValue) => isAllEmpty && curValue === '', true)
+                      );
+
+                    return isBlank;
+                  }}
+                  newBlankEntry={() => {
+                    return {
+                      name: '',
+                      value: []
+                    };
+                  }}
+                  data={newExtensions}
+                  setData={setNewExtensions}
+                  DataDisplay={ExtensionDisplay} />
               </td>
             </tr>
           </tbody>
@@ -391,27 +456,21 @@ const NewObjectClassSchemaForm = ({ handleSubmit, objectClassNames, attributeTyp
   }) => {
   const [newOid, setNewOid] = useState<string>('');
 
-  const [newNames, setNewNames] = useState<newLdapAttributeValue[]>([]);
+  const [newNames, setNewNames] = useState<string[]>([]);
 
   const [newDescription, setNewDescription] = useState<string>('');
 
-  const [newSuperiorObjectClasses, setNewSuperiorObjectClasses] = useState<newLdapAttributeValue[]>([
-    {
-      id: uuid(),
-      value: 'top'
-    }
-  ]);
+  const [newSuperiorObjectClasses, setNewSuperiorObjectClasses] = useState<string[]>(['top']);
 
   const [oidGenerated, setOidGenerated] = useState<boolean>(false);
 
   const [newType, setNewType] = useState<objectClassType>('STRUCTURAL');
 
-  const [newReqAttributes, setNewReqAttributes] = useState<newLdapAttributeValue[]>([]);
+  const [newReqAttributes, setNewReqAttributes] = useState<string[]>([]);
 
-  const [newOptAttributes, setNewOptAttributes] = useState<newLdapAttributeValue[]>([]);
+  const [newOptAttributes, setNewOptAttributes] = useState<string[]>([]);
 
   const [newObsolete, setNewObsolete] = useState<boolean>(false);
-
 
   const [onConfirmScreen, setOnConfirmScreen] = useState<boolean>(false);
 
@@ -419,19 +478,23 @@ const NewObjectClassSchemaForm = ({ handleSubmit, objectClassNames, attributeTyp
     <form onSubmit={(event) => {
       event.preventDefault();
 
-      const gottenNewNames = getAttributeValues(newNames);
+      const gottenNewNames = newNames.filter((name) => name !== '');
 
-      const gottenNewSuperiorObjectClasses = getAttributeValues(newSuperiorObjectClasses);
+      const gottenNewSuperiorObjectClasses = newSuperiorObjectClasses.filter((objClass) => objClass !== '');
 
-      const gottenNewReqAttributes = getAttributeValues(newReqAttributes);
+      const gottenNewReqAttributes = newReqAttributes.filter((attr) => attr !== '');
 
-      const gottenNewOptAttributes = getAttributeValues(newOptAttributes);
+      const gottenNewOptAttributes = newOptAttributes.filter((attr) => attr !== '');
 
       handleSubmit({
         oid: newOid,
         names: (gottenNewNames.length === 0 || gottenNewNames[0] === '') ? undefined : gottenNewNames,
         description: newDescription === '' ? undefined : newDescription,
-        superiorObjectClasses: (gottenNewSuperiorObjectClasses.length === 0 || gottenNewSuperiorObjectClasses[0] === '') ? undefined : gottenNewSuperiorObjectClasses,
+        superiorObjectClasses:
+          (
+            gottenNewSuperiorObjectClasses.length === 0 ||
+            gottenNewSuperiorObjectClasses[0] === ''
+          ) ? undefined : gottenNewSuperiorObjectClasses,
         type: newType,
         reqAttributes: (gottenNewReqAttributes.length === 0 || gottenNewReqAttributes[0] === '') ? undefined : gottenNewReqAttributes,
         optAttributes: (gottenNewOptAttributes.length === 0 || gottenNewOptAttributes[0] === '') ? undefined : gottenNewOptAttributes,
@@ -454,7 +517,7 @@ const NewObjectClassSchemaForm = ({ handleSubmit, objectClassNames, attributeTyp
                 names
               </td>
               <td>
-                <NewLdapAttributeValues newValues={newNames} setNewValues={setNewNames} />
+                <AutoExpandingStringDisplay data={newNames} setData={setNewNames} />
               </td>
             </tr>
             <tr>
@@ -490,14 +553,11 @@ const NewObjectClassSchemaForm = ({ handleSubmit, objectClassNames, attributeTyp
                 superior object classes
               </td>
               <td>
-                <NewLdapAttributeValues<TextboxWithDropDownAutoCompeletePropsType>
-                  newValues={newSuperiorObjectClasses}
-                  setNewValues={setNewSuperiorObjectClasses}
-                  CustomInput={TextboxWithDropDownAutoCompelete}
-                  customInputProps={{
-                    dropdownStrings: objectClassNames,
-                    onAutoCompelete: () => { return; }
-                  }}
+                <AutoExpandingStringDisplayWithAutocomplete
+                  data={newSuperiorObjectClasses}
+                  setData={setNewSuperiorObjectClasses}
+                  dropdownStrings={objectClassNames}
+                  onAutoCompelete={() => { }}
                 />
               </td>
             </tr>
@@ -535,14 +595,11 @@ const NewObjectClassSchemaForm = ({ handleSubmit, objectClassNames, attributeTyp
                 required attributes
               </td>
               <td>
-                <NewLdapAttributeValues<TextboxWithDropDownAutoCompeletePropsType>
-                  newValues={newReqAttributes}
-                  setNewValues={setNewReqAttributes}
-                  CustomInput={TextboxWithDropDownAutoCompelete}
-                  customInputProps={{
-                    dropdownStrings: attributeTypeNames,
-                    onAutoCompelete: () => { return; }
-                  }}
+                <AutoExpandingStringDisplayWithAutocomplete
+                  data={newReqAttributes}
+                  setData={setNewReqAttributes}
+                  dropdownStrings={attributeTypeNames}
+                  onAutoCompelete={() => { }}
                 />
               </td>
             </tr>
@@ -551,14 +608,11 @@ const NewObjectClassSchemaForm = ({ handleSubmit, objectClassNames, attributeTyp
                 optional attributes
               </td>
               <td>
-                <NewLdapAttributeValues<TextboxWithDropDownAutoCompeletePropsType>
-                  newValues={newOptAttributes}
-                  setNewValues={setNewOptAttributes}
-                  CustomInput={TextboxWithDropDownAutoCompelete}
-                  customInputProps={{
-                    dropdownStrings: attributeTypeNames,
-                    onAutoCompelete: () => { return; }
-                  }}
+                <AutoExpandingStringDisplayWithAutocomplete
+                  data={newOptAttributes}
+                  setData={setNewOptAttributes}
+                  dropdownStrings={attributeTypeNames}
+                  onAutoCompelete={() => { }}
                 />
               </td>
             </tr>
@@ -568,12 +622,7 @@ const NewObjectClassSchemaForm = ({ handleSubmit, objectClassNames, attributeTyp
           setNewOid('');
           setNewNames([]);
           setNewDescription('');
-          setNewSuperiorObjectClasses([
-            {
-              id: uuid(),
-              value: 'top'
-            }
-          ]);
+          setNewSuperiorObjectClasses(['top']);
           setNewType('STRUCTURAL');
           setNewReqAttributes([]);
           setNewOptAttributes([]);

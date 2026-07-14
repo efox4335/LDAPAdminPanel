@@ -1,4 +1,15 @@
-import { ldapEntry, ldapControl, modifyEntry, entryAttribute, searchScope, searchDerefAliases, ldapSearch, objectClassSchema } from './types';
+import {
+  ldapEntry,
+  ldapControl,
+  modifyEntry,
+  entryAttribute,
+  searchScope,
+  searchDerefAliases,
+  ldapSearch,
+  ldapSchema,
+  objectClassSchema,
+  attributeTypeSchema
+} from './types';
 
 export const pageUrl: string = 'http://localhost:5173';
 
@@ -19,12 +30,101 @@ export const customCertFilePath: string = './../tools/testTlsFiles/testCaCert.pe
 export const configAdminDn: string = 'cn=admin,cn=config';
 
 export const defaultNewObjectClassSchema: objectClassSchema = {
+  curSchemaType: 'objectClass',
   description: 'test desc',
   obsolete: false,
   type: 'STRUCTURAL',
   reqAttributes: ['cn'],
   optAttributes: ['sn']
 };
+
+export const defaultNewAttributeTypeSchema: attributeTypeSchema = {
+  curSchemaType: 'attributeType',
+  description: 'test desc',
+  eqMatchingRule: 'caseExactMatch',
+  attributeSyntax: { oid: '1.3.6.1.4.1.1466.115.121.1.15' },
+  singleValue: true,
+  collective: false,
+  noUserMod: false,
+};
+
+export const testAttributeTypes: attributeTypeSchema[] = [
+
+  {
+    curSchemaType: 'attributeType',
+    oid: '2.16.840.1.113730.3.1.39',
+    name: [
+      'preferredLanguage'
+    ],
+    description: 'RFC2798: preferred written or spoken language for a person',
+    eqMatchingRule: 'caseIgnoreMatch',
+    subStrMatchingRule: 'caseIgnoreSubstringsMatch',
+    attributeSyntax: {
+      oid: '1.3.6.1.4.1.1466.115.121.1.15'
+    },
+    singleValue: true,
+  },
+  {
+    curSchemaType: 'attributeType',
+    oid: '2.5.4.34',
+    name: [
+      'seeAlso'
+    ],
+    description: 'RFC4519: DN of related object',
+    superiorAttributeType: 'distinguishedName'
+  },
+  {
+    curSchemaType: 'attributeType',
+    oid: '1.3.6.1.4.1.42.2.27.8.1.29',
+    name: [
+      'pwdLastSuccess'
+    ],
+    description: 'The timestamp of the last successful authentication',
+    eqMatchingRule: 'generalizedTimeMatch',
+    ordMatchingRule: 'generalizedTimeOrderingMatch',
+    attributeSyntax: {
+      oid: '1.3.6.1.4.1.1466.115.121.1.24'
+    },
+    singleValue: true,
+    noUserMod: true,
+    usage: 'DIRECTORYOPERATION'
+  },
+  {
+    curSchemaType: 'attributeType',
+    oid: '1.3.6.1.4.1.4203.1.12.2.3.2.0.5',
+    name: [
+      'olcLimits'
+    ],
+    eqMatchingRule: 'caseIgnoreMatch',
+    attributeSyntax: {
+      oid: '1.3.6.1.4.1.1466.115.121.1.15'
+    },
+    extensions: [
+      {
+        name: 'X-ORDERED',
+        value: [
+          'VALUES'
+        ]
+      }
+    ]
+  },
+  {
+    curSchemaType: 'attributeType',
+    oid: '1.3.6.1.4.1.4203.666.1.25',
+    name: [
+      'contextCSN'
+    ],
+    description: 'the largest committed CSN of a context',
+    eqMatchingRule: 'CSNMatch',
+    ordMatchingRule: 'CSNOrderingMatch',
+    attributeSyntax: {
+      oid: '1.3.6.1.4.1.4203.666.11.2.1',
+      size: 64
+    },
+    noUserMod: true,
+    usage: 'DSAOPERATION'
+  }
+];
 
 export const defaultNewObjectClassTestEntry: ldapEntry = {
   dn: 'cn=testEntry,ou=users,dc=example,dc=org',
@@ -45,6 +145,7 @@ export const defaultNewObjectClassTestEntry: ldapEntry = {
 };
 
 export const pilotPersonSchema: objectClassSchema = {
+  curSchemaType: 'objectClass',
   oid: '0.9.2342.19200300.100.4.4',
   names: [
     'pilotPerson',
@@ -78,7 +179,8 @@ export const pilotPersonSchema: objectClassSchema = {
   ]
 };
 
-export const simpleSecurityObjectSchema: objectClassSchema = {
+export const simpleSecurityObjectSchema: ldapSchema = {
+  curSchemaType: 'objectClass',
   oid: '0.9.2342.19200300.100.4.19',
   names: [
     'simpleSecurityObject'

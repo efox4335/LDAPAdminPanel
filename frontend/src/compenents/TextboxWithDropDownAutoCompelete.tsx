@@ -1,10 +1,10 @@
-import { useState, type Dispatch, type SetStateAction, useRef } from 'react';
+import { useState, useRef } from 'react';
 
 export type TextboxWithDropDownAutoCompeletePropsType = {
   dropdownStrings: string[],
   onAutoCompelete: (arg0: string) => void,
   value: string,
-  onChange: Dispatch<SetStateAction<string>>
+  onChange: (arg0: string) => void
 };
 
 const TextboxWithDropDownAutoCompelete = (

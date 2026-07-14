@@ -543,3 +543,15 @@ a:link {
 a:visited {
   color: darkgoldenrod;
 }
+
+.ldapSchemaExtensionContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 5px
+}
+
+.ldapSchemaExtensionValueContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+}

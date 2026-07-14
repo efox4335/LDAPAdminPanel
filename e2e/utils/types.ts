@@ -89,7 +89,35 @@ export type changeSetting = {
 
 export type objectClassType = 'ABSTRACT' | 'STRUCTURAL' | 'AUXILIARY' | 'INPARENT';
 
+export type ldapSchema = objectClassSchema | attributeTypeSchema;
+
+export type attributeTypeSchema = {
+  curSchemaType: Extract<schemaType, 'attributeType'>,
+  oid?: string,
+  name?: string[],
+  description?: string,
+  obsolete?: boolean,
+  superiorAttributeType?: string,
+  eqMatchingRule?: string,
+  ordMatchingRule?: string,
+  subStrMatchingRule?: string,
+  attributeSyntax?: { oid?: string, size?: number },
+  singleValue?: boolean,
+  collective?: boolean,
+  noUserMod?: boolean,
+  usage?: attributeTypeUsage,
+  extensions?: ldapSchemaExtension[]
+};
+
+export type attributeTypeUsage = 'USERAPPLICATIONS' | 'DIRECTORYOPERATION' | 'DISTRIBUTEDOPERATION' | 'DSAOPERATION';
+
+export type ldapSchemaExtension = {
+  name: string,
+  value: string[]
+};
+
 export type objectClassSchema = {
+  curSchemaType: Extract<schemaType, 'objectClass'>,
   oid?: string,
   names?: string[],
   description?: string,
