@@ -62,17 +62,50 @@ describe('addInheritedAttributes.ts tests', () => {
         {
           oid: '1',
           name: undefined,
-          noUserMod: false
+          noUserMod: false,
+          description: undefined,
+          obsolete: false,
+          superiorAttributeType: undefined,
+          eqMatchingRule: undefined,
+          ordMatchingRule: undefined,
+          subStrMatchingRule: undefined,
+          attributeSyntax: undefined,
+          singleValue: false,
+          collective: false,
+          usage: undefined,
+          extensions: undefined
         },
         {
           oid: '2',
           name: undefined,
-          noUserMod: false
+          noUserMod: false,
+          description: undefined,
+          obsolete: false,
+          superiorAttributeType: undefined,
+          eqMatchingRule: undefined,
+          ordMatchingRule: undefined,
+          subStrMatchingRule: undefined,
+          attributeSyntax: undefined,
+          singleValue: false,
+          collective: false,
+          usage: undefined,
+          extensions: undefined
         },
         {
           oid: '3',
           name: undefined,
-          noUserMod: false
+          noUserMod: false,
+          description: undefined,
+          obsolete: false,
+          superiorAttributeType: undefined,
+          eqMatchingRule: undefined,
+          ordMatchingRule: undefined,
+          subStrMatchingRule: undefined,
+          attributeSyntax: undefined,
+          singleValue: false,
+          collective: false,
+          usage: undefined,
+          extensions: undefined
         }
       ],
       nameMap: {
@@ -138,7 +171,18 @@ describe('addInheritedAttributes.ts tests', () => {
           name: [
             'testAttribute'
           ],
-          noUserMod: false
+          noUserMod: false,
+          description: undefined,
+          obsolete: false,
+          superiorAttributeType: undefined,
+          eqMatchingRule: undefined,
+          ordMatchingRule: undefined,
+          subStrMatchingRule: undefined,
+          attributeSyntax: undefined,
+          singleValue: false,
+          collective: false,
+          usage: undefined,
+          extensions: undefined
         }
       ],
       nameMap: {
@@ -206,7 +250,18 @@ describe('addInheritedAttributes.ts tests', () => {
           name: [
             'testAttribute'
           ],
-          noUserMod: false
+          noUserMod: false,
+          description: undefined,
+          obsolete: false,
+          superiorAttributeType: undefined,
+          eqMatchingRule: undefined,
+          ordMatchingRule: undefined,
+          subStrMatchingRule: undefined,
+          attributeSyntax: undefined,
+          singleValue: false,
+          collective: false,
+          usage: undefined,
+          extensions: undefined
         }
       ],
       nameMap: {
@@ -273,7 +328,18 @@ describe('addInheritedAttributes.ts tests', () => {
           name: [
             'testAttribute'
           ],
-          noUserMod: false
+          noUserMod: false,
+          description: undefined,
+          obsolete: false,
+          superiorAttributeType: undefined,
+          eqMatchingRule: undefined,
+          ordMatchingRule: undefined,
+          subStrMatchingRule: undefined,
+          attributeSyntax: undefined,
+          singleValue: false,
+          collective: false,
+          usage: undefined,
+          extensions: undefined
         }
       ],
       nameMap: {
@@ -341,7 +407,18 @@ describe('addInheritedAttributes.ts tests', () => {
           name: [
             'testAttribute'
           ],
-          noUserMod: false
+          noUserMod: false,
+          description: undefined,
+          obsolete: false,
+          superiorAttributeType: undefined,
+          eqMatchingRule: undefined,
+          ordMatchingRule: undefined,
+          subStrMatchingRule: undefined,
+          attributeSyntax: undefined,
+          singleValue: false,
+          collective: false,
+          usage: undefined,
+          extensions: undefined
         }
       ],
       nameMap: {
