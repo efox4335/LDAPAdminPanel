@@ -12,12 +12,17 @@ An LDAP admin panel
 | Modify DN | Supported Only on Childless Entries |
 | Unbind | Supported |
 | TLS | Supported |
-| Extended | Supported |
+| Extended Operation | Supported |
 | Adding Object Class | Supported Only on OpenLDAP Other Servers Planned |
-| Adding Attribute Types | Planned |
+| Viewing Object Classes | Supported |
+| Adding Attribute Types | Supported Only on OpenLDAP Other Servers Planned |
+| Viewing Attribute Types | Supported |
 | Adding DIT Content Rules | Planned |
+| ViewIng DIT Content Rules | Planned |
 | Adding Attribute Syntaxes | Planned |
+| Viewing Attribute Syntaxes | Planned |
 | Adding Object Identifier | Planned |
+| Viewing Object Tdentifiers | Planned |
 ## Requirements
  - Docker
 ## Install Instructions
