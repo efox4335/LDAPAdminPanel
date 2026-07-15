@@ -1,37 +1,27 @@
 import { useEffect, useState, type SyntheticEvent } from 'react';
 import { useAppSelector as useSelector } from '../utils/reduxHooks';
 import { useDispatch } from 'react-redux';
-import { v4 as uuid } from 'uuid';
 
 import NewLdapControls from './NewLdapControls';
 import Radio from './Radio';
-import type { searchDerefAliases, searchScope, newControlObject, newLdapAttributeValue } from '../utils/types';
+import type { searchDerefAliases, searchScope, newControlObject } from '../utils/types';
 import { addError } from '../slices/error';
 import { fetchCustomSearchEntries } from '../utils/query';
 import { addOpenEntry, selectNamingContextsByServerId, updateOrAddEntry } from '../slices/server';
 import getParentDn from '../utils/getParentDn';
 import getControls from '../utils/getControls';
 import AdvancedDropdown from './AdvancedDropdown';
-import getAttributeValues from '../utils/getAttributeValues';
-import NewLdapAttributeValues from './NewLdapAttributeValues';
+import AutoExpandingStringDisplay from './AutoExpandingStringDisplay';
 
 const SearchForm = ({ serverId }: { serverId: string }) => {
   const dispatch = useDispatch();
 
-  const rawNamingContexts = useSelector((state) => selectNamingContextsByServerId(state, serverId));
-
-  const namingContexts = rawNamingContexts
-    .map((dit) => {
-      return {
-        id: uuid(),
-        value: dit
-      };
-    });
+  const namingContexts = useSelector((state) => selectNamingContextsByServerId(state, serverId));
 
   const [searchName, setSearchName] = useState<string>('');
   const [additionalFilter, setAdditionalFilter] = useState<string>('');
 
-  const [baseDns, setBaseDns] = useState<newLdapAttributeValue[]>(namingContexts);
+  const [baseDns, setBaseDns] = useState<string[]>(namingContexts);
 
   const [newControls, setNewControls] = useState<newControlObject[]>([]);
 
@@ -44,7 +34,7 @@ const SearchForm = ({ serverId }: { serverId: string }) => {
 
   useEffect(() => {
     setBaseDns(namingContexts);
-  }, [rawNamingContexts]);
+  }, [namingContexts]);
 
   const handleSearch = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,7 +44,7 @@ const SearchForm = ({ serverId }: { serverId: string }) => {
 
       const curSizeLimit = searchSizeLimit ?? 10;
 
-      const parsedBaseDns = getAttributeValues(baseDns);
+      const parsedBaseDns = baseDns.filter((dn) => dn !== '');
 
       const dnFilter = '(:dn:caseIgnoreMatch:='
         .concat(searchName)
@@ -152,7 +142,7 @@ const SearchForm = ({ serverId }: { serverId: string }) => {
                       base dns
                     </td>
                     <td>
-                      <NewLdapAttributeValues newValues={baseDns} setNewValues={setBaseDns} />
+                      <AutoExpandingStringDisplay data={baseDns} setData={setBaseDns} />
                     </td>
                   </tr>
                   <tr>
