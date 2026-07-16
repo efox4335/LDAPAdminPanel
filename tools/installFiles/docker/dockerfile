@@ -10,6 +10,10 @@ RUN git reset --hard ${current_commit}
 
 WORKDIR /usr/src/app/LDAPAdminPanel/frontend
 
+RUN git fetch
+
+RUN git reset --hard ${current_commit}
+
 RUN npm install
 
 RUN npm run build
