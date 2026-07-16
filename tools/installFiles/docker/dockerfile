@@ -4,6 +4,10 @@ WORKDIR /usr/src/app/
 
 RUN git clone https://github.com/efox4335/LDAPAdminPanel.git
 
+RUN git fetch
+
+RUN git reset --hard ${current_commit}
+
 WORKDIR /usr/src/app/LDAPAdminPanel/frontend
 
 RUN npm install
