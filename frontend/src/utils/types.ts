@@ -267,7 +267,7 @@ export type attributeTypeSchemaMap = {
   nameMap: Record<string, number>
 };
 
-export type schemaType = 'objectClass' | 'attributeType';
+export type schemaType = 'objectClass' | 'attributeType' | 'attributeSyntax';
 
 export type ldapVendor = 'openLdap' | 'unknown';
 
@@ -276,4 +276,10 @@ export type ldapSchemaListPart = 'VALUE' | 'LISTDELIM' | 'LISTEND';
 export type autoExpandingListContainer<T> = {
   id: string,
   data: T
+};
+
+export type attributeSyntaxSchema = {
+  oid: string,
+  description: string | undefined,
+  extensions: ldapSchemaExtension[] | undefined
 };
